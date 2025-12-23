@@ -1,0 +1,53 @@
+[
+  {
+    "label": "Dashboard",
+    "href": "/dashboard",
+    "icon": "LayoutGrid",
+    "active": true
+  },
+  {
+    "label": "Profile",
+    "icon": "User",
+    "children": [
+      { "label": "Business Details", "href": "/profile/business-details" },
+      { "label": "Bank Details", "href": "/profile/bank-details" },
+      { "label": "Items", "href": "/profile/items/items-list" },
+      { "label": "Branches", "href": "/profile/branches" }
+    ]
+  },
+  {
+    "label": "Documents",
+    "icon": "FileText",
+    "children": [
+      { "label": "Invoice", "href": "/documents/invoice" },
+      { "label": "Credit Note", "href": "/documents/credit-note" },
+      { "label": "Debit Note", "href": "/documents/debit-note" }
+    ]
+  },
+  {
+    "label": "Customers",
+    "href": "/customers",
+    "icon": "Users"
+  },
+  {
+    "label": "Invites",
+    "href": "/invites",
+    "icon": "Mail"
+  },
+  {
+    "label": "Teams",
+    "icon": "UserPlus",
+    "children": [
+      { "label": "Team Members", "href": "/teams/members" },
+      { "label": "Roles", "href": "/teams/roles" }
+    ]
+  },
+  {
+    "label": "Reports",
+    "icon": "BarChart2",
+    "children": [
+      { "label": "Compliance", "href": "/reports/compliance" },
+      { "label": "Analytics", "href": "/reports/analytics" }
+    ]
+  }
+]
