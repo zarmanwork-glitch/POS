@@ -9,10 +9,15 @@
     "label": "Profile",
     "icon": "User",
     "children": [
-      { "label": "Business Details", "href": "/profile/business-details" },
-      { "label": "Bank Details", "href": "/profile/bank-details" },
-      { "label": "Items", "href": "/profile/items/items-list" },
-      { "label": "Branches", "href": "/profile/branches" }
+      {
+        "label": "Business Details",
+        "href": "/profile/business-details/business-details-list"
+      },
+      {
+        "label": "Bank Details",
+        "href": "/profile/bank-details/bank-details-list"
+      },
+      { "label": "Items", "href": "/profile/items/items-list" }
     ]
   },
   {
@@ -26,7 +31,7 @@
   },
   {
     "label": "Customers",
-    "href": "/customers",
+    "href": "/customers/customer-list",
     "icon": "Users"
   },
   {

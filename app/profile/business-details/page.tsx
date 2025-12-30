@@ -68,9 +68,6 @@ export default function BusinessDetailsPage() {
             <span className='text-blue-600'>Profile</span>
             <span className='text-gray-800'> | Business Details</span>
           </h2>
-          <p className='text-gray-600 mt-1'>
-            Showing all available business details.
-          </p>
         </div>
         <Link href='business-details/business-details-form '>
           <Button className='bg-blue-600 hover:bg-blue-700'>
@@ -78,6 +75,10 @@ export default function BusinessDetailsPage() {
           </Button>
         </Link>
       </div>
+      {/* Description */}
+      <p className='text-sm text-gray-600'>
+        Showing all available material/service items.
+      </p>
 
       {/* Table */}
       <div className='border rounded-lg overflow-hidden'>

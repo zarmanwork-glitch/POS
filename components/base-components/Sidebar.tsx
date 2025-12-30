@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import sidebarItems from '@/json/sidebar-items.json';
 import {
   BarChart2,
@@ -13,9 +14,9 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const iconMap: Record<string, JSX.Element> = {
   LayoutGrid: <LayoutGrid size={18} />,
@@ -25,6 +26,27 @@ const iconMap: Record<string, JSX.Element> = {
   Mail: <Mail size={18} />,
   UserPlus: <UserPlus size={18} />,
   BarChart2: <BarChart2 size={18} />,
+};
+
+const translationKeys: Record<string, string> = {
+  Dashboard: 'sidebar.dashboard',
+  Profile: 'sidebar.profile',
+  'Business Details': 'sidebar.businessDetails',
+  'Bank Details': 'sidebar.bankDetails',
+  Items: 'sidebar.items',
+  Branches: 'sidebar.branches',
+  Documents: 'sidebar.documents',
+  Invoice: 'sidebar.invoice',
+  'Credit Note': 'sidebar.creditNote',
+  'Debit Note': 'sidebar.debitNote',
+  Customers: 'sidebar.customers',
+  Invites: 'sidebar.invites',
+  Teams: 'sidebar.teams',
+  'Team Members': 'sidebar.teamMembers',
+  Roles: 'sidebar.roles',
+  Reports: 'sidebar.reports',
+  Compliance: 'sidebar.compliance',
+  Analytics: 'sidebar.analytics',
 };
 
 export default function Sidebar({
@@ -39,7 +61,19 @@ export default function Sidebar({
   onToggle: () => void;
 }) {
   const pathname = usePathname();
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [openMenu, setOpenMenu] = useState<string | null>(() => {
+    const activeParent = sidebarItems.find((item) =>
+      item.children?.some((child) => pathname === child.href)
+    );
+    return activeParent?.label || null;
+  });
+
+  const { t } = useTranslation();
+
+  const getTranslatedLabel = (label: string) => {
+    const key = translationKeys[label];
+    return key ? t(key) : label;
+  };
 
   return (
     <>
@@ -61,24 +95,24 @@ export default function Sidebar({
           ${collapsed ? 'w-20' : 'w-64'}
         `}
       >
-        {/* Collapse toggle button (desktop only) */}
+        {/* Collapse mini toggle button (desktop only) */}
         <Button
           onClick={onToggle}
           variant='ghost'
           size='icon'
           className='
             hidden lg:flex
-            absolute -right-3 top-6 h-6 w-6
-            bg-slate-900 border border-white/10
+            absolute -right-6 top-7 h-8 w-8
+            bg-blue-600 
             rounded-full
-            hover:bg-slate-700 hover:border-white/20
+            hover:bg-blue-700 hover:text-white
             transition-all duration-200
             shadow-lg
           '
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <ChevronLeft
-            size={14}
+            size={16}
             className={`transition-transform duration-300 ${
               collapsed ? 'rotate-180' : ''
             }`}
@@ -89,52 +123,102 @@ export default function Sidebar({
         <div className='px-3 py-6 space-y-1 overflow-y-auto h-full'>
           {sidebarItems.map((item) => {
             const icon = item.icon ? iconMap[item.icon] : null;
-            const isOpen = openMenu === item.label;
+            const translatedLabel = getTranslatedLabel(item.label);
 
+            let isActive = false;
+            let activeChildHref = '';
+
+            if (item.href) {
+              // Top-level item (e.g., Customers, Invites)
+              isActive =
+                pathname === item.href || pathname.startsWith(item.href + '/');
+            } else if (item.children) {
+              // For dropdown items: find the best matching child
+              let bestMatchLength = 0;
+
+              item.children.forEach((child) => {
+                if (child.href && pathname.startsWith(child.href)) {
+                  const matchLength = child.href.length;
+                  if (matchLength > bestMatchLength) {
+                    bestMatchLength = matchLength;
+                    activeChildHref = child.href;
+                    isActive = true;
+                  }
+                }
+                // Also match if the form is a sibling (e.g., items-list → items-form)
+                // Extract the parent segment: /profile/items/
+                else if (child.href) {
+                  const childDir = child.href.substring(
+                    0,
+                    child.href.lastIndexOf('/')
+                  );
+                  const formPath = childDir + '/items-form'; // adjust if needed per section
+                  // Better: generalize by checking if pathname shares the same directory
+                  if (pathname.startsWith(childDir + '/')) {
+                    isActive = true;
+                  }
+                }
+              });
+            }
+
+            // Auto-open if active
+            const isOpen =
+              openMenu === item.label || (isActive && openMenu !== null);
+
+            const handleClick = () => {
+              if (item.children) {
+                setOpenMenu(openMenu === item.label ? null : item.label);
+              }
+            };
             return (
               <div key={item.label}>
                 {item.children ? (
                   <>
                     <SidebarDropdown
                       icon={icon}
-                      label={item.label}
+                      label={translatedLabel}
                       open={isOpen}
+                      active={isActive} // New prop
                       collapsed={collapsed}
-                      onClick={() => setOpenMenu(isOpen ? null : item.label)}
+                      onClick={handleClick}
                     />
-                    {/* Nested items with slide-down animation */}
+
+                    {/* Nested items */}
                     <div
                       className={`
-                        overflow-hidden transition-all duration-300 ease-in-out
-                        ${
-                          isOpen && !collapsed
-                            ? 'max-h-96 opacity-100 mt-1'
-                            : 'max-h-0 opacity-0'
-                        }
-                      `}
+              overflow-hidden transition-all duration-300 ease-in-out
+              ${
+                isOpen && !collapsed
+                  ? 'max-h-96 opacity-100 mt-1'
+                  : 'max-h-0 opacity-0'
+              }
+            `}
                     >
                       <div className='ml-9 space-y-1'>
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.label}
-                            href={child.href ?? '#'}
-                            onClick={onClose}
-                            className={`block px-3 py-2 rounded-md text-xs transition-colors duration-150 ${
-                              pathname === child.href
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-400 hover:text-white hover:bg-white/10'
-                            }`}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
+                        {item.children.map((child) => {
+                          const childActive = pathname === child.href;
+                          return (
+                            <Link
+                              key={child.label}
+                              href={child.href ?? '#'}
+                              onClick={onClose}
+                              className={`block px-3 py-2 rounded-md text-xs transition-colors duration-150 ${
+                                childActive
+                                  ? 'bg-blue-600 text-white font-semibold'
+                                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              {getTranslatedLabel(child.label)}
+                            </Link>
+                          );
+                        })}
                       </div>
                     </div>
                   </>
                 ) : (
                   <SidebarLink
                     icon={icon}
-                    label={item.label}
+                    label={translatedLabel}
                     href={item.href}
                     active={pathname === item.href}
                     collapsed={collapsed}
@@ -150,7 +234,7 @@ export default function Sidebar({
   );
 }
 
-/* ---------------- Sidebar Link ---------------- */
+/*Sidebar Link */
 
 function SidebarLink({
   icon,
@@ -198,18 +282,20 @@ function SidebarLink({
   );
 }
 
-/* ---------------- Sidebar Dropdown ---------------- */
+/* Sidebar Dropdown */
 
 function SidebarDropdown({
   icon,
   label,
   open,
+  active, // New
   onClick,
   collapsed,
 }: {
   icon: React.ReactNode;
   label: string;
   open: boolean;
+  active?: boolean; // New
   onClick: () => void;
   collapsed: boolean;
 }) {
@@ -219,16 +305,18 @@ function SidebarDropdown({
       variant='ghost'
       className={`
         w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium
-        text-gray-300 hover:bg-white/10 hover:text-white h-auto
         transition-all duration-200 ease-in-out
         ${collapsed ? 'justify-center' : ''}
+        ${
+          active
+            ? 'bg-blue-600 text-white'
+            : 'text-gray-300 hover:bg-gray hover:text-white'
+        }
       `}
       title={collapsed ? label : undefined}
     >
       <span className={`flex items-center gap-3 ${collapsed ? '' : 'flex-1'}`}>
         <span className='shrink-0'>{icon}</span>
-
-        {/* Label with fade animation */}
         <span
           className={`
             whitespace-nowrap transition-all duration-200 ease-in-out
@@ -240,8 +328,6 @@ function SidebarDropdown({
           {label}
         </span>
       </span>
-
-      {/* Chevron with rotation animation */}
       {!collapsed && (
         <ChevronDown
           size={16}

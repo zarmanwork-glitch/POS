@@ -1,5 +1,10 @@
 'use client';
 
+import {
+  addBankDetails,
+  getBankDetailsById,
+  updateBankDetails,
+} from '@/api/bank-details/bank-details.api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -9,156 +14,156 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useFormik } from 'formik';
+import Cookies from 'js-cookie';
 import { X } from 'lucide-react';
-import { useState } from 'react';
-
-const countries = [
-  'Saudi Arabia',
-  'United Arab Emirates',
-  'Kuwait',
-  'Qatar',
-  'Bahrain',
-  'Oman',
-  'Egypt',
-  'Jordan',
-  'Lebanon',
-  'Iraq',
-  'Syria',
-  'Palestine',
-  'Yemen',
-  'Sudan',
-  'Djibouti',
-  'Mauritania',
-  'Morocco',
-  'Algeria',
-  'Tunisia',
-  'Libya',
-  'United States',
-  'Canada',
-  'United Kingdom',
-  'France',
-  'Germany',
-  'Spain',
-  'Italy',
-  'Netherlands',
-  'Belgium',
-  'Switzerland',
-  'Austria',
-  'Poland',
-  'Sweden',
-  'Norway',
-  'Denmark',
-  'Finland',
-  'Portugal',
-  'Greece',
-  'Ireland',
-  'Australia',
-  'New Zealand',
-  'Japan',
-  'South Korea',
-  'China',
-  'India',
-  'Pakistan',
-  'Bangladesh',
-  'Thailand',
-  'Vietnam',
-  'Malaysia',
-  'Singapore',
-  'Indonesia',
-  'Philippines',
-  'Brazil',
-  'Mexico',
-  'Argentina',
-  'Chile',
-  'Colombia',
-  'Peru',
-  'South Africa',
-];
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { validationSchema } from '@/schema/bankDetailsValidation';
+import countries from '@/json/countries.json';
 
 export default function AddBankDetailsPage() {
-  const [formData, setFormData] = useState({
-    country: 'Saudi Arabia',
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
+  const isEditMode = !!id;
+  const token = Cookies.get('authToken');
+
+  const initialValues = {
+    country: '',
     accountNumber: '',
     iban: '',
     bankName: '',
     swiftCode: '',
     beneficiaryName: '',
+  };
+
+  const [bankDetailsData, setBankDetailsData] = useState(initialValues);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(isEditMode);
+
+  const formik = useFormik({
+    initialValues: bankDetailsData,
+    validationSchema,
+    onSubmit: handleSubmit,
+    enableReinitialize: true,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // Fetch bank details in edit mode
+  useEffect(() => {
+    if (id && token) {
+      const fetchBankDetails = async () => {
+        try {
+          const response = await getBankDetailsById({
+            token,
+            bankDetailsId: id,
+          });
+          if (response?.data) {
+            const details = response.data;
+            setBankDetailsData({
+              country: details.country || 'Saudi Arabia',
+              accountNumber: details.accountNumber || '',
+              iban: details.iban || '',
+              bankName: details.bankName || '',
+              swiftCode: details.swiftCode || '',
+              beneficiaryName: details.beneficiaryName || '',
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching bank details:', error);
+          toast.error('Failed to load bank details');
+        } finally {
+          setIsLoadingDetails(false);
+        }
+      };
+      fetchBankDetails();
+    } else {
+      setIsLoadingDetails(false);
+    }
+  }, [id, token]);
 
-  const handleCountryChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, country: value }));
-  };
+  async function handleSubmit(values: typeof bankDetailsData) {
+    const payload = isEditMode ? { id: id || '', ...values } : values;
+    const apiCall = isEditMode ? updateBankDetails : addBankDetails;
 
-  const handleClearCountry = () => {
-    setFormData((prev) => ({ ...prev, country: '' }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-  };
+    try {
+      const response = await apiCall({
+        token,
+        payload,
+        ...(isEditMode && { bankDetailsId: id }),
+        successCallbackFunction: () => {
+          toast.success(
+            isEditMode ? 'Bank details updated' : 'Bank details added'
+          );
+          router.push('/profile/bank-details/bank-details-list');
+        },
+      });
+    } catch (error) {
+      console.error('Error saving bank details:', error);
+      toast.error('Failed to save bank details');
+    }
+  }
 
   const handleCancel = () => {
-    setFormData({
-      country: 'Saudi Arabia',
-      accountNumber: '',
-      iban: '',
-      bankName: '',
-      swiftCode: '',
-      beneficiaryName: '',
-    });
+    router.push('/profile/bank-details/bank-details-list');
   };
+
+  if (isLoadingDetails) {
+    return (
+      <div className='flex justify-center items-center py-12'>
+        <p className='text-gray-600'>Loading bank details...</p>
+      </div>
+    );
+  }
 
   return (
     <div className='space-y-6'>
-      {/* Header */}
-      <div className='flex items-center justify-between'>
-        <h2 className='text-3xl font-bold'>
-          <span className='text-blue-600'>Profiles</span>
-          <span className='text-gray-800'> | Add Bank Details</span>
-        </h2>
-
-        <div className='flex gap-3'>
-          <Button
-            variant='outline'
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>
-          <Button
-            className='bg-blue-600 hover:bg-blue-700'
-            onClick={handleSubmit}
-          >
-            Add
-          </Button>
-        </div>
-      </div>
-
-      {/* Form */}
       <form
-        onSubmit={handleSubmit}
+        onSubmit={formik.handleSubmit}
         className='space-y-6'
       >
-        {/* Bank Details Fields */}
+        {/* Header */}
+        <div className='flex items-center justify-between'>
+          <h2 className='text-3xl font-bold'>
+            <span className='text-blue-600'>Profile</span>
+            <span className='text-gray-800'>
+              | {isEditMode ? 'Edit Bank Details' : 'Add Bank Details'}
+            </span>
+          </h2>
+          <div className='flex gap-3'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={handleCancel}
+              disabled={formik.isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type='submit'
+              className='bg-blue-600 hover:bg-blue-700'
+              disabled={formik.isSubmitting}
+            >
+              {formik.isSubmitting ? 'Saving' : 'Save'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Form Fields */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           {/* Country */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
               Country : <span className='text-red-500'>*</span>
             </label>
-            {formData.country ? (
+            {formik.values.country ? (
               <div className='flex items-center gap-2 bg-blue-50 border border-gray-300 rounded-md p-2 h-10'>
                 <span className='text-sm text-gray-700 flex-1'>
-                  {formData.country}
+                  {formik.values.country}
                 </span>
                 <button
                   type='button'
-                  onClick={handleClearCountry}
+                  onClick={() => formik.setFieldValue('country', '')}
                   className='text-gray-400 hover:text-gray-600'
                 >
                   <X className='h-4 w-4' />
@@ -166,11 +171,13 @@ export default function AddBankDetailsPage() {
               </div>
             ) : (
               <Select
-                value={formData.country}
-                onValueChange={handleCountryChange}
+                value={formik.values.country}
+                onValueChange={(value) =>
+                  formik.setFieldValue('country', value)
+                }
               >
                 <SelectTrigger className='bg-blue-50 h-10 py-2'>
-                  <SelectValue placeholder='Select a country' />
+                  <SelectValue placeholder='Select Country' />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
@@ -184,21 +191,32 @@ export default function AddBankDetailsPage() {
                 </SelectContent>
               </Select>
             )}
+            {formik.touched.country && formik.errors.country && (
+              <p className='text-red-500 text-xs mt-1'>
+                {formik.errors.country}
+              </p>
+            )}
           </div>
 
           {/* Account Number */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Account Number : <span className='text-red-500'>*</span>
+              Account Number :<span className='text-red-500'>*</span>
             </label>
             <Input
               type='text'
               name='accountNumber'
-              value={formData.accountNumber}
-              onChange={handleChange}
-              placeholder='Specify Account Number'
+              placeholder='Specify AccountNumber'
               className='bg-blue-50 h-10 py-2'
+              value={formik.values.accountNumber}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
             />
+            {formik.touched.accountNumber && formik.errors.accountNumber && (
+              <p className='text-red-500 text-xs mt-1'>
+                {formik.errors.accountNumber}
+              </p>
+            )}
           </div>
 
           {/* IBAN */}
@@ -209,11 +227,15 @@ export default function AddBankDetailsPage() {
             <Input
               type='text'
               name='iban'
-              value={formData.iban}
-              onChange={handleChange}
-              placeholder='SA4420000001234567890000'
+              placeholder='GB00 ABCD 0000 0000 0000 00'
               className='bg-blue-50 h-10 py-2'
+              value={formik.values.iban}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
             />
+            {formik.touched.iban && formik.errors.iban && (
+              <p className='text-red-500 text-xs mt-1'>{formik.errors.iban}</p>
+            )}
           </div>
         </div>
 
@@ -222,46 +244,65 @@ export default function AddBankDetailsPage() {
           {/* Bank Name */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Bank Name : <span className='text-red-500'>*</span>
+              Bank Name: <span className='text-red-500'>*</span>
             </label>
             <Input
               type='text'
               name='bankName'
-              value={formData.bankName}
-              onChange={handleChange}
-              placeholder='Bank Name'
+              placeholder='BankName Placeholder'
               className='bg-blue-50 h-10 py-2'
+              value={formik.values.bankName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
             />
+            {formik.touched.bankName && formik.errors.bankName && (
+              <p className='text-red-500 text-xs mt-1'>
+                {formik.errors.bankName}
+              </p>
+            )}
           </div>
 
           {/* SWIFT Code */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              SWIFT Code : <span className='text-red-500'>*</span>
+              Swift Code: <span className='text-red-500'>*</span>
             </label>
             <Input
               type='text'
               name='swiftCode'
-              value={formData.swiftCode}
-              onChange={handleChange}
-              placeholder='Specify Bank Code'
+              placeholder='Specify BankCode'
               className='bg-blue-50 h-10 py-2'
+              value={formik.values.swiftCode}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
             />
+            {formik.touched.swiftCode && formik.errors.swiftCode && (
+              <p className='text-red-500 text-xs mt-1'>
+                {formik.errors.swiftCode}
+              </p>
+            )}
           </div>
 
           {/* Beneficiary Name */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Beneficiary Name :
+              Beneficiary Name:
             </label>
             <Input
               type='text'
               name='beneficiaryName'
-              value={formData.beneficiaryName}
-              onChange={handleChange}
               placeholder='Arthur Dent'
               className='bg-blue-50 h-10 py-2'
+              value={formik.values.beneficiaryName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
             />
+            {formik.touched.beneficiaryName &&
+              formik.errors.beneficiaryName && (
+                <p className='text-red-500 text-xs mt-1'>
+                  {formik.errors.beneficiaryName}
+                </p>
+              )}
           </div>
         </div>
       </form>

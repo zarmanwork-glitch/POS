@@ -1,15 +1,6 @@
 'use client';
 
-import { deleteItem, getItemsList } from '@/api/items/item.api';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,37 +23,41 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import Cookies from 'js-cookie';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { ChevronDown, MoreHorizontal, Plus, Settings2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import Cookies from 'js-cookie';
+import { deleteCustomer, getCustomersList } from '@/api/customers/customer.api';
 
-export default function ItemsListPage() {
-  const [searchDescription, setSearchDescription] = useState('');
+export default function CustomerListPage() {
+  const [searchCustomer, setSearchCustomer] = useState('');
   const [sortBy, setSortBy] = useState('Chronological');
-  const [searchBy, setSearchBy] = useState('Description');
+  const [searchBy, setSearchBy] = useState('Name');
   const [showFilters, setShowFilters] = useState(false);
-  const [items, setItems] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
-  const [deleteItemName, setDeleteItemName] = useState<string>('');
+  const [deleteCustomerId, setDeleteCustomerId] = useState<string | null>(null);
+  const [deleteCustomerName, setDeleteCustomerName] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const { t } = useTranslation();
   const router = useRouter();
-
   const [filters, setFilters] = useState({
     status: 'Both',
-    unitOfMeasure: 'Acre',
-    buyCurrency: 'NA',
-    sellCurrency: 'NA',
+    country: 'All',
   });
 
   useEffect(() => {
-    const fetchItems = async () => {
+    const fetchCustomers = async () => {
       try {
         setIsLoading(true);
         const token = Cookies.get('authToken');
@@ -71,39 +66,55 @@ export default function ItemsListPage() {
           return;
         }
 
-        const response = await getItemsList({
+        const response = await getCustomersList({
           token,
           offset: 1,
-          limit: 10,
+          limit: 100,
         });
-        if (response?.data?.status === 'success') {
-          setItems(response.data.data?.results?.items || []);
-        } else {
-          toast.error('Failed to fetch items');
-        }
+
+        // Handle response data structure
+        const customersList =
+          response?.data?.results?.customers ||
+          response?.data?.data?.results?.customers ||
+          response?.data?.data?.results?.items ||
+          response?.data?.results?.items ||
+          response?.data?.items ||
+          [];
+
+        setCustomers(Array.isArray(customersList) ? customersList : []);
       } catch (error: any) {
-        console.error('Error fetching items:', error);
-        toast.error('Error fetching items', { duration: 2000 });
+        console.error('Error fetching customers:', error);
+        toast.error('Error fetching customers', { duration: 2000 });
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchItems();
+    fetchCustomers();
   }, []);
 
-  const filteredItems = items.filter((item) =>
-    item.description.toLowerCase().includes(searchDescription.toLowerCase())
+  const filteredCustomers = customers.filter(
+    (customer) =>
+      (customer.name || '')
+        .toLowerCase()
+        .includes(searchCustomer.toLowerCase()) ||
+      (customer.email || '')
+        .toLowerCase()
+        .includes(searchCustomer.toLowerCase())
   );
 
-  const handleDeleteClick = (itemId: string, description: string) => {
-    setDeleteItemId(itemId);
-    setDeleteItemName(description);
+  const handleEdit = (customerId: string) => {
+    router.push(`/customers/customer-form?id=${customerId}`);
+  };
+
+  const handleDeleteClick = (customerId: string, customerName: string) => {
+    setDeleteCustomerId(customerId);
+    setDeleteCustomerName(customerName);
     setDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
-    if (!deleteItemId) return;
+    if (!deleteCustomerId) return;
 
     try {
       setIsDeleting(true);
@@ -113,21 +124,23 @@ export default function ItemsListPage() {
         return;
       }
 
-      const response = await deleteItem({ token, itemId: deleteItemId });
-      if (response?.data?.status === 'success') {
-        toast.success(`Item "${deleteItemName}" deleted successfully`, {
-          duration: 2000,
-        });
-        setItems(items.filter((item) => item.id !== deleteItemId));
-        setDeleteModalOpen(false);
-        setDeleteItemId(null);
-        setDeleteItemName('');
-      } else {
-        toast.error('Failed to delete item');
-      }
+      await deleteCustomer({
+        token,
+        customerId: deleteCustomerId,
+      });
+
+      toast.success(`Customer "${deleteCustomerName}" deleted successfully`, {
+        duration: 2000,
+      });
+      setCustomers(
+        customers.filter((customer) => customer.id !== deleteCustomerId)
+      );
+      setDeleteModalOpen(false);
+      setDeleteCustomerId(null);
+      setDeleteCustomerName('');
     } catch (error: any) {
-      console.error('Error deleting item:', error);
-      toast.error('Error deleting item', { duration: 2000 });
+      console.error('Error deleting customer:', error);
+      toast.error('Error deleting customer', { duration: 2000 });
     } finally {
       setIsDeleting(false);
     }
@@ -135,25 +148,37 @@ export default function ItemsListPage() {
 
   return (
     <div className='space-y-6'>
-      {/* Header */}
-      <div className='flex items-center justify-between'>
-        <h2 className='text-3xl font-bold'>
-          <span className='text-blue-600'>{t('profile.title')}</span>
-          <span className='text-gray-800'> | {t('profile.items')}</span>
-        </h2>
+      {/* Header with breadcrumb and action button */}
 
-        <div className='flex gap-3'>
-          <Button variant='outline'>{t('profile.bulkItems')}</Button>
-          <Link href='items-form'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h2 className='text-3xl font-bold'>
+            <span className='text-blue-600'>Customers</span> {''}
+            <span className='text-gray-800'>| Customer List</span>
+          </h2>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
               <Plus className='h-4 w-4' />
-              {t('profile.addItem')}
+              Add Customer
+              <ChevronDown className='h-4 w-4' />
             </Button>
-          </Link>
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem asChild>
+              <Link href='customer-form'>As a Business</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href='customer-form/Individual'>As an Individual</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      <p className='text-sm text-gray-600'>{t('profile.showingAll')}</p>
+      {/* Header */}
+
+      <p className='text-sm text-gray-600'>Showing all customers</p>
 
       <div className='relative space-y-4'>
         {/* Controls */}
@@ -162,7 +187,7 @@ export default function ItemsListPage() {
           <div className='relative mr-auto'>
             <button
               onClick={() => setShowFilters(true)}
-              className='p-2 hover:bg-gray-100 rounded-lg '
+              className='p-2 hover:bg-gray-100 rounded-lg'
             >
               <Settings2 className='h-7 w-7 text-gray-600' />
             </button>
@@ -215,76 +240,37 @@ export default function ItemsListPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='Both'>Both</SelectItem>
-                        <SelectItem value='Enabled'>Enabled</SelectItem>
-                        <SelectItem value='Disabled'>Disabled</SelectItem>
+                        <SelectItem value='Active'>Active</SelectItem>
+                        <SelectItem value='Inactive'>Inactive</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* Unit */}
-                  <div className='space-y-1  flex items-center justify-between'>
-                    <label className='text-xs font-medium'>
-                      Unit of Measure
-                    </label>
+                  {/* Country */}
+                  <div className='space-y-1 flex items-center justify-between'>
+                    <label className='text-xs font-medium'>Country</label>
                     <Select
-                      value={filters.unitOfMeasure}
+                      value={filters.country}
                       onValueChange={(v) =>
-                        setFilters({ ...filters, unitOfMeasure: v })
+                        setFilters({ ...filters, country: v })
                       }
                     >
                       <SelectTrigger className='h-8'>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='Acre'>Acre</SelectItem>
-                        <SelectItem value='Square Kilometre'>
-                          Square Kilometre
+                        <SelectItem value='All'>All</SelectItem>
+                        <SelectItem value='Saudi Arabia'>
+                          Saudi Arabia
                         </SelectItem>
-                        <SelectItem value='Meter'>Meter</SelectItem>
-                        <SelectItem value='Kilogram'>Kilogram</SelectItem>
-                        <SelectItem value='Liter'>Liter</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Buy Currency */}
-                  <div className='space-y-1  flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Buy Currency</label>
-                    <Select
-                      value={filters.buyCurrency}
-                      onValueChange={(v) =>
-                        setFilters({ ...filters, buyCurrency: v })
-                      }
-                    >
-                      <SelectTrigger className='h-8'>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='NA'>NA</SelectItem>
-                        <SelectItem value='USD'>USD</SelectItem>
-                        <SelectItem value='SAR'>SAR</SelectItem>
-                        <SelectItem value='EUR'>EUR</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Sell Currency */}
-                  <div className='space-y-1  flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Sell Currency</label>
-                    <Select
-                      value={filters.sellCurrency}
-                      onValueChange={(v) =>
-                        setFilters({ ...filters, sellCurrency: v })
-                      }
-                    >
-                      <SelectTrigger className='h-8'>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='NA'>NA</SelectItem>
-                        <SelectItem value='USD'>USD</SelectItem>
-                        <SelectItem value='SAR'>SAR</SelectItem>
-                        <SelectItem value='EUR'>EUR</SelectItem>
+                        <SelectItem value='United Arab Emirates'>
+                          UAE
+                        </SelectItem>
+                        <SelectItem value='Kuwait'>Kuwait</SelectItem>
+                        <SelectItem value='Qatar'>Qatar</SelectItem>
+                        <SelectItem value='Bahrain'>Bahrain</SelectItem>
+                        <SelectItem value='Oman'>Oman</SelectItem>
+                        <SelectItem value='Jordan'>Jordan</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -297,6 +283,9 @@ export default function ItemsListPage() {
                     <Button
                       variant='outline'
                       className='flex-1 h-8 text-xs'
+                      onClick={() =>
+                        setFilters({ status: 'Both', country: 'All' })
+                      }
                     >
                       Reset
                     </Button>
@@ -312,20 +301,24 @@ export default function ItemsListPage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className='flex items-center gap-1 text-sm font-medium'>
-                  {sortBy}
+                  {searchBy}
                   <ChevronDown className='h-4 w-4' />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSortBy('Description')}>
-                  Description
+                <DropdownMenuItem onClick={() => setSearchBy('Name')}>
+                  Name
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('Description')}>
-                  Material / Service Code
+                <DropdownMenuItem onClick={() => setSearchBy('Email')}>
+                  Email
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSearchBy('Phone')}>
+                  Phone
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
           {/* Sort */}
           <div className='flex items-center gap-2'>
             <span className='text-sm text-gray-600'>Sort by</span>
@@ -340,11 +333,11 @@ export default function ItemsListPage() {
                 <DropdownMenuItem onClick={() => setSortBy('Chronological')}>
                   Chronological
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('Description')}>
-                  Description
+                <DropdownMenuItem onClick={() => setSortBy('Name')}>
+                  Name
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('Description')}>
-                  Material / Service Code
+                <DropdownMenuItem onClick={() => setSortBy('Email')}>
+                  Email
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -355,8 +348,8 @@ export default function ItemsListPage() {
             <Input
               className='h-9 w-40'
               placeholder='Search'
-              value={searchDescription}
-              onChange={(e) => setSearchDescription(e.target.value)}
+              value={searchCustomer}
+              onChange={(e) => setSearchCustomer(e.target.value)}
             />
             <Button className='h-9 bg-blue-600 hover:bg-blue-700'>Go</Button>
           </div>
@@ -368,10 +361,11 @@ export default function ItemsListPage() {
             <TableHeader className='bg-blue-50'>
               <TableRow>
                 <TableHead>No.</TableHead>
-                <TableHead>{t('profile.description')}</TableHead>
-                <TableHead>{t('profile.materialServiceCode')}</TableHead>
-                <TableHead>Buy / Sell</TableHead>
-                <TableHead>{t('profile.status')}</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Country</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -379,40 +373,36 @@ export default function ItemsListPage() {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className='text-center py-8'
                   >
-                    <span className='text-gray-500'>Loading items...</span>
+                    <span className='text-gray-500'>Loading customers...</span>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.length === 0 ? (
+              ) : filteredCustomers.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className='text-center py-8'
                   >
-                    <span className='text-gray-500'>No items found</span>
+                    <span className='text-gray-500'>No customers found</span>
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredItems.map((item, index) => (
-                  <TableRow key={item.id}>
+                filteredCustomers.map((customer, index) => (
+                  <TableRow key={customer.id}>
                     <TableCell>{index + 1}</TableCell>
+                    <TableCell className='font-medium'>
+                      {customer.name}
+                    </TableCell>
+                    <TableCell>{customer.email}</TableCell>
+                    <TableCell>{customer.phoneNumber}</TableCell>
                     <TableCell>
-                      <div className='font-medium'>{item.description}</div>
-                      <div className='text-xs text-gray-500'>
-                        Unit: {item.unitOfMeasure}
-                      </div>
+                      {customer.addressStreet}
+                      {customer.buildingNumber &&
+                        `, ${customer.buildingNumber}`}
                     </TableCell>
-                    <TableCell>{item.materialNo}</TableCell>
-                    <TableCell>
-                      Buy: {parseFloat(item.buyPrice).toFixed(2)}
-                      <br />
-                      Sell: {parseFloat(item.sellPrice).toFixed(2)}
-                    </TableCell>
-                    <TableCell className='capitalize'>
-                      {item.itemStatus}
-                    </TableCell>
+                    <TableCell>{customer.country}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -421,12 +411,16 @@ export default function ItemsListPage() {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end'>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>View</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleEdit(customer.id)}
+                          >
+                            Edit
+                          </DropdownMenuItem>
+
                           <DropdownMenuItem
                             className='text-red-600'
                             onClick={() =>
-                              handleDeleteClick(item.id, item.description)
+                              handleDeleteClick(customer.id, customer.name)
                             }
                           >
                             Delete
@@ -449,11 +443,11 @@ export default function ItemsListPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('Confirm Delete')}</DialogTitle>
+            <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              {t('Are you sure you want to delete the item')}{' '}
-              <strong>{deleteItemName}</strong>?{' '}
-              {t('This action cannot be undone.')}
+              Are you sure you want to delete the customer{' '}
+              <strong>{deleteCustomerName}</strong>? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className='gap-2'>
@@ -462,14 +456,14 @@ export default function ItemsListPage() {
               onClick={() => setDeleteModalOpen(false)}
               disabled={isDeleting}
             >
-              {t('Cancel')}
+              Cancel
             </Button>
             <Button
               className='bg-red-600 hover:bg-red-700'
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? t('Deleting...') : t('Delete')}
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>
