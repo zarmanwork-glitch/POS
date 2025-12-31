@@ -44,10 +44,11 @@ export default function BankDetailsListPage() {
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [deleteItemName, setDeleteItemName] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const token = Cookies.get('authToken');
 
   useEffect(() => {
     const fetchBankDetails = async () => {
+      const token = Cookies.get('authToken');
+
       if (!token) {
         setIsLoading(false);
         toast.error('Authentication token not found');
@@ -78,7 +79,7 @@ export default function BankDetailsListPage() {
     };
 
     fetchBankDetails();
-  }, [token]);
+  }, []);
 
   const handleEdit = (id: string) => {
     router.push(`/profile/bank-details/bank-details-form?id=${id}`);

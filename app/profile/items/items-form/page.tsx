@@ -1,5 +1,5 @@
 'use client';
-import { addITEM } from '@/api/items/item.api';
+import { addITEM, getItemById, updateItem } from '@/api/items/item.api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -9,12 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
+import { units } from '@/json/units.json';
+import { useFormik } from 'formik';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import * as Yup from 'yup';
-import { units } from '@/json/units.json';
 
 // Validation Schema using Yup
 const validationSchema = Yup.object({
@@ -51,101 +53,120 @@ const validationSchema = Yup.object({
 export default function NewItemPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const itemId = searchParams.get('id');
-  const isEditMode = !!itemId;
-  const token = Cookies.get('authToken');
+  const id = searchParams.get('id');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
 
   const formik = useFormik({
     initialValues: {
-      itemType: 'material',
-      itemStatus: 'enabled',
+      itemType: '',
+      itemStatus: '',
       description: '',
       materialNo: '',
-      unitOfMeasure: 'unit',
-      buyPrice: 0,
-      sellPrice: 0,
-      discountPercentage: 0,
+      unitOfMeasure: '',
+      buyPrice: '',
+      sellPrice: '',
+      discountPercentage: '',
     },
     validationSchema,
-    onSubmit: async (values, { setSubmitting }) => {
-      try {
-        const payload = isEditMode ? { id: itemId, ...values } : values;
-        const apiCall = isEditMode
-          ? addITEM /* replace with editItem when ready */
-          : addITEM;
-
-        await apiCall({
-          token,
-          payload,
-          successCallbackFunction: () => {
-            router.push('/profile/items/items-list');
-          },
-        });
-      } catch (error) {
-        console.error('Error saving item:', error);
-      } finally {
-        setSubmitting(false);
-      }
-    },
+    onSubmit: handleAddItem,
   });
 
-  // Fetch item data on edit mode
+  // Fetch item data by id
   useEffect(() => {
-    if (isEditMode && token && itemId) {
+    if (id) {
       const fetchItem = async () => {
         try {
-          // Replace with actual API call when available
-          // const response = await getItemById({ token, itemId });
-          // const item = response.data;
+          setIsLoadingDetails(true);
+          const token = Cookies.get('authToken');
+          if (!token) {
+            console.error('No token found');
+            return;
+          }
 
-          // Mock data (remove when real API is connected)
-          const item = {
-            itemType: 'material',
-            itemStatus: 'enabled',
-            description: 'Sample item',
-            materialNo: 'MAT-001',
-            unitOfMeasure: 'piece',
-            buyPrice: 100,
-            sellPrice: 150,
-            discountPercentage: 10,
-          };
+          const response = await getItemById({ token, itemId: id });
+          if (response?.data.data?.results?.items) {
+            const data = response.data.data.results.items;
 
-          formik.setValues({
-            itemType: item.itemType || 'material',
-            itemStatus: item.itemStatus || 'enabled',
-            description: item.description || '',
-            materialNo: item.materialNo || '',
-            unitOfMeasure: item.unitOfMeasure || 'unit',
-            buyPrice: item.buyPrice || 0,
-            sellPrice: item.sellPrice || 0,
-            discountPercentage: item.discountPercentage || 0,
-          });
+            formik.setValues({
+              itemType: data.itemType || '',
+              itemStatus: data.itemStatus || '',
+              description: data.description || '',
+              materialNo: data.materialNo || '',
+              unitOfMeasure: data.unitOfMeasure || '',
+              buyPrice: data.buyPrice || '',
+              sellPrice: data.sellPrice || '',
+              discountPercentage: data.discountPercentage || '',
+            });
+          }
         } catch (error) {
           console.error('Error fetching item:', error);
+          toast.error('Failed to load item data');
+        } finally {
+          setIsLoadingDetails(false);
         }
       };
       fetchItem();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode, token, itemId]);
+  }, [id]);
+
+  async function handleAddItem(values: typeof formik.values) {
+    try {
+      setIsLoading(true);
+      const token = Cookies.get('authToken');
+
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      const payload = values;
+
+      // If id exists, update otherwise create new
+      if (id) {
+        payload.id = id;
+        await updateItem({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            toast.success('Item updated successfully');
+            router.push('/profile/items/items-list');
+          },
+        });
+      } else {
+        await addITEM({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            toast.success('Item created successfully');
+            router.push('/profile/items/items-list');
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error adding item:', error);
+      toast.error(id ? 'Error updating item' : 'Error creating item');
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const hasError = (field: keyof typeof formik.errors) =>
     !!(formik.touched[field] && formik.errors[field]);
 
   const getErrorMessage = (field: keyof typeof formik.errors) =>
     formik.touched[field] && formik.errors[field] ? formik.errors[field] : '';
-
-  if (formik.isSubmitting && isEditMode) {
+  // Loading spinner component
+  if (isLoadingDetails) {
     return (
       <div className='flex items-center justify-center min-h-screen'>
         <div className='space-y-4 text-center'>
-          <div className='h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto'></div>
-          <p className='text-gray-600 font-medium'>Loading item data...</p>
+          <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
+          <p className='text-gray-600 font-medium'>Loading...</p>
         </div>
       </div>
     );
   }
-
   return (
     <div className='space-y-6'>
       {/* Header */}
@@ -153,7 +174,7 @@ export default function NewItemPage() {
         <h2 className='text-3xl font-bold'>
           <span className='text-blue-600'>Profile</span>
           <span className='text-gray-800'>
-            | {isEditMode ? ' Edit Item' : ' New Item'}
+            | {id ? ' Edit Item' : ' New Item'}
           </span>
         </h2>
         <div className='flex gap-3'>
@@ -169,7 +190,13 @@ export default function NewItemPage() {
             onClick={() => formik.handleSubmit()}
             disabled={formik.isSubmitting}
           >
-            {formik.isSubmitting ? 'Saving...' : 'Save'}
+            {formik.isSubmitting
+              ? id
+                ? 'Updating...'
+                : 'Saving...'
+              : id
+              ? 'Update'
+              : 'Save'}
           </Button>
         </div>
       </div>
@@ -181,11 +208,11 @@ export default function NewItemPage() {
       >
         {/* Item Information Section */}
         <div className='relative flex items-center py-4'>
-          <div className='flex-grow border-t-2 border-blue-100'></div>
+          <div className='grow border-t-2 border-blue-100'></div>
           <span className='mx-6 text-sm font-semibold text-blue-600'>
             ITEM INFORMATION
           </span>
-          <div className='flex-grow border-t-2 border-blue-100'></div>
+          <div className='grow border-t-2 border-blue-100'></div>
         </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>

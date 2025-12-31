@@ -454,11 +454,11 @@ export default function CustomerFormPage() {
         {/* Address Information */}
         <div>
           <div className='relative flex items-center py-2'>
-            <div className='flex-grow border-t-2 border-blue-100'></div>
+            <div className='grow border-t-2 border-blue-100'></div>
             <span className='mx-6 text-sm font-semibold text-blue-600'>
               ADDRESS
             </span>
-            <div className='flex-grow border-t-2 border-blue-100'></div>
+            <div className='grow border-t-2 border-blue-100'></div>
           </div>
 
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>

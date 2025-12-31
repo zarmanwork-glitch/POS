@@ -516,11 +516,11 @@ export default function BusinessDetailsFormPage() {
 
         {/* Address Section */}
         <div className='relative flex items-center py-2'>
-          <div className='flex-grow border-t-2 border-blue-100'></div>
+          <div className='grow border-t-2 border-blue-100'></div>
           <span className='mx-6 text-sm font-semibold text-blue-600'>
             ADDRESS
           </span>
-          <div className='flex-grow border-t-2 border-blue-100'></div>
+          <div className='grow border-t-2 border-blue-100'></div>
         </div>
 
         {/* Address Streets */}
@@ -747,7 +747,7 @@ export default function BusinessDetailsFormPage() {
         {/* VAT Registration Heading */}
         <div className='relative flex items-center py-2'>
           {/* The light blue line */}
-          <div className='flex-grow border-t-2 border-blue-100'></div>
+          <div className='grow border-t-2 border-blue-100'></div>
 
           {/* The centered text */}
           <span className='mx-6 text-sm font-semibold text-blue-600'>
@@ -755,7 +755,7 @@ export default function BusinessDetailsFormPage() {
           </span>
 
           {/* The other side of the line */}
-          <div className='flex-grow border-t-2 border-blue-100'></div>
+          <div className='grow border-t-2 border-blue-100'></div>
         </div>
 
         {/* VAT Registration */}
@@ -869,7 +869,7 @@ export default function BusinessDetailsFormPage() {
         <div className=' p-6 rounded-lg'>
           <div className='relative flex items-center py-2'>
             {/* The light blue line */}
-            <div className='flex-grow border-t-2 border-blue-100'></div>
+            <div className='grow border-t-2 border-blue-100'></div>
 
             {/* The centered text */}
             <span className='mx-6 text-sm font-semibold text-blue-600'>
@@ -877,7 +877,7 @@ export default function BusinessDetailsFormPage() {
             </span>
 
             {/* The other side of the line */}
-            <div className='flex-grow border-t-2 border-blue-100'></div>
+            <div className='grow border-t-2 border-blue-100'></div>
           </div>
           <p className='text-xs text-gray-600 mb-4'>
             For non-KSA VAT registration, provide relevant identification

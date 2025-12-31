@@ -22,7 +22,7 @@ export const backendApiEnums = {
       ADD_BANK_DETAILS: '/bank-details/create',
       UPDATE_BANK_DETAILS: '/bank-details/update',
       BANK_DETAILS_LIST: '/bank-details/list',
-      GET_BANK_DETAILS_BY_ID: '/bank-details/get-by-id',
+      GET_BANK_DETAILS_BY_ID: '/bank-details/id',
       DELETE_BANK_DETAILS: '/bank-details/delete',
     },
     BUSINESS_DETAILS: {

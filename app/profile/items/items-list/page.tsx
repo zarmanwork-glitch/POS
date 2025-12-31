@@ -133,6 +133,10 @@ export default function ItemsListPage() {
     }
   };
 
+  const handleEdit = (itemId: string) => {
+    router.push(`/profile/items/items-form?id=${itemId}`);
+  };
+
   return (
     <div className='space-y-6'>
       {/* Header */}
@@ -421,8 +425,9 @@ export default function ItemsListPage() {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end'>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>View</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(item.id)}>
+                            Edit
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             className='text-red-600'
                             onClick={() =>

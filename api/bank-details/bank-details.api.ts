@@ -1,6 +1,5 @@
 import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
-import { successMessagesEnums } from '@/enums/successMessages.enum';
 
 interface BankDetailsType {
   token: string;

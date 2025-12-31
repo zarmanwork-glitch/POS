@@ -22,52 +22,59 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { validationSchema } from '@/schema/bankDetailsValidation';
 import countries from '@/json/countries.json';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function AddBankDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
-  const isEditMode = !!id;
-  const token = Cookies.get('authToken');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const initialValues = {
-    country: '',
-    accountNumber: '',
-    iban: '',
-    bankName: '',
-    swiftCode: '',
-    beneficiaryName: '',
-  };
-
-  const [bankDetailsData, setBankDetailsData] = useState(initialValues);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(isEditMode);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
 
   const formik = useFormik({
-    initialValues: bankDetailsData,
+    initialValues: {
+      country: '',
+      accountNumber: '',
+      iban: '',
+      bankName: '',
+      swiftCode: '',
+      beneficiaryName: '',
+    },
     validationSchema,
-    onSubmit: handleSubmit,
-    enableReinitialize: true,
+    onSubmit: handleAddBankDetails,
   });
 
-  // Fetch bank details in edit mode
+  // Fetch bank details by id
   useEffect(() => {
-    if (id && token) {
+    if (id) {
       const fetchBankDetails = async () => {
         try {
+          setIsLoadingDetails(true);
+          const token = Cookies.get('authToken');
+          if (!token) {
+            console.error('No token found');
+            return;
+          }
+
           const response = await getBankDetailsById({
             token,
             bankDetailsId: id,
           });
-          if (response?.data) {
-            const details = response.data;
-            setBankDetailsData({
-              country: details.country || 'Saudi Arabia',
-              accountNumber: details.accountNumber || '',
-              iban: details.iban || '',
-              bankName: details.bankName || '',
-              swiftCode: details.swiftCode || '',
-              beneficiaryName: details.beneficiaryName || '',
-            });
+
+          if (response?.data.data?.results.bankDetails) {
+            if (response?.data.data?.results?.bankDetails) {
+              const data = response.data.data.results.bankDetails;
+
+              formik.setValues({
+                country: data.country || '',
+                accountNumber: data.accountNumber || '',
+                iban: data.iban || '',
+                bankName: data.bankName || '',
+                swiftCode: data.swiftCode || '',
+                beneficiaryName: data.beneficiaryName || '',
+              });
+            }
           }
         } catch (error) {
           console.error('Error fetching bank details:', error);
@@ -80,38 +87,65 @@ export default function AddBankDetailsPage() {
     } else {
       setIsLoadingDetails(false);
     }
-  }, [id, token]);
+  }, [id]);
 
-  async function handleSubmit(values: typeof bankDetailsData) {
-    const payload = isEditMode ? { id: id || '', ...values } : values;
-    const apiCall = isEditMode ? updateBankDetails : addBankDetails;
-
+  async function handleAddBankDetails(values: typeof formik.values) {
     try {
-      const response = await apiCall({
-        token,
-        payload,
-        ...(isEditMode && { bankDetailsId: id }),
-        successCallbackFunction: () => {
-          toast.success(
-            isEditMode ? 'Bank details updated' : 'Bank details added'
-          );
-          router.push('/profile/bank-details/bank-details-list');
-        },
-      });
+      setIsLoading(true);
+      const token = Cookies.get('authToken');
+
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      const payload = values;
+
+      // If id exists, update otherwise create new
+      if (id) {
+        payload.id = id;
+        await updateBankDetails({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            toast.success('Bank details updated successfully');
+            router.push('/profile/bank-details/bank-details-list');
+          },
+        });
+      } else {
+        await addBankDetails({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            toast.success('Bank details added successfully');
+            router.push('/profile/bank-details/bank-details-list');
+          },
+        });
+      }
     } catch (error) {
-      console.error('Error saving bank details:', error);
-      toast.error('Failed to save bank details');
+      console.error('Error adding item:', error);
+      toast.error(id ? 'Error updating item' : 'Error creating item');
+    } finally {
+      setIsLoading(false);
     }
   }
 
+  const hasError = (field: keyof typeof formik.errors) =>
+    !!(formik.touched[field] && formik.errors[field]);
+
+  const getErrorMessage = (field: keyof typeof formik.errors) =>
+    formik.touched[field] && formik.errors[field] ? formik.errors[field] : '';
   const handleCancel = () => {
     router.push('/profile/bank-details/bank-details-list');
   };
-
+  // Loading spinner component
   if (isLoadingDetails) {
     return (
-      <div className='flex justify-center items-center py-12'>
-        <p className='text-gray-600'>Loading bank details...</p>
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='space-y-4 text-center'>
+          <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
+          <p className='text-gray-600 font-medium'>Loading...</p>
+        </div>
       </div>
     );
   }
@@ -127,7 +161,7 @@ export default function AddBankDetailsPage() {
           <h2 className='text-3xl font-bold'>
             <span className='text-blue-600'>Profile</span>
             <span className='text-gray-800'>
-              | {isEditMode ? 'Edit Bank Details' : 'Add Bank Details'}
+              | {id ? 'Edit Bank Details' : 'Add Bank Details'}
             </span>
           </h2>
           <div className='flex gap-3'>
@@ -144,7 +178,13 @@ export default function AddBankDetailsPage() {
               className='bg-blue-600 hover:bg-blue-700'
               disabled={formik.isSubmitting}
             >
-              {formik.isSubmitting ? 'Saving' : 'Save'}
+              {formik.isSubmitting
+                ? id
+                  ? 'Updating...'
+                  : 'Saving...'
+                : id
+                ? 'Update'
+                : 'Save'}
             </Button>
           </div>
         </div>
