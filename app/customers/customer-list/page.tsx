@@ -1,6 +1,15 @@
 'use client';
 
+import { deleteCustomer, getCustomersList } from '@/api/customers/customer.api';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,21 +32,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import Cookies from 'js-cookie';
 import { ChevronDown, MoreHorizontal, Plus, Settings2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import Cookies from 'js-cookie';
-import { deleteCustomer, getCustomersList } from '@/api/customers/customer.api';
 
 export default function CustomerListPage() {
   const [searchCustomer, setSearchCustomer] = useState('');
@@ -157,23 +157,12 @@ export default function CustomerListPage() {
             <span className='text-gray-800'>| Customer List</span>
           </h2>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
-              <Plus className='h-4 w-4' />
-              Add Customer
-              <ChevronDown className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem asChild>
-              <Link href='customer-form'>As a Business</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href='customer-form/Individual'>As an Individual</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Link href='/customers/customer-form'>
+          <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
+            <Plus className='h-4 w-4' />
+            Add Customer
+          </Button>
+        </Link>
       </div>
 
       {/* Header */}

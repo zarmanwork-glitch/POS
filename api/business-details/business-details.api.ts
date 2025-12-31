@@ -82,6 +82,7 @@ export const updateBusinessDetails = async ({
   file,
   onUploadProgress,
 }: BusinessDetailsType & { businessDetailsId?: string }) => {
+  
   // If file is provided, use FormData and axios directly
   if (file) {
     const formData = new FormData();

@@ -9,8 +9,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { X } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 import Cookies from 'js-cookie';
 import {
@@ -52,9 +53,9 @@ const validationSchema = Yup.object({
 export default function CustomerFormPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const customerId = searchParams.get('id');
-  const isEditMode = !!customerId;
-  const token = Cookies.get('authToken');
+  const id = searchParams.get('id');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
 
   const formik = useFormik({
     initialValues: {
@@ -81,81 +82,101 @@ export default function CustomerFormPage() {
       identificationNumber: '',
     },
     validationSchema,
-    onSubmit: async (values, { setSubmitting }) => {
-      try {
-        if (!token) {
-          toast.error('Authentication token not found');
-          return;
-        }
-
-        const payload = isEditMode ? { id: customerId, ...values } : values;
-        const apiCall = isEditMode ? updateCustomer : createCustomer;
-
-        await apiCall({
-          token,
-          payload,
-          successCallbackFunction: () => {
-            toast.success(
-              isEditMode
-                ? 'Customer updated successfully'
-                : 'Customer created successfully'
-            );
-            router.push('/customers/customer-list');
-          },
-        });
-      } catch (error: any) {
-        console.error('Error:', error);
-        toast.error(
-          isEditMode ? 'Error updating customer' : 'Error creating customer',
-          { duration: 2000 }
-        );
-      } finally {
-        setSubmitting(false);
-      }
-    },
+    onSubmit: handleAddCustomer,
   });
 
-  // Fetch customer data in edit mode
+  // Fetch customer data using id
   useEffect(() => {
-    if (isEditMode && token && customerId) {
+    if (id) {
       const fetchCustomer = async () => {
         try {
-          const response = await getCustomerById({ token, customerId });
-          if (response?.data) {
-            const customer = response.data;
+          setIsLoadingDetails(true);
+          const token = Cookies.get('authToken');
+          if (!token) {
+            console.error('No token found');
+            return;
+          }
+
+          const response = await getCustomerById({ token, customerId: id });
+
+          if (response?.data.data?.results?.customers) {
+            const data = response.data.data.results.customers;
+
             formik.setValues({
-              name: customer.name || '',
-              companyName: customer.companyName || '',
-              customerNumber: customer.customerNumber || '',
-              email: customer.email || '',
-              phoneNumber: customer.phoneNumber || '',
-              companyNameLocal: customer.companyNameLocal || '',
-              country: customer.country || '',
-              addressStreet: customer.addressStreet || '',
-              addressStreetAdditional: customer.addressStreetAdditional || '',
-              buildingNumber: customer.buildingNumber || '',
-              province: customer.province || '',
-              city: customer.city || '',
-              district: customer.district || '',
-              postalCode: customer.postalCode || '',
-              neighborhood: customer.neighborhood || '',
-              addressLocal: customer.addressLocal || '',
-              companyRegistrationNumber:
-                customer.companyRegistrationNumber || '',
-              vatNumber: customer.vatNumber || '',
-              groupVatNumber: customer.groupVatNumber || '',
-              identificationType: customer.identificationType || '',
-              identificationNumber: customer.identificationNumber || '',
+              name: data.name || '',
+              companyName: data.companyName || '',
+              customerNumber: data.customerNumber || '',
+              email: data.email || '',
+              phoneNumber: data.phoneNumber || '',
+              companyNameLocal: data.companyNameLocal || '',
+              country: data.country || '',
+              addressStreet: data.addressStreet || '',
+              addressStreetAdditional: data.addressStreetAdditional || '',
+              buildingNumber: data.buildingNumber || '',
+              province: data.province || '',
+              city: data.city || '',
+              district: data.district || '',
+              postalCode: data.postalCode || '',
+              neighborhood: data.neighborhood || '',
+              addressLocal: data.addressLocal || '',
+              companyRegistrationNumber: data.companyRegistrationNumber || '',
+              vatNumber: data.vatNumber || '',
+              groupVatNumber: data.groupVatNumber || '',
+              identificationType: data.identificationType || '',
+              identificationNumber: data.identificationNumber || '',
             });
           }
         } catch (error) {
           console.error('Error fetching customer:', error);
           toast.error('Failed to load customer data');
+        } finally {
+          setIsLoadingDetails(false);
         }
       };
       fetchCustomer();
     }
-  }, [isEditMode, token, customerId]);
+  }, [id]);
+
+  async function handleAddCustomer(values: typeof formik.values) {
+    try {
+      setIsLoading(true);
+      const token = Cookies.get('authToken');
+
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      const payload = values;
+
+      // If id exists, update otherwise create new
+      if (id) {
+        payload.id = id;
+        await updateCustomer({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            toast.success('Customer updated successfully');
+            router.push('/customers/customer-list');
+          },
+        });
+      } else {
+        await createCustomer({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            toast.success('Customer created successfully');
+            router.push('/customers/customer-list');
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      toast.error(id ? 'Error updating customer' : 'Error creating customer');
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const hasError = (field: keyof typeof formik.errors) =>
     !!(formik.touched[field] && formik.errors[field]);
@@ -168,6 +189,18 @@ export default function CustomerFormPage() {
     formik.setFieldTouched('country', true);
   };
 
+  // Loading spinner component
+  if (isLoadingDetails) {
+    return (
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='space-y-4 text-center'>
+          <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
+          <p className='text-gray-600 font-medium'>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='space-y-6'>
       {/* Header */}
@@ -175,23 +208,29 @@ export default function CustomerFormPage() {
         <h2 className='text-3xl font-bold'>
           <span className='text-blue-600'>Customers</span>
           <span className='text-gray-800'>
-            | {isEditMode ? 'Edit Customer' : 'Add Customer'}
+            | {id ? 'Edit Customer' : 'Add Customer'}
           </span>
         </h2>
         <div className='flex gap-3'>
           <Button
             variant='outline'
             onClick={() => router.push('/customers/customer-list')}
-            disabled={formik.isSubmitting}
+            disabled={isLoading}
           >
             Cancel
           </Button>
           <Button
             className='bg-blue-600 hover:bg-blue-700'
             onClick={() => formik.handleSubmit()}
-            disabled={formik.isSubmitting}
+            disabled={isLoading}
           >
-            {formik.isSubmitting ? 'Saving...' : 'Save'}
+            {isLoading
+              ? id
+                ? 'Updating...'
+                : 'Saving...'
+              : id
+              ? 'Update'
+              : 'Save'}
           </Button>
         </div>
       </div>

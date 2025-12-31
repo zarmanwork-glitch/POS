@@ -1,5 +1,11 @@
 'use client';
 
+import Cookies from 'js-cookie';
+import { LogOut, Menu, Settings, User } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+
 import LanguageSwitch from '@/components/base-components/LanguageSwitch';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,22 +15,28 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { logout } from '@/lib/token';
-import Cookies from 'js-cookie';
-import { LogOut, Menu, Settings, User } from 'lucide-react';
-import Image from 'next/image';
 
-export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
+function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
+  const [mounted, setMounted] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    setEmail(Cookies.get('userEmail') ?? null);
+  }, []);
+
+  if (!mounted) return null;
+
+  const initial = email?.charAt(0).toUpperCase() ?? '';
+
   const handleSignOut = async () => {
     await logout();
   };
 
-  const email = Cookies.get('userEmail');
-  const initial = email?.charAt(0).toUpperCase();
   return (
-    <nav className='sticky top-0  h-18 w-full border-b flex items-center justify-between px-6 shadow-md bg-white'>
+    <nav className='sticky top-0 z-50 h-18 w-full border-b flex items-center justify-between px-6 shadow-md bg-white'>
       {/* Left */}
       <div className='flex items-center gap-3'>
-        {/* Mobile hamburger */}
         <Button
           variant='ghost'
           size='icon'
@@ -45,33 +57,34 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
       {/* Right */}
       <div className='flex items-center gap-6'>
         <LanguageSwitch />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className='flex items-center gap-3 cursor-pointer'>
+            <button className='flex items-center gap-3 cursor-pointer'>
               <div className='text-right'>
                 <p className='text-sm font-medium text-gray-800'>
-                  {email || ''}
+                  {email ?? ''}
                 </p>
                 <p className='text-xs text-gray-500'>Admin</p>
               </div>
               <div className='h-9 w-9 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold'>
                 {initial}
               </div>
-            </div>
+            </button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align='end'>
             <DropdownMenuItem>
               <User className='mr-2 h-4 w-4' />
-              <span>Profile</span>
+              Profile
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Settings className='mr-2 h-4 w-4' />
-              <span>Settings</span>
+              Settings
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className='mr-2 h-4 w-4' />
-              <span>Sign out</span>
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -79,3 +92,5 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
     </nav>
   );
 }
+
+export default dynamic(() => Promise.resolve(Navbar), { ssr: false });
