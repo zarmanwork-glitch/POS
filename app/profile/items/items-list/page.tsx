@@ -42,8 +42,8 @@ import { toast } from 'sonner';
 
 export default function ItemsListPage() {
   const [searchDescription, setSearchDescription] = useState('');
-  const [sortBy, setSortBy] = useState('Chronological');
-  const [searchBy, setSearchBy] = useState('Description');
+  const [sortBy, setSortBy] = useState('');
+  const [searchBy, setSearchBy] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,6 +75,8 @@ export default function ItemsListPage() {
           token,
           offset: 0,
           limit: 10,
+          ...(searchDescription && { searchBy, search: searchDescription }),
+          ...(sortBy && { sortBy }),
         });
         if (response?.data?.status === 'success') {
           setItems(response.data.data?.results?.items || []);
@@ -90,11 +92,10 @@ export default function ItemsListPage() {
     };
 
     fetchItems();
-  }, []);
+  }, [searchBy, searchDescription, sortBy]);
 
-  const filteredItems = items.filter((item) =>
-    item.description.toLowerCase().includes(searchDescription.toLowerCase())
-  );
+  // Backend handles filtering and sorting, just use items as-is
+  const filteredItems = items;
 
   const handleDeleteClick = (itemId: string, description: string) => {
     setDeleteItemId(itemId);
@@ -309,33 +310,13 @@ export default function ItemsListPage() {
             )}
           </div>
 
-          {/* Search By */}
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-gray-600'>Search By</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className='flex items-center gap-1 text-sm font-medium'>
-                  {sortBy}
-                  <ChevronDown className='h-4 w-4' />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSortBy('Description')}>
-                  Description
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('Description')}>
-                  Material / Service Code
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
           {/* Sort */}
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-2 bg-[ #FFFFFF]'>
             <span className='text-sm text-gray-600'>Sort by</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className='flex items-center gap-1 text-sm font-medium'>
-                  {sortBy}
+                  {sortBy || 'Chronological'}
                   <ChevronDown className='h-4 w-4' />
                 </button>
               </DropdownMenuTrigger>
@@ -346,7 +327,32 @@ export default function ItemsListPage() {
                 <DropdownMenuItem onClick={() => setSortBy('Description')}>
                   Description
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('Description')}>
+                <DropdownMenuItem
+                  onClick={() => setSortBy('Material / Service Code')}
+                >
+                  Material / Service Code
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Search By */}
+          <div className='flex items-center gap-2'>
+            <span className='text-sm text-gray-600'>Search By</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className='flex items-center gap-1 text-sm font-medium'>
+                  {searchBy || 'Description'}
+                  <ChevronDown className='h-4 w-4' />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setSearchBy('Description')}>
+                  Description
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSearchBy('Material / Service Code')}
+                >
                   Material / Service Code
                 </DropdownMenuItem>
               </DropdownMenuContent>

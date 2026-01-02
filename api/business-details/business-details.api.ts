@@ -146,7 +146,7 @@ export const updateBusinessDetails = async ({
 
 export const getBusinessDetailsList = async ({
   token,
-  offset = 1,
+  offset = 0,
   limit = 10,
 }: {
   token: string;

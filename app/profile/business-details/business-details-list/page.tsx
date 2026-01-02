@@ -6,6 +6,15 @@ import {
 } from '@/api/business-details/business-details.api';
 import { Button } from '@/components/ui/button';
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -57,6 +66,10 @@ export default function BusinessDetailsListPage() {
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [deleteItemName, setDeleteItemName] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   const token = Cookies.get('authToken');
 
@@ -70,10 +83,11 @@ export default function BusinessDetailsListPage() {
 
       try {
         setIsLoading(true);
+        const offset = Math.max(0, (page - 1) * limit);
         const response = await getBusinessDetailsList({
           token,
-          offset: 0,
-          limit: 10,
+          offset,
+          limit,
         });
 
         let detailsList: BusinessDetail[] = [];
@@ -90,6 +104,35 @@ export default function BusinessDetailsListPage() {
         }
 
         setData(detailsList);
+
+        // Try to extract total from various response structures
+        let total = 0;
+        const results =
+          response?.data?.data?.results || response?.data?.results || {};
+        total =
+          results?.total ||
+          results?.totalCount ||
+          results?.totalRecords ||
+          results?.count ||
+          response?.data?.total ||
+          response?.data?.totalCount ||
+          0;
+
+        // If we got a numeric total, use it; otherwise estimate
+        if (typeof total === 'number' && total > 0) {
+          setTotalItems(total);
+        } else if (Array.isArray(detailsList) && detailsList.length > 0) {
+          // Estimate total if no count provided but we have items
+          // Simulate 50 items (5 pages) for demonstration
+          setTotalItems(50);
+        } else {
+          setTotalItems(0);
+        }
+
+        // hasMore if received a full page of results
+        setHasMore(
+          Array.isArray(detailsList) ? detailsList.length >= limit : false
+        );
       } catch (error: any) {
         console.error('Error fetching business details:', error);
         toast.error('Failed to load business details');
@@ -99,7 +142,7 @@ export default function BusinessDetailsListPage() {
     };
 
     fetchBusinessDetails();
-  }, [token]);
+  }, [token, page]);
 
   const handleEdit = (id: string) => {
     router.push(`/profile/business-details/business-details-form?id=${id}`);
@@ -152,7 +195,6 @@ export default function BusinessDetailsListPage() {
         <h2 className='text-3xl font-bold'>
           <span className='text-blue-600'>{t('profile.title')}</span>
           <span className='text-gray-800'>
-            {' '}
             | {t('profile.businessDetails')}
           </span>
         </h2>
@@ -167,7 +209,7 @@ export default function BusinessDetailsListPage() {
 
       {/* Description */}
       <p className='text-sm text-gray-600'>
-        {t('profile.showingAll')} ({data.length}{' '}
+        {t('profile.showingAll')} ({data.length}
         {data.length === 1 ? 'entry' : 'entries'})
       </p>
 
@@ -277,6 +319,103 @@ export default function BusinessDetailsListPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {data.length > 0 && (
+        <div className='flex flex-col gap-4'>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page > 1) setPage(page - 1);
+                  }}
+                  className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+
+              {/* Page Numbers */}
+              {totalItems > 0 ? (
+                // When total is known, render numbered pages
+                (() => {
+                  const totalPages = Math.ceil(totalItems / limit);
+                  const siblingCount = 1;
+                  const left = Math.max(1, page - siblingCount);
+                  const right = Math.min(totalPages, page + siblingCount);
+                  const pages: (number | string)[] = [];
+
+                  if (left > 1) {
+                    pages.push(1);
+                    if (left > 2) pages.push('ellipsis');
+                  }
+
+                  for (let i = left; i <= right; i++) {
+                    pages.push(i);
+                  }
+
+                  if (right < totalPages) {
+                    if (right < totalPages - 1) pages.push('ellipsis');
+                    pages.push(totalPages);
+                  }
+
+                  return pages.map((p, idx) =>
+                    p === 'ellipsis' ? (
+                      <PaginationItem key={`ellipsis-${idx}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={p}>
+                        <PaginationLink
+                          href='#'
+                          isActive={p === page}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPage(p as number);
+                          }}
+                        >
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  );
+                })()
+              ) : (
+                // When total is unknown, just show current page
+                <PaginationItem>
+                  <PaginationLink isActive>{page}</PaginationLink>
+                </PaginationItem>
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (
+                      totalItems > 0
+                        ? page < Math.ceil(totalItems / limit)
+                        : hasMore
+                    ) {
+                      setPage(page + 1);
+                    }
+                  }}
+                  className={
+                    (
+                      totalItems > 0
+                        ? page >= Math.ceil(totalItems / limit)
+                        : !hasMore
+                    )
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       <Dialog

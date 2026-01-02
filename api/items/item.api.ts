@@ -30,19 +30,49 @@ export const getItemsList = async ({
   token,
   offset = 1,
   limit = 10,
+  searchBy = '',
+  search = '',
+  sortBy = '',
 }: {
   token: string;
   offset?: number;
   limit?: number;
+  searchBy?: string;
+  search?: string;
+  sortBy?: string;
 }) => {
+  const payload: any = {
+    offSet: offset,
+    limit,
+  };
+
+  // Map display values to backend lowercase values
+  if (searchBy) {
+    const searchByMap: Record<string, string> = {
+      Description: 'description',
+      'Material / Service Code': 'materialNo',
+    };
+    payload.searchBy = searchByMap[searchBy] || searchBy.toLowerCase();
+  }
+
+  if (search) {
+    payload.search = search;
+  }
+
+  if (sortBy) {
+    const sortByMap: Record<string, string> = {
+      Chronological: 'chronological',
+      Description: 'description',
+      'Material / Service Code': 'materialNo',
+    };
+    payload.sortBy = sortByMap[sortBy] || sortBy.toLowerCase();
+  }
+
   return api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.ITEMS.GET_ITEMS_LIST,
     method: backendApiEnums.METHODS.POST,
-    payload: {
-      offSet: offset,
-      limit,
-    },
+    payload,
   });
 };
 
