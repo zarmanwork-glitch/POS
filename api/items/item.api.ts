@@ -20,7 +20,8 @@ export const addITEM = async ({
     method: backendApiEnums.METHODS.POST,
     payload,
     isDisplayResponsePopUp: true,
-    successMessage: successMessagesEnums.ITEMS.ADD_ITEM,
+    // successMessage: successMessagesEnums.ITEMS.ADD_ITEM,
+
     successCallback: successCallbackFunction,
   });
 };

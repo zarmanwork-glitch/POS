@@ -58,7 +58,7 @@ export default function BankDetailsListPage() {
       try {
         const response = await getBankDetailsList({
           token,
-          offset: 1,
+          offset: 0,
           limit: 10,
         });
 
@@ -129,12 +129,15 @@ export default function BankDetailsListPage() {
       <div className='flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>
           <span className='text-blue-600'>{t('profile.title')}</span>
-          <span className='text-gray-800'> | {t('Bank Details')}</span>
+          <span className='text-gray-800'>
+            {' '}
+            | {t('profile.bankDetails.title')}
+          </span>
         </h2>
         <Link href='bank-details-form'>
           <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
             <Plus className='h-4 w-4' />
-            {t('Add Bank Details') || t('bankDetails.add')}
+            {t('profile.bankDetails.addBankDetails')}
           </Button>
         </Link>
       </div>
@@ -149,13 +152,15 @@ export default function BankDetailsListPage() {
             <TableHeader className='bg-slate-100'>
               <TableRow>
                 <TableHead className='w-12'>No.</TableHead>
-                <TableHead>{t('Country')}</TableHead>
-                <TableHead>{t('Account Number')}</TableHead>
-                <TableHead>{t('Iban')}</TableHead>
-                <TableHead>{t('Bank Name')}</TableHead>
-                <TableHead>{t('Swift Code')}</TableHead>
-                <TableHead>{t('Beneficiary Name')}</TableHead>
-                <TableHead className='w-10'>{t('Actions')}</TableHead>
+                <TableHead>{t('profile.bankDetails.country')}</TableHead>
+                <TableHead>{t('profile.bankDetails.accountNumber')}</TableHead>
+                <TableHead>{t('profile.bankDetails.iban')}</TableHead>
+                <TableHead>{t('profile.bankDetails.bankName')}</TableHead>
+                <TableHead>{t('profile.bankDetails.swiftCode')}</TableHead>
+                <TableHead>
+                  {t('profile.bankDetails.beneficiaryName')}
+                </TableHead>
+                <TableHead className='w-10'>{t('profile.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -164,7 +169,11 @@ export default function BankDetailsListPage() {
                   colSpan={8}
                   className='text-center py-8'
                 >
-                  <span className='text-gray-500'>Loading bank details...</span>
+                  <span className='text-gray-500'>
+                    {t('profile.loading', {
+                      defaultValue: 'Loading bank details...',
+                    })}
+                  </span>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -176,13 +185,15 @@ export default function BankDetailsListPage() {
             <TableHeader className='bg-slate-100'>
               <TableRow>
                 <TableHead className='w-12'>No.</TableHead>
-                <TableHead>{t('Country')}</TableHead>
-                <TableHead>{t('Account Number')}</TableHead>
-                <TableHead>{t('Iban')}</TableHead>
-                <TableHead>{t('Bank Name')}</TableHead>
-                <TableHead>{t('Swift Code')}</TableHead>
-                <TableHead>{t('Beneficiary Name')}</TableHead>
-                <TableHead className='w-10'>{t('Actions')}</TableHead>
+                <TableHead>{t('profile.bankDetails.country')}</TableHead>
+                <TableHead>{t('profile.bankDetails.accountNumber')}</TableHead>
+                <TableHead>{t('profile.bankDetails.iban')}</TableHead>
+                <TableHead>{t('profile.bankDetails.bankName')}</TableHead>
+                <TableHead>{t('profile.bankDetails.swiftCode')}</TableHead>
+                <TableHead>
+                  {t('profile.bankDetails.beneficiaryName')}
+                </TableHead>
+                <TableHead className='w-10'>{t('profile.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -217,7 +228,7 @@ export default function BankDetailsListPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end'>
                           <DropdownMenuItem onClick={() => handleEdit(row.id)}>
-                            {t('Edit')}
+                            {t('profile.edit', { defaultValue: 'Edit' })}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className='text-red-600'
@@ -225,7 +236,7 @@ export default function BankDetailsListPage() {
                               handleDeleteClick(row.id, row.beneficiaryName)
                             }
                           >
-                            {t('Delete')}
+                            {t('profile.delete', { defaultValue: 'Delete' })}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -245,11 +256,18 @@ export default function BankDetailsListPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('Confirm Delete')}</DialogTitle>
+            <DialogTitle>
+              {t('profile.confirmDelete', { defaultValue: 'Confirm Delete' })}
+            </DialogTitle>
             <DialogDescription>
-              {t('Are you sure you want to delete the bank detail for')}{' '}
+              {t('profile.areYouSureDelete', {
+                defaultValue:
+                  'Are you sure you want to delete the bank detail for',
+              })}{' '}
               <strong>{deleteItemName}</strong>?{' '}
-              {t('This action cannot be undone.')}
+              {t('profile.actionCannotBeUndone', {
+                defaultValue: 'This action cannot be undone.',
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className='gap-2'>
@@ -258,14 +276,16 @@ export default function BankDetailsListPage() {
               onClick={() => setDeleteModalOpen(false)}
               disabled={isDeleting}
             >
-              {t('Cancel')}
+              {t('profile.cancel')}
             </Button>
             <Button
               className='bg-red-600 hover:bg-red-700'
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? t('Deleting...') : t('Delete')}
+              {isDeleting
+                ? t('profile.deleting', { defaultValue: 'Deleting...' })
+                : t('profile.delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>

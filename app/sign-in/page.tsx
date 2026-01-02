@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
+import loginBackground from '@/public/login_bg.svg';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -68,8 +68,8 @@ export default function SignInPage() {
       {/* Left Side - Background Image */}
       <div className='hidden md:block relative '>
         <Image
-          src='/login_bg.svg'
-          alt='Signup background'
+          src={loginBackground}
+          alt='Login background illustration'
           fill
           className='contain'
           priority

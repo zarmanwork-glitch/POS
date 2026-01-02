@@ -68,8 +68,8 @@ export default function CustomerListPage() {
 
         const response = await getCustomersList({
           token,
-          offset: 1,
-          limit: 100,
+          offset: 0,
+          limit: 10,
         });
 
         // Handle response data structure

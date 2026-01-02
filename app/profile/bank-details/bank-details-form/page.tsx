@@ -19,6 +19,7 @@ import Cookies from 'js-cookie';
 import { X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { validationSchema } from '@/schema/bankDetailsValidation';
 import countries from '@/json/countries.json';
@@ -29,6 +30,8 @@ export default function AddBankDetailsPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const [isLoading, setIsLoading] = useState(false);
+
+  const { t } = useTranslation();
 
   const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
 
@@ -144,7 +147,9 @@ export default function AddBankDetailsPage() {
       <div className='flex items-center justify-center min-h-screen'>
         <div className='space-y-4 text-center'>
           <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
-          <p className='text-gray-600 font-medium'>Loading...</p>
+          <p className='text-gray-600 font-medium'>
+            {t('profile.loading', { defaultValue: 'Loading...' })}
+          </p>
         </div>
       </div>
     );
@@ -159,9 +164,14 @@ export default function AddBankDetailsPage() {
         {/* Header */}
         <div className='flex items-center justify-between'>
           <h2 className='text-3xl font-bold'>
-            <span className='text-blue-600'>Profile</span>
+            <span className='text-blue-600'>{t('profile.title')}</span>
             <span className='text-gray-800'>
-              | {id ? 'Edit Bank Details' : 'Add Bank Details'}
+              |{' '}
+              {id
+                ? t('profile.editBankDetails', {
+                    defaultValue: 'Edit Bank Details',
+                  })
+                : t('profile.addBankDetails')}
             </span>
           </h2>
           <div className='flex gap-3'>
@@ -171,7 +181,7 @@ export default function AddBankDetailsPage() {
               onClick={handleCancel}
               disabled={formik.isSubmitting}
             >
-              Cancel
+              {t('profile.cancel')}
             </Button>
             <Button
               type='submit'
@@ -180,11 +190,11 @@ export default function AddBankDetailsPage() {
             >
               {formik.isSubmitting
                 ? id
-                  ? 'Updating...'
-                  : 'Saving...'
+                  ? t('profile.updating', { defaultValue: 'Updating...' })
+                  : t('profile.saving', { defaultValue: 'Saving...' })
                 : id
-                ? 'Update'
-                : 'Save'}
+                ? t('profile.update', { defaultValue: 'Update' })
+                : t('profile.bankDetails.add')}
             </Button>
           </div>
         </div>
@@ -194,7 +204,8 @@ export default function AddBankDetailsPage() {
           {/* Country */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Country : <span className='text-red-500'>*</span>
+              {t('profile.bankDetails.country')}:{' '}
+              <span className='text-red-500'>*</span>
             </label>
             {formik.values.country ? (
               <div className='flex items-center gap-2 bg-blue-50 border border-gray-300 rounded-md p-2 h-10'>
@@ -217,7 +228,9 @@ export default function AddBankDetailsPage() {
                 }
               >
                 <SelectTrigger className='bg-blue-50 h-10 py-2'>
-                  <SelectValue placeholder='Select Country' />
+                  <SelectValue
+                    placeholder={t('profile.bankDetails.selectCountry')}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
@@ -241,12 +254,13 @@ export default function AddBankDetailsPage() {
           {/* Account Number */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Account Number :<span className='text-red-500'>*</span>
+              {t('profile.bankDetails.accountNumber')}:{' '}
+              <span className='text-red-500'>*</span>
             </label>
             <Input
               type='text'
               name='accountNumber'
-              placeholder='Specify AccountNumber'
+              placeholder={t('profile.bankDetails.specifyAccountNumber')}
               className='bg-blue-50 h-10 py-2'
               value={formik.values.accountNumber}
               onChange={formik.handleChange}
@@ -262,12 +276,13 @@ export default function AddBankDetailsPage() {
           {/* IBAN */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              IBAN : <span className='text-red-500'>*</span>
+              {t('profile.bankDetails.iban')}:{' '}
+              <span className='text-red-500'>*</span>
             </label>
             <Input
               type='text'
               name='iban'
-              placeholder='GB00 ABCD 0000 0000 0000 00'
+              placeholder={t('profile.bankDetails.ibanPlaceholder')}
               className='bg-blue-50 h-10 py-2'
               value={formik.values.iban}
               onChange={formik.handleChange}
@@ -305,12 +320,13 @@ export default function AddBankDetailsPage() {
           {/* SWIFT Code */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Swift Code: <span className='text-red-500'>*</span>
+              {t('profile.bankDetails.swiftCode')}:{' '}
+              <span className='text-red-500'>*</span>
             </label>
             <Input
               type='text'
               name='swiftCode'
-              placeholder='Specify BankCode'
+              placeholder={t('profile.bankDetails.specifyBankCode')}
               className='bg-blue-50 h-10 py-2'
               value={formik.values.swiftCode}
               onChange={formik.handleChange}

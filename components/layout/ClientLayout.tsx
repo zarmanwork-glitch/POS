@@ -3,7 +3,8 @@
 import Navbar from '@/components/base-components/Navbar';
 import Sidebar from '@/components/base-components/Sidebar';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import i18n from '@/lib/i18n';
 import { Toaster } from 'sonner';
 
 export default function ClientShell({
@@ -16,6 +17,20 @@ export default function ClientShell({
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    // Determine initial language: prefer saved language, then i18n.language
+    const saved =
+      typeof window !== 'undefined' ? localStorage.getItem('language') : null;
+    const lang = saved || i18n?.language || 'en';
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+    // Ensure i18n uses the saved language on page load (so translations persist on refresh)
+    if (i18n && i18n.language !== lang) {
+      i18n.changeLanguage(lang).catch(() => {});
+    }
+  }, []);
 
   return (
     <div className='h-screen flex flex-col'>

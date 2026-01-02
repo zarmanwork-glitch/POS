@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 const businessDetails = [
@@ -71,7 +71,8 @@ export default function BusinessDetailsPage() {
         </div>
         <Link href='business-details/business-details-form '>
           <Button className='bg-blue-600 hover:bg-blue-700'>
-            + Add More Business
+            <Plus />
+            Add Business Details
           </Button>
         </Link>
       </div>

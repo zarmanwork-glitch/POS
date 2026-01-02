@@ -52,24 +52,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className='min-h-screen bg-linear-to-b from-slate-50 to-white'>
-      {/* Navigation */}
-      <nav className='sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between'>
-          <div className='text-2xl font-bold text-blue-600'>Point Of Sale</div>
-          <div className='flex items-center gap-4'>
-            <Link href='/sign-in'>
-              <Button variant='ghost'>Sign In</Button>
-            </Link>
-            <Link href='/sign-up'>
-              <Button className='bg-blue-600 hover:bg-blue-700'>
-                Get Started
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+    <div className=''>
       {/* Hero Section */}
       <section className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32'>
         <div className='text-center'>
@@ -223,110 +206,6 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className='bg-gray-900 text-gray-400 py-12'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-8 mb-8'>
-            <div>
-              <h3 className='text-white font-semibold mb-4'>Point Of Sale</h3>
-              <p className='text-sm'>
-                The complete POS solution for modern businesses.
-              </p>
-            </div>
-            <div>
-              <h4 className='text-white font-semibold mb-4'>Product</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    Security
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className='text-white font-semibold mb-4'>Company</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className='text-white font-semibold mb-4'>Legal</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    Terms
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href='#'
-                    className='hover:text-white transition'
-                  >
-                    Support
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className='border-t border-gray-800 pt-8 text-center text-sm'>
-            <p>&copy; 2024 Point Of Sale. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

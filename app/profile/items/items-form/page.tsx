@@ -15,6 +15,7 @@ import { useFormik } from 'formik';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import * as Yup from 'yup';
 
@@ -56,6 +57,7 @@ export default function NewItemPage() {
   const id = searchParams.get('id');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
+  const { t } = useTranslation();
 
   const formik = useFormik({
     initialValues: {
@@ -162,7 +164,9 @@ export default function NewItemPage() {
       <div className='flex items-center justify-center min-h-screen'>
         <div className='space-y-4 text-center'>
           <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
-          <p className='text-gray-600 font-medium'>Loading...</p>
+          <p className='text-gray-600 font-medium'>
+            {t('profile.loading', { defaultValue: 'Loading...' })}
+          </p>
         </div>
       </div>
     );
@@ -172,9 +176,12 @@ export default function NewItemPage() {
       {/* Header */}
       <div className='flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>
-          <span className='text-blue-600'>Profile</span>
+          <span className='text-blue-600'>{t('profile.title')}</span>
           <span className='text-gray-800'>
-            | {id ? ' Edit Item' : ' New Item'}
+            |{' '}
+            {id
+              ? t('profile.editItem', { defaultValue: 'Edit Item' })
+              : t('profile.addItem')}
           </span>
         </h2>
         <div className='flex gap-3'>
@@ -183,7 +190,7 @@ export default function NewItemPage() {
             onClick={() => router.push('/profile/items/items-list')}
             disabled={formik.isSubmitting}
           >
-            Cancel
+            {t('profile.cancel')}
           </Button>
           <Button
             className='bg-blue-600 hover:bg-blue-700'
@@ -192,11 +199,11 @@ export default function NewItemPage() {
           >
             {formik.isSubmitting
               ? id
-                ? 'Updating...'
-                : 'Saving...'
+                ? t('profile.updating', { defaultValue: 'Updating...' })
+                : t('profile.saving', { defaultValue: 'Saving...' })
               : id
-              ? 'Update'
-              : 'Save'}
+              ? t('profile.update', { defaultValue: 'Update' })
+              : t('profile.save')}
           </Button>
         </div>
       </div>
@@ -210,7 +217,7 @@ export default function NewItemPage() {
         <div className='relative flex items-center py-4'>
           <div className='grow border-t-2 border-blue-100'></div>
           <span className='mx-6 text-sm font-semibold text-blue-600'>
-            ITEM INFORMATION
+            {t('profile.itemInformation', { defaultValue: 'ITEM INFORMATION' })}
           </span>
           <div className='grow border-t-2 border-blue-100'></div>
         </div>
@@ -221,7 +228,7 @@ export default function NewItemPage() {
             {/* Item Type */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-3'>
-                Item Type: <span className='text-red-500'>*</span>
+                {t('profile.itemType')}: <span className='text-red-500'>*</span>
               </label>
               <div className='flex gap-6'>
                 <label className='flex items-center gap-2 cursor-pointer'>
@@ -234,7 +241,9 @@ export default function NewItemPage() {
                     onBlur={formik.handleBlur}
                     className='w-4 h-4'
                   />
-                  <span className='text-gray-700'>Service</span>
+                  <span className='text-gray-700'>
+                    {t('profile.service', { defaultValue: 'Service' })}
+                  </span>
                 </label>
                 <label className='flex items-center gap-2 cursor-pointer'>
                   <input
@@ -246,7 +255,9 @@ export default function NewItemPage() {
                     onBlur={formik.handleBlur}
                     className='w-4 h-4'
                   />
-                  <span className='text-gray-700'>Material</span>
+                  <span className='text-gray-700'>
+                    {t('profile.material', { defaultValue: 'Material' })}
+                  </span>
                 </label>
               </div>
               {hasError('itemType') && (

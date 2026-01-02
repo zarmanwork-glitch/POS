@@ -73,7 +73,7 @@ export default function ItemsListPage() {
 
         const response = await getItemsList({
           token,
-          offset: 1,
+          offset: 0,
           limit: 10,
         });
         if (response?.data?.status === 'success') {
@@ -147,7 +147,6 @@ export default function ItemsListPage() {
         </h2>
 
         <div className='flex gap-3'>
-          <Button variant='outline'>{t('profile.bulkItems')}</Button>
           <Link href='items-form'>
             <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
               <Plus className='h-4 w-4' />
@@ -296,13 +295,13 @@ export default function ItemsListPage() {
                   {/* Actions */}
                   <div className='sticky bottom-0 bg-white flex gap-2 pt-3 border-t'>
                     <Button className='flex-1 h-8 text-xs bg-blue-600 hover:bg-blue-700'>
-                      Apply
+                      {t('profile.apply', { defaultValue: 'Apply' })}
                     </Button>
                     <Button
                       variant='outline'
                       className='flex-1 h-8 text-xs'
                     >
-                      Reset
+                      {t('profile.reset', { defaultValue: 'Reset' })}
                     </Button>
                   </div>
                 </div>
@@ -358,11 +357,13 @@ export default function ItemsListPage() {
           <div className='flex items-center gap-2'>
             <Input
               className='h-9 w-40'
-              placeholder='Search'
+              placeholder={t('profile.search', { defaultValue: 'Search' })}
               value={searchDescription}
               onChange={(e) => setSearchDescription(e.target.value)}
             />
-            <Button className='h-9 bg-blue-600 hover:bg-blue-700'>Go</Button>
+            <Button className='h-9 bg-blue-600 hover:bg-blue-700'>
+              {t('profile.go', { defaultValue: 'Go' })}
+            </Button>
           </div>
         </div>
 
@@ -386,7 +387,11 @@ export default function ItemsListPage() {
                     colSpan={6}
                     className='text-center py-8'
                   >
-                    <span className='text-gray-500'>Loading items...</span>
+                    <span className='text-gray-500'>
+                      {t('profile.loading', {
+                        defaultValue: 'Loading items...',
+                      })}
+                    </span>
                   </TableCell>
                 </TableRow>
               ) : filteredItems.length === 0 ? (
@@ -395,7 +400,11 @@ export default function ItemsListPage() {
                     colSpan={6}
                     className='text-center py-8'
                   >
-                    <span className='text-gray-500'>No items found</span>
+                    <span className='text-gray-500'>
+                      {t('profile.noItemsFound', {
+                        defaultValue: 'No items found',
+                      })}
+                    </span>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -426,7 +435,7 @@ export default function ItemsListPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end'>
                           <DropdownMenuItem onClick={() => handleEdit(item.id)}>
-                            Edit
+                            {t('profile.edit', { defaultValue: 'Edit' })}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className='text-red-600'
@@ -434,7 +443,7 @@ export default function ItemsListPage() {
                               handleDeleteClick(item.id, item.description)
                             }
                           >
-                            Delete
+                            {t('profile.delete', { defaultValue: 'Delete' })}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -454,11 +463,17 @@ export default function ItemsListPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('Confirm Delete')}</DialogTitle>
+            <DialogTitle>
+              {t('profile.confirmDelete', { defaultValue: 'Confirm Delete' })}
+            </DialogTitle>
             <DialogDescription>
-              {t('Are you sure you want to delete the item')}{' '}
+              {t('profile.areYouSureDelete', {
+                defaultValue: 'Are you sure you want to delete the item',
+              })}{' '}
               <strong>{deleteItemName}</strong>?{' '}
-              {t('This action cannot be undone.')}
+              {t('profile.actionCannotBeUndone', {
+                defaultValue: 'This action cannot be undone.',
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className='gap-2'>
@@ -467,14 +482,16 @@ export default function ItemsListPage() {
               onClick={() => setDeleteModalOpen(false)}
               disabled={isDeleting}
             >
-              {t('Cancel')}
+              {t('profile.cancel')}
             </Button>
             <Button
               className='bg-red-600 hover:bg-red-700'
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? t('Deleting...') : t('Delete')}
+              {isDeleting
+                ? t('profile.deleting', { defaultValue: 'Deleting...' })
+                : t('profile.delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,12 +1,13 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import loginBackground from '@/public/login_bg.svg';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import Image from 'next/image';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -25,8 +26,8 @@ export default function SignUpPage() {
       {/* Left: Image (55%) */}
       <div className='hidden md:block relative '>
         <Image
-          src='/login-bg.svg'
-          alt='Signup background'
+          src={loginBackground}
+          alt='Login background illustration'
           fill
           className='contain'
           priority

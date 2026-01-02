@@ -21,19 +21,32 @@ import { validationSchema } from '@/schema/businessDetailsFormValidation';
 import { useFormik } from 'formik';
 import Cookies from 'js-cookie';
 import { Upload } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { ChevronDown } from 'lucide-react';
+import { identificationTypes } from '@/enums/businessDetailsFormIdentification';
 
 export default function BusinessDetailsFormPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [existingLogoUrl, setExistingLogoUrl] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isRefundPolicyOpen, setIsRefundPolicyOpen] = useState(true);
 
   const formik = useFormik({
     initialValues: {
@@ -134,6 +147,8 @@ export default function BusinessDetailsFormPage() {
         setLogoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+      // Clear the native file input value so selecting the same file again will trigger onChange
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -163,6 +178,8 @@ export default function BusinessDetailsFormPage() {
     formik.resetForm();
     setLogo(null);
     setLogoPreview('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    router.push('/profile/business-details/business-details-list');
   };
 
   async function handleAddBusinessDetails(values: typeof formik.values) {
@@ -284,7 +301,9 @@ export default function BusinessDetailsFormPage() {
       <div className='flex items-center justify-center min-h-screen'>
         <div className='space-y-4 text-center'>
           <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
-          <p className='text-gray-600 font-medium'>Loading...</p>
+          <p className='text-gray-600 font-medium'>
+            {t('profile.loading', { defaultValue: 'Loading...' })}
+          </p>
         </div>
       </div>
     );
@@ -295,9 +314,12 @@ export default function BusinessDetailsFormPage() {
       {/* Header */}
       <div className='flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>
-          <span className='text-blue-600'>Profile</span>
+          <span className='text-blue-600'>{t('profile.title')}</span>
           <span className='text-gray-800'>
-            | {id ? 'Edit Business Details' : 'Add Business Details'}
+            |{' '}
+            {id
+              ? t('profile.editBusinessDetails')
+              : t('profile.addBusinessDetails')}
           </span>
         </h2>
 
@@ -307,7 +329,7 @@ export default function BusinessDetailsFormPage() {
             onClick={handleCancel}
             disabled={isLoading}
           >
-            Cancel
+            {t('profile.cancel')}
           </Button>
           <Button
             className='bg-blue-600 hover:bg-blue-700'
@@ -316,11 +338,11 @@ export default function BusinessDetailsFormPage() {
           >
             {isLoading
               ? id
-                ? 'Updating...'
-                : 'Saving...'
+                ? t('profile.updating', { defaultValue: 'Updating...' })
+                : t('profile.saving', { defaultValue: 'Saving...' })
               : id
-              ? 'Update'
-              : 'Add'}
+              ? t('profile.update', { defaultValue: 'Update' })
+              : t('profile.addBusinessDetails')}
           </Button>
         </div>
       </div>
@@ -339,7 +361,7 @@ export default function BusinessDetailsFormPage() {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Name: <span className='text-red-500'>*</span>
+                  {t('profile.name')}: <span className='text-red-500'>*</span>
                 </label>
                 <Input
                   type='text'
@@ -347,7 +369,7 @@ export default function BusinessDetailsFormPage() {
                   value={formik.values.name}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder='John Doe'
+                  placeholder={t('profile.johnDoe')}
                   className={`bg-blue-50 h-10 py-2 ${
                     hasError('name') ? 'border-red-500 border' : ''
                   }`}
@@ -360,7 +382,8 @@ export default function BusinessDetailsFormPage() {
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Company Name: <span className='text-red-500'>*</span>
+                  {t('profile.companyName')}:{' '}
+                  <span className='text-red-500'>*</span>
                 </label>
                 <Input
                   type='text'
@@ -368,7 +391,7 @@ export default function BusinessDetailsFormPage() {
                   value={formik.values.companyName}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder='Specify company name'
+                  placeholder={t('profile.specifyCompanyName')}
                   className={`bg-blue-50 h-10 py-2 ${
                     hasError('companyName') ? 'border-red-500 border' : ''
                   }`}
@@ -385,7 +408,7 @@ export default function BusinessDetailsFormPage() {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Email: <span className='text-red-500'>*</span>
+                  {t('profile.email')}: <span className='text-red-500'>*</span>
                 </label>
                 <Input
                   type='email'
@@ -393,7 +416,7 @@ export default function BusinessDetailsFormPage() {
                   value={formik.values.email}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder='name@domain.com'
+                  placeholder={t('profile.nameAtDomain')}
                   className={`bg-blue-50 h-10 py-2 ${
                     hasError('email') ? 'border-red-500 border' : ''
                   }`}
@@ -406,33 +429,36 @@ export default function BusinessDetailsFormPage() {
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Phone Number: <span className='text-red-500'>*</span>
+                  {t('profile.phoneNumber')}:{' '}
+                  <span className='text-red-500'>*</span>
                 </label>
-                <div className='flex gap-2'>
-                  <Input
-                    type='text'
-                    value='SA'
-                    disabled
-                    className='w-16 bg-blue-50 h-10 py-2'
-                  />
-                  <div className='flex-1'>
+                <div className='w-full'>
+                  {/* Input wrapper */}
+                  <div className='flex items-center rounded-lg border bg-blue-50 px-2 h-10'>
+                    <Image
+                      src='/saudi_flag.svg'
+                      alt='saudi flag'
+                      width={24}
+                      height={24}
+                      className='mr-3'
+                    />
+
                     <Input
                       type='tel'
                       name='phoneNumber'
                       value={formik.values.phoneNumber}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      placeholder='Phone number'
-                      className={`bg-blue-50 h-10 py-2 ${
-                        hasError('phoneNumber') ? 'border-red-500 border' : ''
-                      }`}
+                      placeholder={t('profile.phoneNumber')}
+                      className='flex-1 bg-transparent border-none outline-none focus:ring-0'
                     />
-                    {hasError('phoneNumber') && (
-                      <p className='text-red-500 text-xs mt-1'>
-                        {getErrorMessage('phoneNumber')}
-                      </p>
-                    )}
                   </div>
+
+                  {hasError('phoneNumber') && (
+                    <p className='text-red-500 text-xs mt-1'>
+                      {getErrorMessage('phoneNumber')}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -440,7 +466,7 @@ export default function BusinessDetailsFormPage() {
             {/* Company Name in Local Language */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Company Name (Local Language):
+                {t('profile.companyNameLocal')}:
               </label>
               <Input
                 type='text'
@@ -448,7 +474,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.companyNameLocal}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Company name'
+                placeholder={t('profile.specifyCompanyName')}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
@@ -471,7 +497,8 @@ export default function BusinessDetailsFormPage() {
                   {uploadProgress > 0 && uploadProgress < 100 && (
                     <div className='w-full max-w-xs'>
                       <div className='text-xs text-gray-600 mb-1'>
-                        Uploading: {uploadProgress}%
+                        {t('profile.uploading', { defaultValue: 'Uploading:' })}{' '}
+                        {uploadProgress}%
                       </div>
                       <div className='w-full bg-gray-300 rounded-full h-2'>
                         <div
@@ -489,23 +516,27 @@ export default function BusinessDetailsFormPage() {
                       setLogo(null);
                       setLogoPreview('');
                       setUploadProgress(0);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
                   >
-                    Change Logo
+                    {t('profile.changeLogo', { defaultValue: 'Remove Logo' })}
                   </button>
                 </div>
               ) : (
                 <>
-                  <div className='text-4xl font-bold text-gray-300'>Logo</div>
+                  <div className='text-4xl font-bold text-gray-300'>
+                    {t('profile.logo')}
+                  </div>
                   <Upload className='h-8 w-8 text-gray-400' />
                   <p className='text-center text-gray-400 text-sm'>
-                    Drag and drop your image here or click to select
+                    {t('profile.dragDrop')}
                   </p>
                 </>
               )}
               <input
                 type='file'
                 accept='image/*'
+                ref={fileInputRef}
                 onChange={handleLogoChange}
                 className='hidden'
                 disabled={isLoading}
@@ -518,7 +549,7 @@ export default function BusinessDetailsFormPage() {
         <div className='relative flex items-center py-2'>
           <div className='grow border-t-2 border-blue-100'></div>
           <span className='mx-6 text-sm font-semibold text-blue-600'>
-            ADDRESS
+            {t('profile.address')}
           </span>
           <div className='grow border-t-2 border-blue-100'></div>
         </div>
@@ -527,7 +558,7 @@ export default function BusinessDetailsFormPage() {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Street Address:
+              {t('profile.addressStreet')}
             </label>
             <div className='w-full'>
               <Input
@@ -536,14 +567,14 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.addressStreet}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Street name'
+                placeholder={t('profile.addressPlaceholder1')}
                 className='bg-blue-50 h-10 py-2 w-full'
               />
             </div>
           </div>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Street Address (Additional):
+              {t('profile.addressStreetAdditional')}
             </label>
             <div className='w-full'>
               <Input
@@ -552,14 +583,15 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.addressStreetAdditional}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Additional address details'
+                placeholder={t('profile.addressPlaceholder2')}
                 className='bg-blue-50 h-10 py-2 w-full'
               />
             </div>
           </div>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Building Number: <span className='text-red-500'>*</span>
+              {t('profile.buildingNumber')}:{' '}
+              <span className='text-red-500'>*</span>
             </label>
             <div className='w-full'>
               <Input
@@ -568,7 +600,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.buildingNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter number'
+                placeholder={t('profile.numberPlaceholder')}
                 className={`bg-blue-50 h-10 py-2 w-full ${
                   hasError('buildingNumber') ? 'border-red-500 border' : ''
                 }`}
@@ -586,7 +618,7 @@ export default function BusinessDetailsFormPage() {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Country: <span className='text-red-500'>*</span>
+              {t('profile.country')}: <span className='text-red-500'>*</span>
             </label>
             <div className='w-full'>
               <Select
@@ -600,7 +632,7 @@ export default function BusinessDetailsFormPage() {
                     hasError('country') ? 'border-red-500 border' : ''
                   }`}
                 >
-                  <SelectValue placeholder='Select country' />
+                  <SelectValue placeholder={t('profile.selectCountry')} />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
@@ -622,7 +654,7 @@ export default function BusinessDetailsFormPage() {
           </div>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Province/State:
+              {t('profile.province')}:
             </label>
             <div className='w-full'>
               <Input
@@ -631,14 +663,14 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.province}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Province or state'
+                placeholder={t('profile.provinceState')}
                 className='bg-blue-50 h-10 py-2 w-full'
               />
             </div>
           </div>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              City: <span className='text-red-500'>*</span>
+              {t('profile.city')}: <span className='text-red-500'>*</span>
             </label>
             <div className='w-full'>
               <Input
@@ -647,7 +679,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.city}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='City name'
+                placeholder={t('profile.cityPlaceholder')}
                 className={`bg-blue-50 h-10 py-2 w-full ${
                   hasError('city') ? 'border-red-500 border' : ''
                 }`}
@@ -665,7 +697,7 @@ export default function BusinessDetailsFormPage() {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              District: <span className='text-red-500'>*</span>
+              {t('profile.district')}: <span className='text-red-500'>*</span>
             </label>
             <div className='w-full'>
               <Input
@@ -674,7 +706,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.district}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='District name'
+                placeholder={t('profile.districtPlaceholder')}
                 className={`bg-blue-50 h-10 py-2 w-full ${
                   hasError('district') ? 'border-red-500 border' : ''
                 }`}
@@ -688,7 +720,7 @@ export default function BusinessDetailsFormPage() {
           </div>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Postal Code: <span className='text-red-500'>*</span>
+              {t('profile.postalCode')}: <span className='text-red-500'>*</span>
             </label>
             <div className='w-full'>
               <Input
@@ -697,7 +729,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.postalCode}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Postal code'
+                placeholder={t('profile.postalCodePlaceholder')}
                 className={`bg-blue-50 h-10 py-2 w-full ${
                   hasError('postalCode') ? 'border-red-500 border' : ''
                 }`}
@@ -711,7 +743,7 @@ export default function BusinessDetailsFormPage() {
           </div>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Additional Number:
+              {t('profile.additionalNumber')}:
             </label>
             <div className='w-full'>
               <Input
@@ -720,7 +752,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.additionalNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter number'
+                placeholder={t('profile.numberPlaceholder')}
                 className='bg-blue-50 h-10 py-2 w-full'
               />
             </div>
@@ -730,7 +762,7 @@ export default function BusinessDetailsFormPage() {
         {/* Address in Local Language */}
         <div>
           <label className='block text-sm font-medium text-gray-700 mb-2'>
-            Address Local Language
+            {t('profile.addressLocalLanguage')}
           </label>
           <div className='w-full'>
             <textarea
@@ -738,7 +770,7 @@ export default function BusinessDetailsFormPage() {
               value={formik.values.addressLocal}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              placeholder='Address in local language'
+              placeholder={t('profile.addressPlaceholder2')}
               className='w-full p-3 border border-gray-300 rounded-md bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none'
               rows={4}
             />
@@ -751,7 +783,7 @@ export default function BusinessDetailsFormPage() {
 
           {/* The centered text */}
           <span className='mx-6 text-sm font-semibold text-blue-600'>
-            VAT INFO
+            {t('profile.vatInfo')}
           </span>
 
           {/* The other side of the line */}
@@ -761,7 +793,8 @@ export default function BusinessDetailsFormPage() {
         {/* VAT Registration */}
         <div>
           <label className='block text-sm font-medium text-gray-700 mb-3'>
-            Is Saudi VAT Registered: <span className='text-red-500'>*</span>
+            {t('profile.isSaudiVatRegistered')}:{' '}
+            <span className='text-red-500'>*</span>
           </label>
           <div className='flex gap-6'>
             <label className='flex items-center gap-2 cursor-pointer'>
@@ -774,7 +807,7 @@ export default function BusinessDetailsFormPage() {
                 onBlur={formik.handleBlur}
                 className='w-4 h-4'
               />
-              <span className='text-gray-700'>Yes</span>
+              <span className='text-gray-700'>{t('profile.yes')}</span>
             </label>
             <label className='flex items-center gap-2 cursor-pointer'>
               <input
@@ -786,7 +819,7 @@ export default function BusinessDetailsFormPage() {
                 onBlur={formik.handleBlur}
                 className='w-4 h-4'
               />
-              <span className='text-gray-700'>No</span>
+              <span className='text-gray-700'>{t('profile.no')}</span>
             </label>
           </div>
           {hasError('isVatRegistered') && (
@@ -805,7 +838,7 @@ export default function BusinessDetailsFormPage() {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Company Registration Number:{' '}
+                {t('profile.companyRegistrationNumber')}:{' '}
                 <span className='text-red-500'>*</span>
               </label>
               <Input
@@ -814,7 +847,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.companyRegistrationNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Specify company registration number'
+                placeholder={t('profile.specifyCompanyRegNumber')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('companyRegistrationNumber')
                     ? 'border-red-500 border'
@@ -829,7 +862,7 @@ export default function BusinessDetailsFormPage() {
             </div>
             <div className='px-4'>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                VAT Number: <span className='text-red-500'>*</span>
+                {t('profile.vatNo')}: <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -837,7 +870,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.vatNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='VAT number'
+                placeholder={t('profile.vatNumberPlaceholder')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('vatNumber') ? 'border-red-500 border' : ''
                 }`}
@@ -850,7 +883,7 @@ export default function BusinessDetailsFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Group VAT Number:
+                {t('profile.groupVatNo')}:
               </label>
               <Input
                 type='text'
@@ -858,7 +891,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.groupVatNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Not available'
+                placeholder={t('profile.notAvailable')}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
@@ -873,20 +906,21 @@ export default function BusinessDetailsFormPage() {
 
             {/* The centered text */}
             <span className='mx-6 text-sm font-semibold text-blue-600'>
-              ADDITIONAL INFO
+              {t('profile.additionalInfo')}
             </span>
 
             {/* The other side of the line */}
             <div className='grow border-t-2 border-blue-100'></div>
           </div>
           <p className='text-xs text-gray-600 mb-4'>
-            For non-KSA VAT registration, provide relevant identification
+            {t('profile.nonKsaVatInfo')}
           </p>
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Identification Type: <span className='text-red-500'>*</span>
+                {t('profile.identification')}:{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Select
                 value={formik.values.identificationType}
@@ -901,19 +935,38 @@ export default function BusinessDetailsFormPage() {
                       : ''
                   }`}
                 >
-                  <SelectValue placeholder='Select identification type' />
+                  <SelectValue
+                    placeholder={t('profile.identificationTypePlaceholder')}
+                  />
                 </SelectTrigger>
+
                 <SelectContent>
-                  <SelectItem value='commercial_registration_number'>
-                    Commercial Registration
+                  {identificationTypes.map((option, index) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                    >
+                      {t(`${option.displayText}`)}
+                    </SelectItem>
+                  ))}
+                  {/* <SelectItem value='commercial_registration_number'>
+                    {t('profile.commercialRegistration')}
                   </SelectItem>
-                  <SelectItem value='momra_license'>MOMRA License</SelectItem>
-                  <SelectItem value='mlsd_license'>MLSD License</SelectItem>
-                  <SelectItem value='sagia_license'>SAGIA License</SelectItem>
+                  <SelectItem value='momra_license'>
+                    {t('profile.momraLicense')}
+                  </SelectItem>
+                  <SelectItem value='mlsd_license'>
+                    {t('profile.mlsdLicense')}
+                  </SelectItem>
+                  <SelectItem value='sagia_license'>
+                    {t('profile.sagiaLicense')}
+                  </SelectItem>
                   <SelectItem value='ministry_of_justice_license'>
-                    Ministry of Justice License
+                    {t('profile.ministryOfJustice')}
                   </SelectItem>
-                  <SelectItem value='other_id'>Other ID</SelectItem>
+                  <SelectItem value='other_id'>
+                    {t('profile.otherID')}
+                  </SelectItem> */}
                 </SelectContent>
               </Select>
               {hasError('identificationType') && (
@@ -924,7 +977,8 @@ export default function BusinessDetailsFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Identification Number: <span className='text-red-500'>*</span>
+                {t('profile.identificationNumber')}:{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -932,7 +986,7 @@ export default function BusinessDetailsFormPage() {
                 value={formik.values.identificationNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Identification Number'
+                placeholder={t('profile.identificationNumberPlaceholder')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('identificationNumber')
                     ? 'border-red-500 border'
@@ -947,6 +1001,91 @@ export default function BusinessDetailsFormPage() {
             </div>
           </div>
         </div>
+
+        {/* Refund Policy Section */}
+        <Accordion
+          type='single'
+          collapsible
+          defaultValue='refund-policy'
+          className='space-y-4'
+        >
+          <AccordionItem
+            value='refund-policy'
+            className='border-none'
+          >
+            {/* Header */}
+            <AccordionTrigger className='relative flex items-center py-2 hover:no-underline group'>
+              <div className='grow border-t-2 border-blue-100'></div>
+
+              <span className='mx-6 text-sm font-semibold text-blue-500 flex items-center gap-2'>
+                REFUND POLICY
+                <ChevronDown className='h-4 w-4 text-blue-400 transition-transform duration-300 group-data-[state=open]:rotate-180' />
+              </span>
+
+              <div className='grow border-t-2 border-blue-100'></div>
+            </AccordionTrigger>
+
+            {/* Content */}
+            <AccordionContent className='pt-4 space-y-4'>
+              {/* Description */}
+              <p className='text-sm text-gray-500'>
+                The refund policy outlines the rules for obtaining refunds for
+                purchased goods and services. This policy will be included in
+                all simple and standard invoices.
+              </p>
+
+              {/* Refund Policy (English) */}
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Refund Policy:
+                </label>
+                <textarea
+                  name='refundPolicy'
+                  value={formik.values.refundPolicy}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder='No refunds'
+                  rows={3}
+                  className={`w-full bg-blue-50 border rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    hasError('refundPolicy')
+                      ? 'border-red-500'
+                      : 'border-blue-200'
+                  }`}
+                />
+                {hasError('refundPolicy') && (
+                  <p className='text-red-500 text-xs mt-1'>
+                    {getErrorMessage('refundPolicy')}
+                  </p>
+                )}
+              </div>
+
+              {/* Refund Policy (Local Language) */}
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Refund Policy in local language:
+                </label>
+                <textarea
+                  name='refundPolicyLocal'
+                  value={formik.values.refundPolicyLocal}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder='لا يوجد استرجاع'
+                  rows={3}
+                  className={`w-full bg-blue-50 border rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    hasError('refundPolicyLocal')
+                      ? 'border-red-500'
+                      : 'border-blue-200'
+                  }`}
+                />
+                {hasError('refundPolicyLocal') && (
+                  <p className='text-red-500 text-xs mt-1'>
+                    {getErrorMessage('refundPolicyLocal')}
+                  </p>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </form>
     </div>
   );

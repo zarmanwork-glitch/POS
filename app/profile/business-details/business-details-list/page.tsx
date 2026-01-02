@@ -73,7 +73,7 @@ export default function BusinessDetailsListPage() {
         const response = await getBusinessDetailsList({
           token,
           offset: 0,
-          limit: 100,
+          limit: 10,
         });
 
         let detailsList: BusinessDetail[] = [];
@@ -194,7 +194,9 @@ export default function BusinessDetailsListPage() {
                   colSpan={6}
                   className='text-center py-10 text-gray-500'
                 >
-                  Loading business details...
+                  {t('profile.loading', {
+                    defaultValue: 'Loading business details...',
+                  })}
                 </TableCell>
               </TableRow>
             ) : data.length === 0 ? (
@@ -256,7 +258,7 @@ export default function BusinessDetailsListPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align='end'>
                         <DropdownMenuItem onClick={() => handleEdit(detail.id)}>
-                          {t('Edit')}
+                          {t('profile.edit', { defaultValue: 'Edit' })}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className='text-red-600 focus:text-red-600'
@@ -264,7 +266,7 @@ export default function BusinessDetailsListPage() {
                             handleDeleteClick(detail.id, detail.companyName)
                           }
                         >
-                          {t('Delete')}
+                          {t('profile.delete', { defaultValue: 'Delete' })}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -283,12 +285,19 @@ export default function BusinessDetailsListPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('Confirm Delete')}</DialogTitle>
+            <DialogTitle>
+              {t('profile.confirmDelete', { defaultValue: 'Confirm Delete' })}
+            </DialogTitle>
             <DialogDescription>
-              {t('Are you sure you want to delete the business detail for')}{' '}
+              {t('profile.areYouSureDelete', {
+                defaultValue:
+                  'Are you sure you want to delete the business detail for',
+              })}{' '}
               <strong>{deleteItemName}</strong>?
               <br />
-              {t('This action cannot be undone.')}
+              {t('profile.actionCannotBeUndone', {
+                defaultValue: 'This action cannot be undone.',
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className='gap-2 mt-4'>
@@ -297,14 +306,16 @@ export default function BusinessDetailsListPage() {
               onClick={() => setDeleteModalOpen(false)}
               disabled={isDeleting}
             >
-              {t('Cancel')}
+              {t('profile.cancel')}
             </Button>
             <Button
               className='bg-red-600 hover:bg-red-700'
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? t('Deleting...') : t('Delete')}
+              {isDeleting
+                ? t('profile.deleting', { defaultValue: 'Deleting...' })
+                : t('profile.delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>
