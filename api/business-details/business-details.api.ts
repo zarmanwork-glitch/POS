@@ -1,5 +1,6 @@
 import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
+import { successMessagesEnums } from '@/enums/successMessages.enum';
 import axios from 'axios';
 
 interface BusinessDetailsType {
@@ -69,7 +70,7 @@ export const addBusinessDetails = async ({
     method: backendApiEnums.METHODS.POST,
     payload,
     isDisplayResponsePopUp: true,
-    successMessage: 'Business details added successfully',
+    successMessage: successMessagesEnums.BUSINESS_DETAILS.ADD_BUSINESS_DETAILS,
     successCallback: successCallbackFunction,
   });
 };
@@ -139,7 +140,8 @@ export const updateBusinessDetails = async ({
     method: backendApiEnums.METHODS.PATCH,
     payload,
     isDisplayResponsePopUp: true,
-    successMessage: 'Business details updated successfully',
+    successMessage:
+      successMessagesEnums.BUSINESS_DETAILS.UPDATE_BUSINESS_DETAILS,
     successCallback: successCallbackFunction,
   });
 };

@@ -46,12 +46,7 @@ export default function SignInPage() {
             password: values.password,
           },
           successCallbackFunction: () => {
-            toast.success('Login successful! Redirecting...', {
-              duration: 2000,
-            });
-            setTimeout(() => {
-              router.push('/dashboard');
-            }, 1000);
+            router.push('/dashboard');
           },
         });
 

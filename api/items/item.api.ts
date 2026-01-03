@@ -33,6 +33,13 @@ export const getItemsList = async ({
   searchBy = '',
   search = '',
   sortBy = '',
+  orderBy = 'desc',
+  status = '',
+  unitOfMeasure = '',
+  buyPriceMin,
+  buyPriceMax,
+  sellPriceMin,
+  sellPriceMax,
 }: {
   token: string;
   offset?: number;
@@ -40,6 +47,13 @@ export const getItemsList = async ({
   searchBy?: string;
   search?: string;
   sortBy?: string;
+  orderBy?: string;
+  status?: string;
+  unitOfMeasure?: string;
+  buyPriceMin?: number | string;
+  buyPriceMax?: number | string;
+  sellPriceMin?: number | string;
+  sellPriceMax?: number | string;
 }) => {
   const payload: any = {
     offSet: offset,
@@ -67,6 +81,35 @@ export const getItemsList = async ({
     };
     payload.sortBy = sortByMap[sortBy] || sortBy.toLowerCase();
   }
+
+  if (orderBy) {
+    payload.orderBy = orderBy;
+  }
+
+  // Additional filters
+  if (status) {
+    payload.status = String(status).toLowerCase();
+  }
+
+  if (unitOfMeasure) {
+    payload.unitOfMeasure = unitOfMeasure;
+  }
+
+  const toNumberIfPresent = (v: any) => {
+    if (v === undefined || v === null || v === '') return undefined;
+    const n = Number(v);
+    return Number.isNaN(n) ? undefined : n;
+  };
+
+  const bMin = toNumberIfPresent(buyPriceMin);
+  const bMax = toNumberIfPresent(buyPriceMax);
+  const sMin = toNumberIfPresent(sellPriceMin);
+  const sMax = toNumberIfPresent(sellPriceMax);
+
+  if (bMin !== undefined) payload.buyPriceMin = bMin;
+  if (bMax !== undefined) payload.buyPriceMax = bMax;
+  if (sMin !== undefined) payload.sellPriceMin = sMin;
+  if (sMax !== undefined) payload.sellPriceMax = sMax;
 
   return api_client({
     token,

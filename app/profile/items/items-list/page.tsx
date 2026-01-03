@@ -42,17 +42,28 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import Cookies from 'js-cookie';
-import { ChevronDown, MoreHorizontal, Plus, Settings2 } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  MoreHorizontal,
+  Plus,
+  Settings2,
+  SortAsc,
+  SortDesc,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { unitOfMeasures } from '@/enums/unitOfMeasure';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function ItemsListPage() {
   const [searchDescription, setSearchDescription] = useState('');
-  const [sortBy, setSortBy] = useState('');
-  const [searchBy, setSearchBy] = useState('');
+  const [sortBy, setSortBy] = useState('Chronological');
+  const [searchBy, setSearchBy] = useState('Description');
+  const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('desc');
   const [showFilters, setShowFilters] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,12 +78,18 @@ export default function ItemsListPage() {
   const { t } = useTranslation();
   const router = useRouter();
 
-  const [filters, setFilters] = useState({
+  const initialFilters = {
     status: 'Both',
-    unitOfMeasure: 'Acre',
+    unitOfMeasure: '',
     buyCurrency: 'NA',
     sellCurrency: 'NA',
-  });
+    buyPriceMin: '',
+    buyPriceMax: '',
+    sellPriceMin: '',
+    sellPriceMax: '',
+  };
+
+  const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -85,13 +102,37 @@ export default function ItemsListPage() {
         }
 
         const offset = Math.max(0, (page - 1) * limit);
-        const response = await getItemsList({
+        const payloadToSend: any = {
           token,
           offset,
           limit,
-          ...(searchDescription && { searchBy, search: searchDescription }),
-          ...(sortBy && { sortBy }),
-        });
+          orderBy,
+          status: filters.status,
+          unitOfMeasure: filters.unitOfMeasure,
+        };
+
+        if (searchDescription)
+          Object.assign(payloadToSend, { searchBy, search: searchDescription });
+        if (sortBy) Object.assign(payloadToSend, { sortBy });
+        if (filters.buyPriceMin !== '')
+          payloadToSend.buyPriceMin = filters.buyPriceMin;
+        if (filters.buyPriceMax !== '')
+          payloadToSend.buyPriceMax = filters.buyPriceMax;
+        if (filters.sellPriceMin !== '')
+          payloadToSend.sellPriceMin = filters.sellPriceMin;
+        if (filters.sellPriceMax !== '')
+          payloadToSend.sellPriceMax = filters.sellPriceMax;
+
+        // Ensure offset 0 and limit 10 are sent for initial page 1
+        payloadToSend.offset = offset;
+        payloadToSend.limit = limit;
+
+        // Debug payload to help diagnose pagination/filter issues
+        // Remove or guard in production if needed
+        // eslint-disable-next-line no-console
+        console.debug('Fetching items with payload:', payloadToSend);
+
+        const response = await getItemsList(payloadToSend);
 
         if (response?.data?.status === 'success') {
           const fetched = response.data.data?.results?.items || [];
@@ -134,7 +175,7 @@ export default function ItemsListPage() {
     };
 
     fetchItems();
-  }, [searchBy, searchDescription, sortBy]);
+  }, [searchBy, searchDescription, sortBy, page, filters, orderBy]);
 
   // Backend handles filtering and sorting, just use items as-is
   const filteredItems = items;
@@ -209,9 +250,9 @@ export default function ItemsListPage() {
           <div className='relative mr-auto'>
             <button
               onClick={() => setShowFilters(true)}
-              className='p-2 hover:bg-gray-100 rounded-lg '
+              className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200 '
             >
-              <Settings2 className='h-7 w-7 text-gray-600' />
+              <Settings2 className='h-4 w-4 text-gray-600' />
             </button>
 
             {/* FILTER PANEL */}
@@ -267,7 +308,6 @@ export default function ItemsListPage() {
                       </SelectContent>
                     </Select>
                   </div>
-
                   {/* Unit */}
                   <div className='space-y-1  flex items-center justify-between'>
                     <label className='text-xs font-medium'>
@@ -283,67 +323,88 @@ export default function ItemsListPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='Acre'>Acre</SelectItem>
-                        <SelectItem value='Square Kilometre'>
-                          Square Kilometre
-                        </SelectItem>
-                        <SelectItem value='Meter'>Meter</SelectItem>
-                        <SelectItem value='Kilogram'>Kilogram</SelectItem>
-                        <SelectItem value='Liter'>Liter</SelectItem>
+                        {unitOfMeasures.map((u) => (
+                          <SelectItem
+                            key={u.value}
+                            value={u.value}
+                          >
+                            {u.displayText}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
-
-                  {/* Buy Currency */}
-                  <div className='space-y-1  flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Buy Currency</label>
-                    <Select
-                      value={filters.buyCurrency}
-                      onValueChange={(v) =>
-                        setFilters({ ...filters, buyCurrency: v })
-                      }
-                    >
-                      <SelectTrigger className='h-8'>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='NA'>NA</SelectItem>
-                        <SelectItem value='USD'>USD</SelectItem>
-                        <SelectItem value='SAR'>SAR</SelectItem>
-                        <SelectItem value='EUR'>EUR</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  {/* Buy Price */}
+                  <div className='space-y-1 flex items-center justify-between'>
+                    <label className='text-xs font-medium'>Buy Price</label>
+                    <div className='flex items-center gap-2'>
+                      <Input
+                        className='h-8 w-24'
+                        placeholder='Min'
+                        value={filters.buyPriceMin}
+                        onChange={(e) =>
+                          setFilters({
+                            ...filters,
+                            buyPriceMin: e.target.value,
+                          })
+                        }
+                      />
+                      <span className='text-sm text-gray-500 px-1'>:</span>
+                      <Input
+                        className='h-8 w-24'
+                        placeholder='Max'
+                        value={filters.buyPriceMax}
+                        onChange={(e) =>
+                          setFilters({
+                            ...filters,
+                            buyPriceMax: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
-
-                  {/* Sell Currency */}
-                  <div className='space-y-1  flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Sell Currency</label>
-                    <Select
-                      value={filters.sellCurrency}
-                      onValueChange={(v) =>
-                        setFilters({ ...filters, sellCurrency: v })
-                      }
-                    >
-                      <SelectTrigger className='h-8'>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='NA'>NA</SelectItem>
-                        <SelectItem value='USD'>USD</SelectItem>
-                        <SelectItem value='SAR'>SAR</SelectItem>
-                        <SelectItem value='EUR'>EUR</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  {/* Sell Price */}
+                  <div className='space-y-1 flex items-center justify-between'>
+                    <label className='text-xs font-medium'>Sell Price</label>
+                    <div className='flex items-center gap-2'>
+                      <Input
+                        className='h-8 w-24'
+                        placeholder='Min'
+                        value={filters.sellPriceMin}
+                        onChange={(e) =>
+                          setFilters({
+                            ...filters,
+                            sellPriceMin: e.target.value,
+                          })
+                        }
+                      />
+                      <span className='text-sm text-gray-500 px-1'>:</span>
+                      <Input
+                        className='h-8 w-24'
+                        placeholder='Max'
+                        value={filters.sellPriceMax}
+                        onChange={(e) =>
+                          setFilters({
+                            ...filters,
+                            sellPriceMax: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
-
                   {/* Actions */}
                   <div className='sticky bottom-0 bg-white flex gap-2 pt-3 border-t'>
-                    <Button className='flex-1 h-8 text-xs bg-blue-600 hover:bg-blue-700'>
-                      {t('profile.apply', { defaultValue: 'Apply' })}
-                    </Button>
                     <Button
                       variant='outline'
                       className='flex-1 h-8 text-xs'
+                      onClick={() => {
+                        setFilters(initialFilters);
+                        setPage(1);
+                        setSearchDescription('');
+                        setSearchBy('Description');
+                        setSortBy('Chronological');
+                        setOrderBy('desc');
+                      }}
                     >
                       {t('profile.reset', { defaultValue: 'Reset' })}
                     </Button>
@@ -351,6 +412,145 @@ export default function ItemsListPage() {
                 </div>
               </>
             )}
+
+            {/* Active filters preview (below the filter icon) */}
+            {!showFilters &&
+              (() => {
+                const active: Array<{ key: string; label: string }> = [];
+                if (filters.status && filters.status !== initialFilters.status)
+                  active.push({
+                    key: 'status',
+                    label: `Status: ${filters.status}`,
+                  });
+                if (filters.unitOfMeasure) {
+                  const u = unitOfMeasures.find(
+                    (uu) => uu.value === filters.unitOfMeasure
+                  );
+                  active.push({
+                    key: 'unitOfMeasure',
+                    label: `Unit: ${u ? u.displayText : filters.unitOfMeasure}`,
+                  });
+                }
+                if (
+                  filters.buyCurrency &&
+                  filters.buyCurrency !== initialFilters.buyCurrency
+                )
+                  active.push({
+                    key: 'buyCurrency',
+                    label: `Buy: ${filters.buyCurrency}`,
+                  });
+                if (
+                  filters.sellCurrency &&
+                  filters.sellCurrency !== initialFilters.sellCurrency
+                )
+                  active.push({
+                    key: 'sellCurrency',
+                    label: `Sell: ${filters.sellCurrency}`,
+                  });
+                if (filters.buyPriceMin || filters.buyPriceMax) {
+                  active.push({
+                    key: 'buyPrice',
+                    label: `Buy: ${filters.buyPriceMin || '-'} - ${
+                      filters.buyPriceMax || '-'
+                    }`,
+                  });
+                }
+                if (filters.sellPriceMin || filters.sellPriceMax) {
+                  active.push({
+                    key: 'sellPrice',
+                    label: `Sell: ${filters.sellPriceMin || '-'} - ${
+                      filters.sellPriceMax || '-'
+                    }`,
+                  });
+                }
+                if (searchDescription)
+                  active.push({
+                    key: 'search',
+                    label: `${searchBy}: ${searchDescription}`,
+                  });
+                if (
+                  sortBy &&
+                  (sortBy !== 'Chronological' || orderBy !== 'desc')
+                )
+                  active.push({
+                    key: 'sort',
+                    label: `Sort: ${sortBy} ${orderBy}`,
+                  });
+
+                if (active.length === 0) return null;
+
+                const clearFilter = (key: string) => {
+                  switch (key) {
+                    case 'status':
+                      setFilters({ ...filters, status: initialFilters.status });
+                      break;
+                    case 'unitOfMeasure':
+                      setFilters({
+                        ...filters,
+                        unitOfMeasure: initialFilters.unitOfMeasure,
+                      });
+                      break;
+                    case 'buyCurrency':
+                      setFilters({
+                        ...filters,
+                        buyCurrency: initialFilters.buyCurrency,
+                      });
+                      break;
+                    case 'sellCurrency':
+                      setFilters({
+                        ...filters,
+                        sellCurrency: initialFilters.sellCurrency,
+                      });
+                      break;
+                    case 'buyPrice':
+                      setFilters({
+                        ...filters,
+                        buyPriceMin: '',
+                        buyPriceMax: '',
+                      });
+                      break;
+                    case 'sellPrice':
+                      setFilters({
+                        ...filters,
+                        sellPriceMin: '',
+                        sellPriceMax: '',
+                      });
+                      break;
+                    case 'search':
+                      setSearchDescription('');
+                      break;
+                    case 'sort':
+                      setSortBy('Chronological');
+                      setOrderBy('desc');
+                      break;
+                    default:
+                      break;
+                  }
+                  setPage(1);
+                };
+
+                return (
+                  <div className='mt-2 w-72 p-2 '>
+                    <div className='flex flex-wrap gap-2'>
+                      {active.map((a) => (
+                        <span
+                          key={a.key}
+                          className='flex items-center gap-2 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full'
+                        >
+                          <span>{a.label}</span>
+                          <button
+                            onClick={() => clearFilter(a.key)}
+                            aria-label={`Clear ${a.key}`}
+                            className='ml-1 text-blue-700 hover:text-blue-900'
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
           </div>
 
           {/* Sort */}
@@ -377,6 +577,21 @@ export default function ItemsListPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <button
+              aria-label='Toggle order'
+              title={orderBy === 'desc' ? 'Descending' : 'Ascending'}
+              onClick={() => {
+                setOrderBy(orderBy === 'desc' ? 'asc' : 'desc');
+                setPage(1);
+              }}
+              className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200'
+            >
+              {orderBy === 'desc' ? (
+                <SortDesc className='h-4 w-4 text-gray-600' />
+              ) : (
+                <SortAsc className='h-4 w-4 text-gray-600' />
+              )}
+            </button>
           </div>
 
           {/* Search By */}
@@ -436,11 +651,9 @@ export default function ItemsListPage() {
                     colSpan={6}
                     className='text-center py-8'
                   >
-                    <span className='text-gray-500'>
-                      {t('profile.loading', {
-                        defaultValue: 'Loading items...',
-                      })}
-                    </span>
+                    <div className='flex flex-col items-center justify-center gap-2'>
+                      <Spinner className='h-8 w-8' />
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : filteredItems.length === 0 ? (

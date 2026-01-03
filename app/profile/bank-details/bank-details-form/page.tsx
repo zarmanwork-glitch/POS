@@ -111,7 +111,6 @@ export default function AddBankDetailsPage() {
           token,
           payload,
           successCallbackFunction: () => {
-            toast.success('Bank details updated successfully');
             router.push('/profile/bank-details/bank-details-list');
           },
         });
@@ -120,7 +119,6 @@ export default function AddBankDetailsPage() {
           token,
           payload,
           successCallbackFunction: () => {
-            toast.success('Bank details added successfully');
             router.push('/profile/bank-details/bank-details-list');
           },
         });

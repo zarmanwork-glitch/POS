@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { units } from '@/json/units.json';
+import { unitOfMeasures } from '@/enums/unitOfMeasure';
 import { useFormik } from 'formik';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -331,12 +332,12 @@ export default function NewItemPage() {
                   <SelectValue placeholder='Select a unit' />
                 </SelectTrigger>
                 <SelectContent>
-                  {units.map((unit) => (
+                  {unitOfMeasures.map((unit) => (
                     <SelectItem
-                      key={unit}
-                      value={unit}
+                      key={unit.value}
+                      value={unit.value}
                     >
-                      {unit}
+                      {unit.displayText}
                     </SelectItem>
                   ))}
                 </SelectContent>

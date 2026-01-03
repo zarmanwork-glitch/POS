@@ -1,5 +1,6 @@
 import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
+import { successMessagesEnums } from '@/enums/successMessages.enum';
 import Cookies from 'js-cookie';
 
 interface LoginPayload {
@@ -34,6 +35,8 @@ export const login = async ({
       method: backendApiEnums.METHODS.POST,
       payload,
       isDisplayResponsePopUp: false,
+      successMessage: successMessagesEnums.AUTH.LOGIN,
+      successCallback: successCallbackFunction,
     });
 
     // Type the response data

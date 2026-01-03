@@ -1,5 +1,6 @@
 import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
+import { successMessagesEnums } from '@/enums/successMessages.enum';
 
 interface BankDetailsType {
   token: string;
@@ -19,7 +20,7 @@ export const addBankDetails = async ({
     method: backendApiEnums.METHODS.POST,
     payload,
     isDisplayResponsePopUp: true,
-    successMessage: 'Bank details added successfully',
+    successMessage: successMessagesEnums.BANK_DETAILS.ADD_BANK_DETAILS,
     successCallback: successCallbackFunction,
   });
 };
@@ -35,7 +36,7 @@ export const updateBankDetails = async ({
     method: backendApiEnums.METHODS.PATCH,
     payload,
     isDisplayResponsePopUp: true,
-    successMessage: 'Bank details updated successfully',
+    successMessage: successMessagesEnums.BANK_DETAILS.UPDATE_BANK_DETAILS,
     successCallback: successCallbackFunction,
   });
 };

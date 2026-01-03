@@ -1,5 +1,6 @@
 import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
+import { successMessagesEnums } from '@/enums/successMessages.enum';
 
 interface CustomerType {
   token: string;
@@ -18,7 +19,7 @@ export const createCustomer = async ({
     method: backendApiEnums.METHODS.POST,
     payload,
     isDisplayResponsePopUp: true,
-    successMessage: 'Customer created successfully',
+    successMessage: successMessagesEnums.CUSTOMERS.ADD_CUSTOMER,
     successCallback: successCallbackFunction,
   });
 };
@@ -34,7 +35,7 @@ export const updateCustomer = async ({
     method: backendApiEnums.METHODS.PATCH,
     payload,
     isDisplayResponsePopUp: true,
-    successMessage: 'Customer updated successfully',
+    successMessage: successMessagesEnums.CUSTOMERS.UPDATE_CUSTOMER,
     successCallback: successCallbackFunction,
   });
 };
