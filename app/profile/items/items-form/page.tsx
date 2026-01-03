@@ -62,7 +62,7 @@ export default function NewItemPage() {
   const formik = useFormik({
     initialValues: {
       itemType: '',
-      itemStatus: '',
+      itemStatus: 'enabled',
       description: '',
       materialNo: '',
       unitOfMeasure: '',
@@ -92,7 +92,7 @@ export default function NewItemPage() {
 
             formik.setValues({
               itemType: data.itemType || '',
-              itemStatus: data.itemStatus || '',
+              itemStatus: data.itemStatus ?? 'enabled',
               description: data.description || '',
               materialNo: data.materialNo || '',
               unitOfMeasure: data.unitOfMeasure || '',
@@ -131,7 +131,6 @@ export default function NewItemPage() {
           token,
           payload,
           successCallbackFunction: () => {
-            toast.success('Item updated successfully');
             router.push('/profile/items/items-list');
           },
         });
@@ -140,7 +139,6 @@ export default function NewItemPage() {
           token,
           payload,
           successCallbackFunction: () => {
-            toast.success('Item created successfully');
             router.push('/profile/items/items-list');
           },
         });
@@ -158,6 +156,7 @@ export default function NewItemPage() {
 
   const getErrorMessage = (field: keyof typeof formik.errors) =>
     formik.touched[field] && formik.errors[field] ? formik.errors[field] : '';
+
   // Loading spinner component
   if (isLoadingDetails) {
     return (

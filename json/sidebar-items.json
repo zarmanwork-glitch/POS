@@ -23,11 +23,7 @@
   {
     "label": "Documents",
     "icon": "FileText",
-    "children": [
-      { "label": "Invoice", "href": "/documents/invoice" },
-      { "label": "Credit Note", "href": "/documents/credit-note" },
-      { "label": "Debit Note", "href": "/documents/debit-note" }
-    ]
+    "children": [{ "label": "Invoice", "href": "/documents/invoice" }]
   },
   {
     "label": "Customers",

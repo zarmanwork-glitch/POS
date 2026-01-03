@@ -32,6 +32,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import Cookies from 'js-cookie';
 import { ChevronDown, MoreHorizontal, Plus, Settings2 } from 'lucide-react';
 import Link from 'next/link';
@@ -51,6 +60,10 @@ export default function ItemsListPage() {
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [deleteItemName, setDeleteItemName] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -71,15 +84,44 @@ export default function ItemsListPage() {
           return;
         }
 
+        const offset = Math.max(0, (page - 1) * limit);
         const response = await getItemsList({
           token,
-          offset: 0,
-          limit: 10,
+          offset,
+          limit,
           ...(searchDescription && { searchBy, search: searchDescription }),
           ...(sortBy && { sortBy }),
         });
+
         if (response?.data?.status === 'success') {
-          setItems(response.data.data?.results?.items || []);
+          const fetched = response.data.data?.results?.items || [];
+          setItems(fetched);
+
+          // extract total if provided by backend
+          const results =
+            response?.data?.data?.results ||
+            response?.data?.results ||
+            response?.data ||
+            {};
+          const total =
+            results?.total ||
+            results?.totalCount ||
+            results?.totalRecords ||
+            results?.count ||
+            results?.recordsCount ||
+            response?.data?.total ||
+            response?.data?.recordsCount ||
+            0;
+
+          if (typeof total === 'number' && total > 0) {
+            setTotalItems(total);
+          } else if (Array.isArray(fetched) && fetched.length > 0) {
+            setTotalItems((page - 1) * limit + fetched.length);
+          } else {
+            setTotalItems(0);
+          }
+
+          setHasMore(Array.isArray(fetched) ? fetched.length >= limit : false);
         } else {
           toast.error('Failed to fetch items');
         }
@@ -120,6 +162,7 @@ export default function ItemsListPage() {
           duration: 2000,
         });
         setItems(items.filter((item) => item.id !== deleteItemId));
+        setTotalItems(Math.max(0, totalItems - 1));
         setDeleteModalOpen(false);
         setDeleteItemId(null);
         setDeleteItemName('');
@@ -416,7 +459,7 @@ export default function ItemsListPage() {
               ) : (
                 filteredItems.map((item, index) => (
                   <TableRow key={item.id}>
-                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{(page - 1) * limit + index + 1}</TableCell>
                     <TableCell>
                       <div className='font-medium'>{item.description}</div>
                       <div className='text-xs text-gray-500'>
@@ -461,6 +504,85 @@ export default function ItemsListPage() {
           </Table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalItems > 0 && (
+        <div className='flex flex-col gap-4'>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page > 1) setPage(page - 1);
+                  }}
+                  className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+
+              {/* Page Numbers */}
+              {(() => {
+                const totalPages = Math.ceil(totalItems / limit);
+                const siblingCount = 1;
+                const left = Math.max(1, page - siblingCount);
+                const right = Math.min(totalPages, page + siblingCount);
+                const pages: (number | string)[] = [];
+
+                if (left > 1) {
+                  pages.push(1);
+                  if (left > 2) pages.push('ellipsis');
+                }
+
+                for (let i = left; i <= right; i++) {
+                  pages.push(i);
+                }
+
+                if (right < totalPages) {
+                  if (right < totalPages - 1) pages.push('ellipsis');
+                  pages.push(totalPages);
+                }
+
+                return pages.map((p, idx) =>
+                  p === 'ellipsis' ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        href='#'
+                        isActive={p === page}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(p as number);
+                        }}
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                );
+              })()}
+
+              <PaginationItem>
+                <PaginationNext
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page < Math.ceil(totalItems / limit)) setPage(page + 1);
+                  }}
+                  className={
+                    page >= Math.ceil(totalItems / limit)
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       <Dialog

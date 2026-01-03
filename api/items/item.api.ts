@@ -20,7 +20,7 @@ export const addITEM = async ({
     method: backendApiEnums.METHODS.POST,
     payload,
     isDisplayResponsePopUp: true,
-    // successMessage: successMessagesEnums.ITEMS.ADD_ITEM,
+    successMessage: successMessagesEnums.ITEMS.ADD_ITEM,
 
     successCallback: successCallbackFunction,
   });
@@ -104,7 +104,7 @@ export const updateItem = async ({
     method: backendApiEnums.METHODS.PATCH,
     payload,
     isDisplayResponsePopUp: true,
-    successMessage: 'Customer updated successfully',
+    successMessage: successMessagesEnums.ITEMS.UPDATE_ITEM,
     successCallback: successCallbackFunction,
   });
 };
@@ -123,5 +123,8 @@ export const deleteItem = async ({
     payload: {
       id: itemId,
     },
+    // Display backend success message key when delete completes
+    isDisplayResponsePopUp: true,
+    successMessage: successMessagesEnums.ITEMS.DELETE_ITEM,
   });
 };

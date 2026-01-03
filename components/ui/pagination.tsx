@@ -63,6 +63,8 @@ function PaginationLink({
           variant: isActive ? 'outline' : 'ghost',
           size,
         }),
+        // make active page number blue
+        isActive ? 'text-white bg-blue-600 hover:bg-blue-300' : '',
         className
       )}
       {...props}

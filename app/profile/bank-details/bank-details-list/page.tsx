@@ -19,6 +19,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -44,6 +53,10 @@ export default function BankDetailsListPage() {
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [deleteItemName, setDeleteItemName] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
     const fetchBankDetails = async () => {
@@ -56,20 +69,51 @@ export default function BankDetailsListPage() {
       }
 
       try {
+        setIsLoading(true);
+        const offset = Math.max(0, (page - 1) * limit);
         const response = await getBankDetailsList({
           token,
-          offset: 0,
-          limit: 10,
+          offset,
+          limit,
         });
 
-        // Try both possible response structures
+        let details: any[] = [];
+
         if (response?.data?.data?.results?.bankDetails) {
-          setData(response.data.data.results.bankDetails);
+          details = response.data.data.results.bankDetails;
         } else if (response?.data?.results?.bankDetails) {
-          setData(response.data.results.bankDetails);
-        } else {
-          toast.error('Failed to fetch bank details');
+          details = response.data.results.bankDetails;
+        } else if (Array.isArray(response?.data?.results)) {
+          details = response.data.results;
         }
+
+        setData(details);
+
+        // extract total if present in various shapes
+        const results =
+          response?.data?.data?.results || response?.data?.results || {};
+        const total =
+          results?.total ||
+          results?.totalCount ||
+          results?.totalRecords ||
+          results?.count ||
+          results?.recordsCount ||
+          response?.data?.total ||
+          response?.data?.totalCount ||
+          response?.data?.recordsCount ||
+          0;
+
+        if (typeof total === 'number' && total > 0) {
+          setTotalItems(total);
+        } else if (Array.isArray(details) && details.length > 0) {
+          // Derive total from current page and fetched items so pagination
+          // only shows pages that actually exist
+          setTotalItems((page - 1) * limit + details.length);
+        } else {
+          setTotalItems(0);
+        }
+
+        setHasMore(Array.isArray(details) ? details.length >= limit : false);
       } catch (error: any) {
         console.error('Error fetching bank details:', error);
         toast.error('Error fetching bank details', { duration: 2000 });
@@ -79,7 +123,7 @@ export default function BankDetailsListPage() {
     };
 
     fetchBankDetails();
-  }, []);
+  }, [page]);
 
   const handleEdit = (id: string) => {
     router.push(`/profile/bank-details/bank-details-form?id=${id}`);
@@ -93,6 +137,12 @@ export default function BankDetailsListPage() {
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
+
+    const token = Cookies.get('authToken');
+    if (!token) {
+      toast.error('Authentication token not found');
+      return;
+    }
 
     try {
       setIsDeleting(true);
@@ -109,6 +159,7 @@ export default function BankDetailsListPage() {
           }
         );
         setData(data.filter((item) => item.id !== deleteItemId));
+        setTotalItems(Math.max(0, totalItems - 1));
         setDeleteModalOpen(false);
         setDeleteItemId(null);
         setDeleteItemName('');
@@ -212,7 +263,9 @@ export default function BankDetailsListPage() {
                     key={row.id}
                     className='hover:bg-gray-50'
                   >
-                    <TableCell className='font-medium'>{index + 1}</TableCell>
+                    <TableCell className='font-medium'>
+                      {(page - 1) * limit + index + 1}
+                    </TableCell>
                     <TableCell>{row.country}</TableCell>
                     <TableCell>{row.accountNumber}</TableCell>
                     <TableCell>{row.iban}</TableCell>
@@ -246,6 +299,85 @@ export default function BankDetailsListPage() {
               )}
             </TableBody>
           </Table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalItems > 0 && (
+        <div className='flex flex-col gap-4'>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page > 1) setPage(page - 1);
+                  }}
+                  className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+
+              {/* Page Numbers */}
+              {(() => {
+                const totalPages = Math.ceil(totalItems / limit);
+                const siblingCount = 1;
+                const left = Math.max(1, page - siblingCount);
+                const right = Math.min(totalPages, page + siblingCount);
+                const pages: (number | string)[] = [];
+
+                if (left > 1) {
+                  pages.push(1);
+                  if (left > 2) pages.push('ellipsis');
+                }
+
+                for (let i = left; i <= right; i++) {
+                  pages.push(i);
+                }
+
+                if (right < totalPages) {
+                  if (right < totalPages - 1) pages.push('ellipsis');
+                  pages.push(totalPages);
+                }
+
+                return pages.map((p, idx) =>
+                  p === 'ellipsis' ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        href='#'
+                        isActive={p === page}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(p as number);
+                        }}
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                );
+              })()}
+
+              <PaginationItem>
+                <PaginationNext
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page < Math.ceil(totalItems / limit)) setPage(page + 1);
+                  }}
+                  className={
+                    page >= Math.ceil(totalItems / limit)
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
 

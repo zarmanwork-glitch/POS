@@ -148,25 +148,6 @@ export default function SignUpPage() {
               Sign Up
             </Button>
 
-            {/* Divider */}
-            <div className='relative'>
-              <div className='absolute inset-0 flex items-center'>
-                <div className='w-full border-t' />
-              </div>
-              <div className='relative flex justify-center'>
-                <span className='bg-white px-2 text-sm text-gray-500'>or</span>
-              </div>
-            </div>
-
-            {/* OAuth */}
-            <Button
-              type='button'
-              variant='outline'
-              className='w-full'
-            >
-              Login with Xero
-            </Button>
-
             {/* Link */}
             <p className='text-center text-sm text-gray-600'>
               Already have an account?{' '}

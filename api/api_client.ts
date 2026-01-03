@@ -6,6 +6,7 @@ import axios, {
 } from 'axios';
 import Router from 'next/router';
 import { toast } from 'sonner';
+import { ApiKeys } from '@/utils/apiMessages';
 
 interface ApiGatewayParams {
   endpoint: string;
@@ -52,7 +53,32 @@ export const api_client = async ({
 
     if (successCallback && typeof successCallback === 'function') {
       if (!directAction && isDisplayResponsePopUp) {
-        toast.success(successMessage ?? 'Action performed successfully.', {
+        const resolveMessage = (key: string | null | undefined) => {
+          if (!key) return undefined;
+          try {
+            for (const group of ApiKeys) {
+              for (const sectionKey in group) {
+                const section: any = (group as any)[sectionKey];
+                if (
+                  section &&
+                  Object.prototype.hasOwnProperty.call(section, key)
+                ) {
+                  return section[key];
+                }
+              }
+            }
+          } catch (e) {
+            return undefined;
+          }
+          return undefined;
+        };
+
+        const friendly =
+          resolveMessage(successMessage) ??
+          successMessage ??
+          'Action performed successfully.';
+
+        toast.success(friendly, {
           description: successPlainText ?? undefined,
         });
       }

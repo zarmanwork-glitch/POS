@@ -114,17 +114,18 @@ export default function BusinessDetailsListPage() {
           results?.totalCount ||
           results?.totalRecords ||
           results?.count ||
+          results?.recordsCount ||
           response?.data?.total ||
           response?.data?.totalCount ||
+          response?.data?.recordsCount ||
           0;
 
-        // If we got a numeric total, use it; otherwise estimate
+        // If we got a numeric total, use it; otherwise derive total from fetched items
         if (typeof total === 'number' && total > 0) {
           setTotalItems(total);
         } else if (Array.isArray(detailsList) && detailsList.length > 0) {
-          // Estimate total if no count provided but we have items
-          // Simulate 50 items (5 pages) for demonstration
-          setTotalItems(50);
+          // Use the number of items we've fetched so far to compute available pages
+          setTotalItems((page - 1) * limit + detailsList.length);
         } else {
           setTotalItems(0);
         }
@@ -255,9 +256,9 @@ export default function BusinessDetailsListPage() {
               data.map((detail, index) => (
                 <TableRow
                   key={detail.id}
-                  className='hover:bg-gray-50 transition-colors'
+                  className='group hover:bg-gray-50 transition-colors'
                 >
-                  <TableCell className='text-center font-medium'>
+                  <TableCell className='text-center font-medium group-hover:text-blue-600'>
                     {index + 1}
                   </TableCell>
 

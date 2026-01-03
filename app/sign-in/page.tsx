@@ -4,64 +4,76 @@ import { login } from '@/api/auth/auth.api';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import loginBackground from '@/public/login_bg.svg';
+import { useFormik } from 'formik';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import loginBackground from '@/public/login_bg.svg';
+import * as Yup from 'yup';
+
+// Validation Schema
+const SignInValidationSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Please enter a valid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
+});
 
 export default function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: SignInValidationSchema,
+    onSubmit: async (values) => {
+      setIsLoading(true);
 
-    // Validation
-    if (!email || !password) {
-      toast.error('Email and password are required', { duration: 2000 });
-      setIsLoading(false);
-      return;
-    }
+      try {
+        const response = await login({
+          payload: {
+            email: values.email,
+            password: values.password,
+          },
+          successCallbackFunction: () => {
+            toast.success('Login successful! Redirecting...', {
+              duration: 2000,
+            });
+            setTimeout(() => {
+              router.push('/dashboard');
+            }, 1000);
+          },
+        });
 
-    try {
-      const response = await login({
-        payload: {
-          email,
-          password,
-        },
-        successCallbackFunction: () => {
-          toast.success('Login successful! Redirecting...', { duration: 2000 });
-          setTimeout(() => {
-            router.push('/dashboard');
-          }, 1000);
-        },
-      });
-
-      // Check for API errors
-      if (response?.data?.status !== 'success') {
-        const errorMsg =
-          response?.data?.message ||
-          'Login failed. Please check your credentials.';
-        toast.error(errorMsg, { duration: 2000 });
+        // Check for API errors
+        if (response?.data?.status !== 'success') {
+          const errorMsg =
+            response?.data?.message ||
+            'Login failed. Please check your credentials.';
+          toast.error(errorMsg, { duration: 2000 });
+        }
+      } catch (err: any) {
+        const errorMessage =
+          err?.response?.data?.message ||
+          err?.message ||
+          'An unexpected error occurred. Please try again.';
+        toast.error(errorMessage, { duration: 2000 });
+        console.error('Sign in error:', err);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.message ||
-        'An unexpected error occurred. Please try again.';
-      toast.error(errorMessage, { duration: 2000 });
-      console.error('Sign in error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+  });
 
   return (
     <div className='min-h-screen grid grid-cols-1 md:grid-cols-[55%_45%]'>
@@ -92,16 +104,16 @@ export default function SignInPage() {
           {/* Form */}
           <form
             className='space-y-5 md:space-y-6'
-            onSubmit={handleSubmit}
+            onSubmit={formik.handleSubmit}
           >
             {/* Email Field */}
             <div className='space-y-2'>
-              <label
+              <Label
                 htmlFor='email'
-                className='text-sm font-medium text-gray-700 block'
+                className='text-sm font-medium text-gray-700'
               >
                 Email
-              </label>
+              </Label>
               <div className='relative'>
                 <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 md:h-5 md:w-5' />
                 <Input
@@ -110,22 +122,25 @@ export default function SignInPage() {
                   type='email'
                   autoComplete='email'
                   placeholder='you@example.com'
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className='pl-10 bg-yellow-50 border-yellow-200 text-sm md:text-base'
-                  required
                 />
               </div>
+              {formik.touched.email && formik.errors.email && (
+                <p className='text-red-500 text-xs'>{formik.errors.email}</p>
+              )}
             </div>
 
             {/* Password Field */}
             <div className='space-y-2'>
-              <label
+              <Label
                 htmlFor='password'
-                className='text-sm font-medium text-gray-700 block'
+                className='text-sm font-medium text-gray-700'
               >
                 Password
-              </label>
+              </Label>
               <div className='relative'>
                 <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 md:h-5 md:w-5' />
                 <Input
@@ -134,10 +149,10 @@ export default function SignInPage() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete='current-password'
                   placeholder='••••••••'
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className='pl-10 pr-10 bg-yellow-50 border-yellow-200 text-sm md:text-base'
-                  required
                 />
                 <button
                   type='button'
@@ -151,6 +166,9 @@ export default function SignInPage() {
                   )}
                 </button>
               </div>
+              {formik.touched.password && formik.errors.password && (
+                <p className='text-red-500 text-xs'>{formik.errors.password}</p>
+              )}
             </div>
 
             {/* Show Password & Forgot Password */}
@@ -174,26 +192,26 @@ export default function SignInPage() {
             {/* Sign In Button */}
             <Button
               type='submit'
-              disabled={isLoading}
+              disabled={isLoading || !formik.isValid}
               className='w-full bg-blue-200 text-gray-700 hover:bg-blue-300 text-base py-2 transition disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
 
             {/* Divider */}
-            {/* <div className='relative'>
+            <div className='relative'>
               <div className='absolute inset-0 flex items-center'>
                 <div className='w-full border-t border-gray-300'></div>
               </div>
               <div className='relative flex justify-center text-sm'>
                 <span className='px-2 bg-white text-gray-500'>or</span>
               </div>
-            </div> */}
+            </div>
 
             {/* Alternative Login */}
 
             {/* Sign Up Link */}
-            {/* <p className='text-center text-xs md:text-sm text-gray-600'>
+            <p className='text-center text-xs md:text-sm text-gray-600'>
               Don&apos;t have an account?{' '}
               <Link
                 href='/sign-up'
@@ -201,7 +219,7 @@ export default function SignInPage() {
               >
                 Sign Up
               </Link>
-            </p> */}
+            </p>
           </form>
         </div>
       </div>
