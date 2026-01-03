@@ -60,7 +60,7 @@ export default function ClientShell({
         {/* Main Content - Only this scrolls */}
         <main
           className={`${
-            isAuthPage ? 'w-full' : 'flex-1 overflow-y-auto p-4 md:p-6 2xl:p-10'
+            isAuthPage ? 'w-full' : 'flex-1 overflow-y-auto p-8 2xl:p-10'
           } `}
         >
           {children}
