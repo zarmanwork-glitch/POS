@@ -166,6 +166,19 @@ export const getBusinessDetailsList = async ({
   });
 };
 
+export const getBusinessDetailsForSelection = async ({
+  token,
+}: {
+  token: string;
+}) => {
+  return api_client({
+    token,
+    endpoint: backendApiEnums.ENDPOINTS.BUSINESS_DETAILS.LIST_FOR_SELECTION,
+    method: backendApiEnums.METHODS.POST,
+    payload: {},
+  });
+};
+
 export const getBusinessDetailsById = async ({
   token,
   businessDetailsId,

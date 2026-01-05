@@ -53,11 +53,13 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { customerStatusFilters } from '@/enums/customerStatus';
 import { countries } from '@/enums/country';
 
 export default function CustomerListPage() {
+  const { t } = useTranslation();
   const [searchCustomer, setSearchCustomer] = useState('');
   const [sortBy, setSortBy] = useState('Chronological');
   const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('desc');
@@ -215,21 +217,23 @@ export default function CustomerListPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h2 className='text-3xl font-bold'>
-            <span className='text-blue-600'>Customers</span> {''}
-            <span className='text-gray-800'>| Customer List</span>
+            <span className='text-blue-600'>{t('sidebar.customers')}</span>{' '}
+            <span className='text-gray-800'>| {t('customers.listTitle')}</span>
           </h2>
         </div>
         <Link href='/customers/customer-form'>
           <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
             <Plus className='h-4 w-4' />
-            Add Customer
+            {t('customers.addCustomer')}
           </Button>
         </Link>
       </div>
 
       {/* Header */}
 
-      <p className='text-sm text-gray-600'>Showing all customers</p>
+      <p className='text-sm text-gray-600'>
+        {t('customers.showingAllCustomers')}
+      </p>
 
       <div className='relative space-y-4'>
         {/* Controls */}
@@ -279,7 +283,9 @@ export default function CustomerListPage() {
                   </div>
                   {/* Status */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Status</label>
+                    <label className='text-xs font-medium'>
+                      {t('profile.status')}
+                    </label>
                     <Select
                       value={filters.status}
                       onValueChange={(v) =>
@@ -304,7 +310,9 @@ export default function CustomerListPage() {
 
                   {/* Country */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Country</label>
+                    <label className='text-xs font-medium'>
+                      {t('profile.country')}
+                    </label>
                     <Select
                       value={filters.country}
                       onValueChange={(v) =>
@@ -330,7 +338,7 @@ export default function CustomerListPage() {
                   {/* Actions */}
                   <div className='sticky bottom-0 bg-white flex gap-2 pt-3 border-t'>
                     <Button className='flex-1 h-8 text-xs bg-blue-600 hover:bg-blue-700'>
-                      Apply
+                      {t('customers.apply')}
                     </Button>
                     <Button
                       variant='outline'
@@ -339,7 +347,7 @@ export default function CustomerListPage() {
                         setFilters({ status: 'Both', country: 'All' })
                       }
                     >
-                      Reset
+                      {t('customers.reset')}
                     </Button>
                   </div>
                 </div>
@@ -349,7 +357,9 @@ export default function CustomerListPage() {
 
           {/* Search By */}
           <div className='flex items-center gap-2'>
-            <span className='text-sm text-gray-600'>Search By</span>
+            <span className='text-sm text-gray-600'>
+              {t('customers.searchBy')}
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className='flex items-center gap-1 text-sm font-medium'>
@@ -359,19 +369,19 @@ export default function CustomerListPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setSearchBy('Name')}>
-                  Name
+                  {t('customers.searchOptions.name')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSearchBy('Email')}>
-                  Email
+                  {t('customers.searchOptions.email')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSearchBy('Phone')}>
-                  Phone
+                  {t('customers.searchOptions.phone')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSearchBy('Company Name')}>
-                  Company Name
+                  {t('customers.searchOptions.companyName')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSearchBy('customerNumber')}>
-                  Customer Number
+                  {t('customers.searchOptions.customerNumber')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -379,7 +389,9 @@ export default function CustomerListPage() {
 
           {/* Sort */}
           <div className='flex items-center gap-2'>
-            <span className='text-sm text-gray-600'>Sort by</span>
+            <span className='text-sm text-gray-600'>
+              {t('customers.sortBy')}
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className='flex items-center gap-1 text-sm font-medium'>
@@ -389,22 +401,26 @@ export default function CustomerListPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setSortBy('Chronological')}>
-                  Chronological
+                  {t('customers.sortOptions.chronological')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortBy('Name')}>
-                  Name
+                  {t('customers.sortOptions.name')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortBy('Company Name')}>
-                  Company Name
+                  {t('customers.sortOptions.companyName')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortBy('Email')}>
-                  Email
+                  {t('customers.sortOptions.email')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <button
               aria-label='Toggle order'
-              title={orderBy === 'desc' ? 'Descending' : 'Ascending'}
+              title={
+                orderBy === 'desc'
+                  ? t('customers.descending')
+                  : t('customers.ascending')
+              }
               onClick={() => {
                 setOrderBy((o) => (o === 'desc' ? 'asc' : 'desc'));
                 setPage(1);
@@ -423,11 +439,13 @@ export default function CustomerListPage() {
           <div className='flex items-center gap-2'>
             <Input
               className='h-9 w-40'
-              placeholder='Search'
+              placeholder={t('customers.searchPlaceholder')}
               value={searchCustomer}
               onChange={(e) => setSearchCustomer(e.target.value)}
             />
-            <Button className='h-9 bg-blue-600 hover:bg-blue-700'>Go</Button>
+            <Button className='h-9 bg-blue-600 hover:bg-blue-700'>
+              {t('profile.go')}
+            </Button>
           </div>
         </div>
 
@@ -436,12 +454,12 @@ export default function CustomerListPage() {
           <Table>
             <TableHeader className='bg-blue-50'>
               <TableRow>
-                <TableHead>No.</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Country</TableHead>
+                <TableHead>{t('customers.table.no')}</TableHead>
+                <TableHead>{t('profile.name')}</TableHead>
+                <TableHead>{t('profile.email')}</TableHead>
+                <TableHead>{t('profile.phoneNumber')}</TableHead>
+                <TableHead>{t('customers.table.address')}</TableHead>
+                <TableHead>{t('profile.country')}</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -452,7 +470,9 @@ export default function CustomerListPage() {
                     colSpan={7}
                     className='text-center py-8'
                   >
-                    <span className='text-gray-500'>Loading customers...</span>
+                    <span className='text-gray-500'>
+                      {t('customers.loadingCustomers')}
+                    </span>
                   </TableCell>
                 </TableRow>
               ) : filteredCustomers.length === 0 ? (
@@ -461,7 +481,9 @@ export default function CustomerListPage() {
                     colSpan={7}
                     className='text-center py-8'
                   >
-                    <span className='text-gray-500'>No customers found</span>
+                    <span className='text-gray-500'>
+                      {t('customers.noCustomersFound')}
+                    </span>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -490,7 +512,7 @@ export default function CustomerListPage() {
                           <DropdownMenuItem
                             onClick={() => handleEdit(customer.id)}
                           >
-                            Edit
+                            {t('profile.edit')}
                           </DropdownMenuItem>
 
                           <DropdownMenuItem
@@ -499,7 +521,7 @@ export default function CustomerListPage() {
                               handleDeleteClick(customer.id, customer.name)
                             }
                           >
-                            Delete
+                            {t('profile.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -598,11 +620,9 @@ export default function CustomerListPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogTitle>{t('customers.confirmDeleteTitle')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the customer{' '}
-              <strong>{deleteCustomerName}</strong>? This action cannot be
-              undone.
+              {t('customers.confirmDeleteDesc', { name: deleteCustomerName })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className='gap-2'>
@@ -611,14 +631,14 @@ export default function CustomerListPage() {
               onClick={() => setDeleteModalOpen(false)}
               disabled={isDeleting}
             >
-              Cancel
+              {t('profile.cancel')}
             </Button>
             <Button
               className='bg-red-600 hover:bg-red-700'
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? t('profile.deleting') : t('customers.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

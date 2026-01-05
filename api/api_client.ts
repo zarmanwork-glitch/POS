@@ -37,13 +37,22 @@ export const api_client = async ({
   directAction = false,
   onUploadProgress = null,
 }: ApiGatewayParams) => {
+  const isFormData =
+    typeof FormData !== 'undefined' && payload instanceof FormData;
+
+  const headers: Record<string, any> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (!isFormData) {
+    headers['Content-Type'] = contentType ?? 'application/json';
+  } else if (contentType) {
+    // allow explicit contentType for FormData if provided
+    headers['Content-Type'] = contentType;
+  }
+
   const config: AxiosRequestConfig = {
     method,
     url: `${process.env.NEXT_PUBLIC_API_BASE_URL}${endpoint}`,
-    headers: {
-      'Content-Type': contentType ?? 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
+    headers,
     ...(payload && { data: payload }),
     ...(onUploadProgress && { onUploadProgress }),
   };
@@ -51,37 +60,38 @@ export const api_client = async ({
   try {
     const response = await axios(config);
 
-    if (successCallback && typeof successCallback === 'function') {
-      if (!directAction && isDisplayResponsePopUp) {
-        const resolveMessage = (key: string | null | undefined) => {
-          if (!key) return undefined;
-          try {
-            for (const group of ApiKeys) {
-              for (const sectionKey in group) {
-                const section: any = (group as any)[sectionKey];
-                if (
-                  section &&
-                  Object.prototype.hasOwnProperty.call(section, key)
-                ) {
-                  return section[key];
-                }
+    if (!directAction && isDisplayResponsePopUp) {
+      const resolveMessage = (key: string | null | undefined) => {
+        if (!key) return undefined;
+        try {
+          for (const group of ApiKeys) {
+            for (const sectionKey in group) {
+              const section: any = (group as any)[sectionKey];
+              if (
+                section &&
+                Object.prototype.hasOwnProperty.call(section, key)
+              ) {
+                return section[key];
               }
             }
-          } catch (e) {
-            return undefined;
           }
+        } catch (e) {
           return undefined;
-        };
+        }
+        return undefined;
+      };
 
-        const friendly =
-          resolveMessage(successMessage) ??
-          successMessage ??
-          'Action performed successfully.';
+      const friendly =
+        resolveMessage(successMessage) ??
+        successMessage ??
+        'Action performed successfully.';
 
-        toast.success(friendly, {
-          description: successPlainText ?? undefined,
-        });
-      }
+      toast.success(friendly, {
+        description: successPlainText ?? undefined,
+      });
+    }
+
+    if (successCallback && typeof successCallback === 'function') {
       successCallback();
     }
 

@@ -13,7 +13,7 @@ export const createInvoice = async ({
   payload,
   successCallbackFunction,
 }: InvoiceType) => {
-  return api_client({
+  const res = await api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.INVOICES.ADD_INVOICE,
     method: backendApiEnums.METHODS.POST,
@@ -22,6 +22,13 @@ export const createInvoice = async ({
     successMessage: successMessagesEnums.INVOICES.ADD_INVOICE,
     successCallback: successCallbackFunction,
   });
+
+  // try to return the created invoice object if present (matches Postman)
+  try {
+    return res?.data?.data?.results?.invoice ?? res;
+  } catch (e) {
+    return res;
+  }
 };
 
 export const getInvoicesList = async ({

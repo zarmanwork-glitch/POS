@@ -44,6 +44,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import Cookies from 'js-cookie';
+import { toast } from 'sonner';
+import { getInvoicesList } from '@/api/invoices/invoice.api';
 import { invoiceStatuses, type InvoiceStatusType } from '@/enums/invoiceStatus';
 import { invoiceTypes, type InvoiceTypeType } from '@/enums/invoiceType';
 
@@ -72,11 +75,15 @@ const SAMPLE_INVOICES: Invoice[] = Array.from({ length: 37 }).map((_, i) => ({
 export default function InvoiceListPage() {
   const [search, setSearch] = useState('');
   const [searchBy, setSearchBy] = useState<
-    'Invoice Number' | 'Customer' | 'Status'
-  >('Invoice Number');
-  const [sortBy, setSortBy] = useState<
-    'Creation Date' | 'Invoice Number' | 'Customer'
-  >('Creation Date');
+    | 'invoiceNumber'
+    | 'customerPoNumber'
+    | 'name'
+    | 'companyName'
+    | 'customerNumber'
+  >('name');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'invoiceDate'>(
+    'createdAt'
+  );
   const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('desc');
   const [statusFilter, setStatusFilter] = useState<'All' | InvoiceStatusType>(
     'All'
@@ -88,11 +95,12 @@ export default function InvoiceListPage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const [items, setItems] = useState<Invoice[]>(SAMPLE_INVOICES);
+  const [items, setItems] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  /* ================= FILTER + SORT ================= */
   const filtered = useMemo(() => {
     let list = items.slice();
 
@@ -148,7 +156,7 @@ export default function InvoiceListPage() {
   ]);
 
   const totalItems = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+  const totalPages = Math.max(1, Math.ceil((totalCount ?? totalItems) / limit));
 
   const paged = useMemo(() => {
     const start = (page - 1) * limit;
@@ -158,6 +166,101 @@ export default function InvoiceListPage() {
   useEffect(() => {
     if (page > totalPages) setPage(1);
   }, [page, totalPages]);
+
+  // Fetch invoices from API with current filters
+  const fetchInvoices = async (opts?: { page?: number }) => {
+    try {
+      setLoading(true);
+      const token = Cookies.get('authToken');
+      const p = opts?.page ?? page;
+
+      // Send minimal payload: compute offset for requested page and send limit
+      const offset = (p - 1) * limit;
+      const res = await getInvoicesList({ token: token as any, offset, limit });
+
+      const invoices =
+        res?.data?.data?.results?.invoice ??
+        res?.data?.data?.results?.invoices ??
+        res?.data?.data?.results ??
+        res ??
+        [];
+      // try to extract count if provided (recordsCount / records / count)
+      const count =
+        res?.data?.data?.results?.recordsCount ??
+        res?.data?.data?.results?.totalCount ??
+        res?.data?.data?.results?.count ??
+        (Array.isArray(invoices) ? invoices.length : null);
+
+      // Map API invoice objects to UI Invoice type
+      const mapped = Array.isArray(invoices)
+        ? invoices.map((inv: any) => {
+            const id = inv.id || inv._id || inv.invoiceId || '';
+            const invoiceNumber = inv.invoiceNumber || inv.invoice_no || '';
+            const invoiceDate = (inv.invoiceDate || inv.createdAt || '').slice(
+              0,
+              10
+            );
+            const customer =
+              (inv.customer &&
+                (inv.customer.name || inv.customer.companyName)) ||
+              inv.customer ||
+              '';
+
+            // compute total from items when available
+            let total = 0;
+            if (Array.isArray(inv.items) && inv.items.length > 0) {
+              total = inv.items.reduce((sum: number, it: any) => {
+                const q = Number(it.quantity) || 0;
+                const r = Number(it.unitRate) || 0;
+                const discount = Number(it.discount) || 0;
+                const tax = Number(it.taxRate) || 0;
+                let sub = q * r;
+                if ((it.discountType || '').toUpperCase() === 'PERC') {
+                  sub = sub - (sub * discount) / 100;
+                } else {
+                  sub = sub - discount;
+                }
+                const lineTotal = sub + (sub * tax) / 100;
+                return sum + lineTotal;
+              }, 0);
+            } else if (typeof inv.totalAmount === 'number') {
+              total = inv.totalAmount;
+            } else if (typeof inv.AmountPaidToDate === 'number') {
+              total = inv.AmountPaidToDate;
+            }
+
+            const status = inv.status || inv.invoiceStatus || '—';
+
+            return {
+              id,
+              invoiceNumber,
+              invoiceDate,
+              customer,
+              total,
+              status,
+            } as Invoice;
+          })
+        : [];
+
+      setItems(mapped);
+      if (typeof count === 'number') setTotalCount(count);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+      toast.error('Failed to load invoices');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // initial load
+  useEffect(() => {
+    fetchInvoices({ page: 1 });
+  }, []);
+
+  // refetch when page changes
+  useEffect(() => {
+    fetchInvoices({ page });
+  }, [page]);
 
   const confirmDelete = () => {
     if (!deleteId) return;
@@ -329,12 +432,12 @@ export default function InvoiceListPage() {
                   });
                 if (startDate)
                   active.push({
-                    key: 'startDate',
+                    key: 'invoiceStartDate',
                     label: `From: ${startDate}`,
                   });
                 if (endDate)
                   active.push({
-                    key: 'endDate',
+                    key: 'invoiceEndDate',
                     label: `To: ${endDate}`,
                   });
                 if (search)
@@ -353,11 +456,12 @@ export default function InvoiceListPage() {
                     case 'type':
                       setTypeFilter('All');
                       break;
-                    case 'startDate':
+                    case 'invoiceStartDate':
                       setStartDate('');
                       break;
-                    case 'endDate':
+                    case 'invoiceEndDate':
                       setEndDate('');
+                      break;
                       break;
                     case 'search':
                       setSearch('');
@@ -398,19 +502,16 @@ export default function InvoiceListPage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className='flex items-center gap-1 text-sm font-medium'>
-                  {sortBy}
+                  {sortBy === 'createdAt' ? 'Creation Date' : 'Invoice Date'}
                   <ChevronDown className='h-4 w-4' />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSortBy('Creation Date')}>
+                <DropdownMenuItem onClick={() => setSortBy('createdAt')}>
                   Creation Date
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('Invoice Number')}>
-                  Invoice Number
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('Customer')}>
-                  Customer
+                <DropdownMenuItem onClick={() => setSortBy('invoiceDate')}>
+                  Invoice Date
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -442,14 +543,22 @@ export default function InvoiceListPage() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSearchBy('Invoice Number')}>
+                <DropdownMenuItem onClick={() => setSearchBy('invoiceNumber')}>
                   Invoice Number
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSearchBy('Customer')}>
-                  Customer
+                <DropdownMenuItem
+                  onClick={() => setSearchBy('customerPoNumber')}
+                >
+                  Customer PO Number
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSearchBy('Status')}>
-                  Status
+                <DropdownMenuItem onClick={() => setSearchBy('name')}>
+                  Name
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSearchBy('companyName')}>
+                  Company Name
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSearchBy('customerNumber')}>
+                  Customer Number
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -463,7 +572,16 @@ export default function InvoiceListPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <Button className='h-9 bg-blue-600 hover:bg-blue-700'>Go</Button>
+            <Button
+              className='h-9 bg-blue-600 hover:bg-blue-700'
+              onClick={() => {
+                setPage(1);
+                fetchInvoices({ page: 1 });
+              }}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Go'}
+            </Button>
           </div>
 
           {/* Download */}
@@ -535,28 +653,77 @@ export default function InvoiceListPage() {
         </Table>
       </div>
 
-      {totalItems > 0 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationPrevious
-              href='#'
-              onClick={(e) => {
-                e.preventDefault();
-                setPage((p) => Math.max(1, p - 1));
-              }}
-            />
-            <PaginationItem>
-              <PaginationLink isActive>{page}</PaginationLink>
-            </PaginationItem>
-            <PaginationNext
-              href='#'
-              onClick={(e) => {
-                e.preventDefault();
-                setPage((p) => Math.min(totalPages, p + 1));
-              }}
-            />
-          </PaginationContent>
-        </Pagination>
+      {(totalCount ?? items.length) > 0 && (
+        <div className='flex flex-col gap-4'>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page > 1) setPage(page - 1);
+                  }}
+                  className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+
+              {/* Page Numbers */}
+              {(() => {
+                const siblingCount = 1;
+                const left = Math.max(1, page - siblingCount);
+                const right = Math.min(totalPages, page + siblingCount);
+                const pages: (number | string)[] = [];
+
+                if (left > 1) {
+                  pages.push(1);
+                  if (left > 2) pages.push('ellipsis');
+                }
+
+                for (let i = left; i <= right; i++) pages.push(i);
+
+                if (right < totalPages) {
+                  if (right < totalPages - 1) pages.push('ellipsis');
+                  pages.push(totalPages);
+                }
+
+                return pages.map((p, idx) =>
+                  p === 'ellipsis' ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        href='#'
+                        isActive={p === page}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(p as number);
+                        }}
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                );
+              })()}
+
+              <PaginationItem>
+                <PaginationNext
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page < totalPages) setPage(page + 1);
+                  }}
+                  className={
+                    page >= totalPages ? 'pointer-events-none opacity-50' : ''
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       )}
 
       <Dialog

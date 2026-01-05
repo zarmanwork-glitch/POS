@@ -114,6 +114,19 @@ export const getCustomersList = async ({
   });
 };
 
+export const getCustomersForSelection = async ({
+  token,
+}: {
+  token: string;
+}) => {
+  return api_client({
+    token,
+    endpoint: backendApiEnums.ENDPOINTS.CUSTOMERS.LIST_FOR_SELECTION,
+    method: backendApiEnums.METHODS.POST,
+    payload: {},
+  });
+};
+
 export const getCustomerById = async ({
   token,
   customerId,

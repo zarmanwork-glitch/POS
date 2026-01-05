@@ -14,6 +14,9 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import * as Yup from 'yup';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitch from '@/components/base-components/LanguageSwitch';
+import { Spinner } from '@/components/ui/spinner';
 
 // Validation Schema
 const SignInValidationSchema = Yup.object().shape({
@@ -26,9 +29,19 @@ const SignInValidationSchema = Yup.object().shape({
 });
 
 export default function SignInPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // Validation Schema (uses i18n messages)
+  const SignInValidationSchema = Yup.object().shape({
+    email: Yup.string()
+      .email(t('auth.signIn.emailLabel') + ' is invalid')
+      .required(t('auth.signIn.emailLabel') + ' is required'),
+    password: Yup.string()
+      .min(6, t('auth.signIn.passwordLabel') + ' must be at least 6 characters')
+      .required(t('auth.signIn.passwordLabel') + ' is required'),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -49,14 +62,6 @@ export default function SignInPage() {
             router.push('/dashboard');
           },
         });
-
-        // Check for API errors
-        if (response?.data?.status !== 'success') {
-          const errorMsg =
-            response?.data?.message ||
-            'Login failed. Please check your credentials.';
-          toast.error(errorMsg, { duration: 2000 });
-        }
       } catch (err: any) {
         const errorMessage =
           err?.response?.data?.message ||
@@ -86,13 +91,16 @@ export default function SignInPage() {
       {/* Right Side - Form */}
       <div className='flex flex-col items-center justify-center bg-white h-screen md:h-auto'>
         <div className='w-full max-w-md overflow-y-auto max-h-[80vh] md:max-h-none px-6 md:px-8 lg:px-12 py-6 md:py-8 lg:py-12'>
+          <div className='flex justify-end mb-4'>
+            <LanguageSwitch />
+          </div>
           {/* Logo/Brand */}
           <div className='mb-8 text-center'>
             <h1 className='text-2xl md:text-3xl font-bold text-gray-900 mb-2'>
-              Point Of Sale
+              {t('auth.signIn.brand')}
             </h1>
             <p className='text-gray-500 text-sm md:text-base'>
-              Sign in to your account
+              {t('auth.signIn.subtitle')}
             </p>
           </div>
 
@@ -107,7 +115,7 @@ export default function SignInPage() {
                 htmlFor='email'
                 className='text-sm font-medium text-gray-700'
               >
-                Email
+                {t('auth.signIn.emailLabel')}
               </Label>
               <div className='relative'>
                 <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 md:h-5 md:w-5' />
@@ -116,7 +124,7 @@ export default function SignInPage() {
                   name='email'
                   type='email'
                   autoComplete='email'
-                  placeholder='you@example.com'
+                  placeholder={t('auth.signIn.emailPlaceholder')}
                   value={formik.values.email}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -134,7 +142,7 @@ export default function SignInPage() {
                 htmlFor='password'
                 className='text-sm font-medium text-gray-700'
               >
-                Password
+                {t('auth.signIn.passwordLabel')}
               </Label>
               <div className='relative'>
                 <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 md:h-5 md:w-5' />
@@ -143,7 +151,7 @@ export default function SignInPage() {
                   name='password'
                   type={showPassword ? 'text' : 'password'}
                   autoComplete='current-password'
-                  placeholder='••••••••'
+                  placeholder={t('auth.signIn.passwordPlaceholder')}
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -172,7 +180,7 @@ export default function SignInPage() {
                 href='#'
                 className='text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium transition'
               >
-                Forgot password?
+                {t('auth.signIn.forgotPassword')}
               </Link>
             </div>
 
@@ -180,7 +188,7 @@ export default function SignInPage() {
             <div className='flex items-center space-x-2'>
               <Checkbox id='recaptcha' />
               <span className='text-xs text-gray-600'>
-                I&apos;m not a robot
+                {t('auth.signIn.robot')}
               </span>
             </div>
 
@@ -188,9 +196,13 @@ export default function SignInPage() {
             <Button
               type='submit'
               disabled={isLoading || !formik.isValid}
-              className='w-full bg-blue-200 text-gray-700 hover:bg-blue-300 text-base py-2 transition disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full bg-blue-700 text-white hover:bg-blue-800 text-base py-2 transition disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? (
+                <Spinner className='h-5 w-5 text-white mx-auto' />
+              ) : (
+                t('auth.signIn.signIn')
+              )}
             </Button>
 
             {/* Divider */}
@@ -199,7 +211,9 @@ export default function SignInPage() {
                 <div className='w-full border-t border-gray-300'></div>
               </div>
               <div className='relative flex justify-center text-sm'>
-                <span className='px-2 bg-white text-gray-500'>or</span>
+                <span className='px-2 bg-white text-gray-500'>
+                  {t('auth.signIn.or')}
+                </span>
               </div>
             </div>
 
@@ -207,12 +221,12 @@ export default function SignInPage() {
 
             {/* Sign Up Link */}
             <p className='text-center text-xs md:text-sm text-gray-600'>
-              Don&apos;t have an account?{' '}
+              {t('auth.signIn.noAccount')}{' '}
               <Link
                 href='/sign-up'
                 className='font-semibold text-blue-600 hover:text-blue-700 transition'
               >
-                Sign Up
+                {t('auth.signUp.signUp')}
               </Link>
             </p>
           </form>

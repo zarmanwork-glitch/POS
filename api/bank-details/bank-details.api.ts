@@ -61,6 +61,19 @@ export const getBankDetailsList = async ({
   });
 };
 
+export const getBankDetailsForSelection = async ({
+  token,
+}: {
+  token: string;
+}) => {
+  return api_client({
+    token,
+    endpoint: backendApiEnums.ENDPOINTS.BANK_DETAILS.LIST_FOR_SELECTION,
+    method: backendApiEnums.METHODS.POST,
+    payload: {},
+  });
+};
+
 export const getBankDetailsById = async ({
   token,
   bankDetailsId,

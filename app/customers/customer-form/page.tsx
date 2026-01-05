@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select';
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
@@ -51,6 +52,7 @@ const validationSchema = Yup.object({
 });
 
 export default function CustomerFormPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
@@ -193,7 +195,7 @@ export default function CustomerFormPage() {
       <div className='flex items-center justify-center min-h-screen'>
         <div className='space-y-4 text-center'>
           <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
-          <p className='text-gray-600 font-medium'>Loading...</p>
+          <p className='text-gray-600 font-medium'>{t('profile.loading')}</p>
         </div>
       </div>
     );
@@ -204,9 +206,10 @@ export default function CustomerFormPage() {
       {/* Header */}
       <div className='flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>
-          <span className='text-blue-600'>Customers</span>
+          <span className='text-blue-600'>{t('sidebar.customers')}</span>
           <span className='text-gray-800'>
-            | {id ? 'Edit Customer' : 'Add Customer'}
+            |{' '}
+            {id ? t('customers.form.editTitle') : t('customers.form.addTitle')}
           </span>
         </h2>
         <div className='flex gap-3'>
@@ -215,7 +218,7 @@ export default function CustomerFormPage() {
             onClick={() => router.push('/customers/customer-list')}
             disabled={isLoading}
           >
-            Cancel
+            {t('profile.cancel')}
           </Button>
           <Button
             className='bg-blue-600 hover:bg-blue-700'
@@ -224,11 +227,11 @@ export default function CustomerFormPage() {
           >
             {isLoading
               ? id
-                ? 'Updating...'
-                : 'Saving...'
+                ? t('profile.updating')
+                : t('profile.saving')
               : id
-              ? 'Update'
-              : 'Save'}
+              ? t('profile.update')
+              : t('profile.save')}
           </Button>
         </div>
       </div>
@@ -243,7 +246,7 @@ export default function CustomerFormPage() {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Name: <span className='text-red-500'>*</span>
+                {t('profile.name')}: <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -251,7 +254,7 @@ export default function CustomerFormPage() {
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter customer name'
+                placeholder={t('customers.form.placeholders.name')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('name') ? 'border-red-500 border' : ''
                 }`}
@@ -264,7 +267,7 @@ export default function CustomerFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Customer Number:
+                {t('customers.searchOptions.customerNumber')}:
               </label>
               <Input
                 type='text'
@@ -272,13 +275,13 @@ export default function CustomerFormPage() {
                 value={formik.values.customerNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter customer number'
+                placeholder={t('customers.form.placeholders.customerNumber')}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Email: <span className='text-red-500'>*</span>
+                {t('profile.email')}: <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='email'
@@ -286,7 +289,7 @@ export default function CustomerFormPage() {
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter email address'
+                placeholder={t('customers.form.placeholders.email')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('email') ? 'border-red-500 border' : ''
                 }`}
@@ -299,7 +302,7 @@ export default function CustomerFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Phone Number:
+                {t('profile.phoneNumber')}:
               </label>
               <Input
                 type='tel'
@@ -307,7 +310,7 @@ export default function CustomerFormPage() {
                 value={formik.values.phoneNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter phone number'
+                placeholder={t('customers.form.placeholders.phoneNumber')}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
@@ -319,7 +322,8 @@ export default function CustomerFormPage() {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Company Name : <span className='text-red-500'>*</span>
+                {t('profile.companyName')} :{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -327,7 +331,7 @@ export default function CustomerFormPage() {
                 value={formik.values.companyName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter company name'
+                placeholder={t('customers.form.placeholders.companyName')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('companyName') ? 'border-red-500 border' : ''
                 }`}
@@ -462,7 +466,7 @@ export default function CustomerFormPage() {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Country: <span className='text-red-500'>*</span>
+                {t('profile.country')}: <span className='text-red-500'>*</span>
               </label>
               {formik.values.country ? (
                 <div className='flex items-center gap-2 bg-blue-50 border border-gray-300 rounded-md p-2 h-10'>
@@ -489,7 +493,11 @@ export default function CustomerFormPage() {
                       hasError('country') ? 'border-red-500 border' : ''
                     }`}
                   >
-                    <SelectValue placeholder='Select Country' />
+                    <SelectValue
+                      placeholder={t(
+                        'customers.form.placeholders.selectCountry'
+                      )}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {countries.map((country) => (
@@ -525,7 +533,7 @@ export default function CustomerFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                City : <span className='text-red-500'>*</span>
+                {t('profile.city')} : <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -533,7 +541,7 @@ export default function CustomerFormPage() {
                 value={formik.values.city}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter city'
+                placeholder={t('customers.form.placeholders.enterCity')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('city') ? 'border-red-500 border' : ''
                 }`}
@@ -546,7 +554,8 @@ export default function CustomerFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                District : <span className='text-red-500'>*</span>
+                {t('profile.district')} :{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -554,7 +563,7 @@ export default function CustomerFormPage() {
                 value={formik.values.district}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter district'
+                placeholder={t('customers.form.placeholders.enterDistrict')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('district') ? 'border-red-500 border' : ''
                 }`}
@@ -567,7 +576,8 @@ export default function CustomerFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Street Address : <span className='text-red-500'>*</span>
+                {t('profile.addressStreet')} :{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -575,7 +585,7 @@ export default function CustomerFormPage() {
                 value={formik.values.addressStreet}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter street address'
+                placeholder={t('customers.form.placeholders.enterAddress')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('addressStreet') ? 'border-red-500 border' : ''
                 }`}
@@ -602,7 +612,8 @@ export default function CustomerFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Building Number : <span className='text-red-500'>*</span>
+                {t('profile.buildingNumber')} :{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -610,7 +621,9 @@ export default function CustomerFormPage() {
                 value={formik.values.buildingNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter building number'
+                placeholder={t(
+                  'customers.form.placeholders.enterBuildingNumber'
+                )}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('buildingNumber') ? 'border-red-500 border' : ''
                 }`}
@@ -637,7 +650,8 @@ export default function CustomerFormPage() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Postal Code : <span className='text-red-500'>*</span>
+                {t('profile.postalCode')} :{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -645,7 +659,7 @@ export default function CustomerFormPage() {
                 value={formik.values.postalCode}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter postal code'
+                placeholder={t('customers.form.placeholders.enterPostalCode')}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('postalCode') ? 'border-red-500 border' : ''
                 }`}

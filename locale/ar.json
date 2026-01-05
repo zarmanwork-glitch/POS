@@ -149,5 +149,108 @@
       "add": "إضافة",
       "required": "مطلوب"
     }
+  },
+  "customers": {
+    "listTitle": "قائمة العملاء",
+    "addCustomer": "إضافة عميل",
+    "showingAllCustomers": "عرض جميع العملاء",
+    "searchBy": "البحث حسب",
+    "sortBy": "ترتيب حسب",
+    "searchPlaceholder": "بحث",
+    "loadingCustomers": "جارٍ تحميل العملاء...",
+    "noCustomersFound": "لم يتم العثور على عملاء",
+    "table": {
+      "no": "الرقم",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "address": "العنوان",
+      "country": "الدولة",
+      "actions": "إجراءات"
+    },
+    "confirmDeleteTitle": "تأكيد الحذف",
+    "confirmDeleteDesc": "هل أنت متأكد أنك تريد حذف العميل {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "apply": "تطبيق",
+    "reset": "إعادة تعيين",
+    "ascending": "تصاعدي",
+    "descending": "تنازلي",
+    "sortOptions": {
+      "chronological": "زمني",
+      "name": "الاسم",
+      "companyName": "اسم الشركة",
+      "email": "البريد الإلكتروني"
+    },
+    "searchOptions": {
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "companyName": "اسم الشركة",
+      "customerNumber": "رقم العميل"
+    },
+    "form": {
+      "addTitle": "إضافة عميل",
+      "editTitle": "تعديل عميل",
+      "placeholders": {
+        "name": "أدخل اسم العميل",
+        "customerNumber": "أدخل رقم العميل",
+        "email": "أدخل البريد الإلكتروني",
+        "phoneNumber": "أدخل رقم الهاتف",
+        "companyName": "أدخل اسم الشركة",
+        "selectCountry": "اختر الدولة",
+        "enterCity": "أدخل المدينة",
+        "enterDistrict": "أدخل الحي",
+        "enterAddress": "أدخل عنوان الشارع",
+        "enterBuildingNumber": "أدخل رقم المبنى",
+        "enterPostalCode": "أدخل الرمز البريدي",
+        "enterIdentificationNumber": "أدخل رقم الهوية"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "tabs": {
+      "businessProfile": "ملف العمل",
+      "searchProfile": "بحث في الملف"
+    },
+    "searchPlaceholder": "بحث في الملف",
+    "duration": "المدة",
+    "noData": "لا توجد بيانات للفترة المحددة.",
+    "dateRanges": {
+      "last7": "آخر 7 أيام",
+      "last30": "آخر 30 يومًا",
+      "last90": "آخر 90 يومًا",
+      "allTime": "كل الوقت"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "brand": "نقطة البيع",
+      "subtitle": "تسجيل الدخول إلى حسابك",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "هل نسيت كلمة المرور؟",
+      "robot": "أنا لست برنامجًا آليًا",
+      "signingIn": "جارٍ تسجيل الدخول...",
+      "signIn": "تسجيل الدخول",
+      "noAccount": "ليس لديك حساب؟",
+      "or": "أو"
+    },
+    "signUp": {
+      "brand": "نقطة البيع",
+      "subtitle": "إنشاء حسابك",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "كلمة المرور",
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "showPassword": "عرض كلمة المرور",
+      "robot": "أنا لست برنامجًا آليًا",
+      "signUp": "إنشاء حساب",
+      "haveAccount": "هل لديك حساب بالفعل؟",
+      "signIn": "تسجيل الدخول"
+    }
   }
 }

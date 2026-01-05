@@ -149,5 +149,108 @@
       "add": "Add",
       "required": "Required"
     }
+  },
+  "customers": {
+    "listTitle": "Customer List",
+    "addCustomer": "Add Customer",
+    "showingAllCustomers": "Showing all customers",
+    "searchBy": "Search By",
+    "sortBy": "Sort by",
+    "searchPlaceholder": "Search",
+    "loadingCustomers": "Loading customers...",
+    "noCustomersFound": "No customers found",
+    "table": {
+      "no": "No.",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "country": "Country",
+      "actions": "Actions"
+    },
+    "confirmDeleteTitle": "Confirm Delete",
+    "confirmDeleteDesc": "Are you sure you want to delete the customer {{name}}? This action cannot be undone.",
+    "delete": "Delete",
+    "edit": "Edit",
+    "apply": "Apply",
+    "reset": "Reset",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "sortOptions": {
+      "chronological": "Chronological",
+      "name": "Name",
+      "companyName": "Company Name",
+      "email": "Email"
+    },
+    "searchOptions": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "companyName": "Company Name",
+      "customerNumber": "Customer Number"
+    },
+    "form": {
+      "addTitle": "Add Customer",
+      "editTitle": "Edit Customer",
+      "placeholders": {
+        "name": "Enter customer name",
+        "customerNumber": "Enter customer number",
+        "email": "Enter email address",
+        "phoneNumber": "Enter phone number",
+        "companyName": "Enter company name",
+        "selectCountry": "Select Country",
+        "enterCity": "Enter city",
+        "enterDistrict": "Enter district",
+        "enterAddress": "Enter street address",
+        "enterBuildingNumber": "Enter building number",
+        "enterPostalCode": "Enter postal code",
+        "enterIdentificationNumber": "Enter identification number"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "tabs": {
+      "businessProfile": "Business Profile",
+      "searchProfile": "Search Profile"
+    },
+    "searchPlaceholder": "Search Profile",
+    "duration": "Duration",
+    "noData": "No data available for the selected period.",
+    "dateRanges": {
+      "last7": "Last 7 Days",
+      "last30": "Last 30 Days",
+      "last90": "Last 90 Days",
+      "allTime": "All Time"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "brand": "Point Of Sale",
+      "subtitle": "Sign in to your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "Forgot password?",
+      "robot": "I'm not a robot",
+      "signingIn": "Signing in...",
+      "signIn": "Sign In",
+      "noAccount": "Don't have an account?",
+      "or": "or"
+    },
+    "signUp": {
+      "brand": "Point Of Sale",
+      "subtitle": "Create your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "showPassword": "Show password",
+      "robot": "I'm not a robot",
+      "signUp": "Sign Up",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign In"
+    }
   }
 }

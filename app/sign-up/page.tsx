@@ -8,17 +8,33 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitch from '@/components/base-components/LanguageSwitch';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function SignUpPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const submit = async () => {
+    setIsLoading(true);
+    try {
+      // Replace with real sign-up API call
+      console.log({ email, password, confirmPassword });
+      await new Promise((r) => setTimeout(r, 500));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password, confirmPassword });
+    void submit();
   };
 
   return (
@@ -37,10 +53,17 @@ export default function SignUpPage() {
       {/* Right: Form (45%) */}
       <div className='flex items-center justify-center bg-white'>
         <div className='w-full max-w-md px-6 py-10'>
+          <div className='flex justify-end mb-4'>
+            <LanguageSwitch />
+          </div>
           {/* Header */}
           <div className='mb-8 text-center'>
-            <h1 className='text-3xl font-bold text-gray-900'>Point Of Sale</h1>
-            <p className='text-gray-500 text-sm mt-1'>Create your account</p>
+            <h1 className='text-3xl font-bold text-gray-900'>
+              {t('auth.signUp.brand')}
+            </h1>
+            <p className='text-gray-500 text-sm mt-1'>
+              {t('auth.signUp.subtitle')}
+            </p>
           </div>
 
           {/* Form */}
@@ -50,12 +73,14 @@ export default function SignUpPage() {
           >
             {/* Email */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium text-gray-700'>Email</label>
+              <label className='text-sm font-medium text-gray-700'>
+                {t('auth.signUp.emailLabel')}
+              </label>
               <div className='relative'>
                 <Mail className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
                 <Input
                   type='email'
-                  placeholder='you@example.com'
+                  placeholder={t('auth.signUp.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className='pl-10 bg-yellow-50 border-yellow-200'
@@ -67,13 +92,15 @@ export default function SignUpPage() {
             {/* Password */}
             <div className='space-y-2'>
               <label className='text-sm font-medium text-gray-700'>
-                Password
+                {t('auth.signUp.passwordLabel')}
               </label>
               <div className='relative'>
                 <Lock className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
                 <Input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder='••••••••'
+                  placeholder={
+                    t('auth.signUp.passwordPlaceholder') ?? '••••••••'
+                  }
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className='pl-10 pr-10 bg-yellow-50 border-yellow-200'
@@ -96,13 +123,15 @@ export default function SignUpPage() {
             {/* Confirm Password */}
             <div className='space-y-2'>
               <label className='text-sm font-medium text-gray-700'>
-                Confirm Password
+                {t('auth.signUp.confirmPasswordLabel')}
               </label>
               <div className='relative'>
                 <Lock className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
                 <Input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder='••••••••'
+                  placeholder={
+                    t('auth.signUp.passwordPlaceholder') ?? '••••••••'
+                  }
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className='pl-10 pr-10 bg-yellow-50 border-yellow-200'
@@ -129,33 +158,38 @@ export default function SignUpPage() {
                 htmlFor='show-password'
                 className='text-sm text-gray-600'
               >
-                Show password
+                {t('auth.signUp.showPassword')}
               </label>
             </div>
 
             <div className='flex items-center space-x-2'>
               <Checkbox id='robot' />
               <span className='text-sm text-gray-600'>
-                I&apos;m not a robot
+                {t('auth.signUp.robot')}
               </span>
             </div>
 
             {/* Submit */}
             <Button
               type='submit'
-              className='w-full bg-blue-200 text-gray-700 hover:bg-blue-300'
+              disabled={isLoading}
+              className='w-full bg-blue-700 text-white hover:bg-blue-800'
             >
-              Sign Up
+              {isLoading ? (
+                <Spinner className='h-5 w-5 text-white mx-auto' />
+              ) : (
+                t('auth.signUp.signUp')
+              )}
             </Button>
 
             {/* Link */}
             <p className='text-center text-sm text-gray-600'>
-              Already have an account?{' '}
+              {t('auth.signUp.haveAccount')}{' '}
               <Link
                 href='/sign-in'
                 className='font-semibold text-blue-600'
               >
-                Sign In
+                {t('auth.signIn.signIn')}
               </Link>
             </p>
           </form>

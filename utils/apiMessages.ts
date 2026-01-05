@@ -42,6 +42,7 @@ export const ApiKeys = [
     },
     invoices: {
       add_invoice_success: 'Invoice Added Successfully',
+      create_invoice_success: 'Invoice Added Successfully',
       get_invoice_success: 'Invoice Fetched Successfully',
       get_invoices_list_success: 'Invoices Data Fetched Successfully',
       no_record_found: 'No Record Found',
