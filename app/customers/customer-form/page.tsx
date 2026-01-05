@@ -156,7 +156,6 @@ export default function CustomerFormPage() {
           token,
           payload,
           successCallbackFunction: () => {
-            toast.success('Customer updated successfully');
             router.push('/customers/customer-list');
           },
         });
@@ -165,7 +164,6 @@ export default function CustomerFormPage() {
           token,
           payload,
           successCallbackFunction: () => {
-            toast.success('Customer created successfully');
             router.push('/customers/customer-list');
           },
         });

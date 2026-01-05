@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
+import { formatCurrency } from '@/lib/number';
 
 const invoices = [
   {
@@ -172,7 +173,7 @@ export default function InvoicePage() {
                   <TableCell>{inv.customer}</TableCell>
                   <TableCell>{inv.date}</TableCell>
                   <TableCell className='font-medium'>
-                    SAR {inv.amount.toLocaleString()}
+                    {formatCurrency(inv.amount, inv.currency ?? 'SAR')}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

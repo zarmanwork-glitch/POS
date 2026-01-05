@@ -42,21 +42,75 @@ export const updateCustomer = async ({
 
 export const getCustomersList = async ({
   token,
-  offset = 1,
+  offset = 0,
   limit = 10,
+  searchBy = '',
+  search = '',
+  sortBy = '',
+  orderBy = '',
+  status = '',
+  country = '',
 }: {
   token: string;
   offset?: number;
   limit?: number;
+  searchBy?: string;
+  search?: string;
+  sortBy?: string;
+  orderBy?: string;
+  status?: string;
+  country?: string;
 }) => {
+  const payload: any = {
+    offSet: offset,
+    limit,
+  };
+
+  // Map display searchBy to backend field names
+  if (searchBy) {
+    const searchByMap: Record<string, string> = {
+      Name: 'name',
+      'Company Name': 'companyName',
+      Email: 'email',
+      Phone: 'phoneNumber',
+      customerNumber: 'customerNumber',
+    };
+
+    payload.searchBy = searchByMap[searchBy] || searchBy;
+  }
+
+  if (search) {
+    payload.search = search;
+  }
+
+  // Map sortBy display values to backend
+  if (sortBy) {
+    const sortByMap: Record<string, string> = {
+      Chronological: 'chronological',
+      Name: 'name',
+      'Company Name': 'companyName',
+      Email: 'email',
+    };
+    payload.sortBy = sortByMap[sortBy] || sortBy;
+  }
+
+  if (orderBy) {
+    payload.orderBy = orderBy;
+  }
+
+  if (status) {
+    payload.status = String(status).toLowerCase();
+  }
+
+  if (country) {
+    payload.country = country;
+  }
+
   return api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.CUSTOMERS.GET_CUSTOMERS_LIST,
     method: backendApiEnums.METHODS.POST,
-    payload: {
-      offSet: offset,
-      limit,
-    },
+    payload,
   });
 };
 

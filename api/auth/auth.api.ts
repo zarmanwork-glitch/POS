@@ -34,20 +34,16 @@ export const login = async ({
       endpoint: backendApiEnums.ENDPOINTS.AUTH.LOGIN,
       method: backendApiEnums.METHODS.POST,
       payload,
-      isDisplayResponsePopUp: false,
+      isDisplayResponsePopUp: true,
       successMessage: successMessagesEnums.AUTH.LOGIN,
       successCallback: successCallbackFunction,
     });
 
-    // Type the response data
     const data = response?.data as AuthResponse;
+
     if (data?.status === 'success' && data?.data?.results?.token) {
       Cookies.set('authToken', data.data.results.token);
-      Cookies.set('userEmail', data.data.results.user.email); // store email
-
-      if (successCallbackFunction) {
-        successCallbackFunction();
-      }
+      Cookies.set('userEmail', data.data.results.user.email);
     }
 
     return response;

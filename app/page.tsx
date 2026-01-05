@@ -12,11 +12,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+import { dateRanges } from '@/enums/dateRange';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('business');
   const [searchTerm, setSearchTerm] = useState('');
-  const [duration, setDuration] = useState('Last 7 Days');
+  const [duration, setDuration] = useState(dateRanges[0].value);
 
   return (
     <div className='space-y-6'>
@@ -63,10 +64,14 @@ export default function DashboardPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='Last 7 Days'>Last 7 Days</SelectItem>
-                  <SelectItem value='Last 30 Days'>Last 30 Days</SelectItem>
-                  <SelectItem value='Last 90 Days'>Last 90 Days</SelectItem>
-                  <SelectItem value='All Time'>All Time</SelectItem>
+                  {dateRanges.map((range) => (
+                    <SelectItem
+                      key={range.value}
+                      value={range.value}
+                    >
+                      {range.displayText}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

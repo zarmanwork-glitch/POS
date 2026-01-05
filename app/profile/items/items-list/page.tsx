@@ -57,7 +57,9 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { unitOfMeasures } from '@/enums/unitOfMeasure';
+import { itemStatuses } from '@/enums/itemStatus';
 import { Spinner } from '@/components/ui/spinner';
+import { formatNumber } from '@/lib/number';
 
 export default function ItemsListPage() {
   const [searchDescription, setSearchDescription] = useState('');
@@ -302,9 +304,14 @@ export default function ItemsListPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='Both'>Both</SelectItem>
-                        <SelectItem value='Enabled'>Enabled</SelectItem>
-                        <SelectItem value='Disabled'>Disabled</SelectItem>
+                        {itemStatuses.map((status) => (
+                          <SelectItem
+                            key={status.value}
+                            value={status.value}
+                          >
+                            {status.displayText}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -681,9 +688,9 @@ export default function ItemsListPage() {
                     </TableCell>
                     <TableCell>{item.materialNo}</TableCell>
                     <TableCell>
-                      Buy: {parseFloat(item.buyPrice).toFixed(2)}
+                      Buy: {formatNumber(item.buyPrice)}
                       <br />
-                      Sell: {parseFloat(item.sellPrice).toFixed(2)}
+                      Sell: {formatNumber(item.sellPrice)}
                     </TableCell>
                     <TableCell className='capitalize'>
                       {item.itemStatus}

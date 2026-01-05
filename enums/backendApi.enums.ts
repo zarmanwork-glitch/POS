@@ -32,6 +32,11 @@ export const backendApiEnums = {
       DELETE_BUSINESS_DETAILS: '/business-details/delete',
       UPDATE_BUSINESS_DETAILS: '/business-details/update',
     },
+    INVOICES: {
+      ADD_INVOICE: '/invoices/create',
+      GET_INVOICES_LIST: '/invoices/list',
+      GET_INVOICE_BY_ID: '/invoices/id',
+    },
   },
   METHODS: {
     GET: 'GET',

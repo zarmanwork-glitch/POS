@@ -1,5 +1,9 @@
 export const ApiKeys = [
   {
+    auth: {
+      login_success: 'Login successful',
+      login_failed: 'Invalid email or password',
+    },
     items: {
       add_item_success: 'Item Added Successfully',
       update_item_success: 'Item Updated Successfully',
@@ -35,6 +39,14 @@ export const ApiKeys = [
       business_details_unique_email: 'A profile with the email already exists',
       business_detail_not_exist: 'Business detail does not exist',
       invalid_business_detail_id: 'Business Detail with id does not exist',
+    },
+    invoices: {
+      add_invoice_success: 'Invoice Added Successfully',
+      get_invoice_success: 'Invoice Fetched Successfully',
+      get_invoices_list_success: 'Invoices Data Fetched Successfully',
+      no_record_found: 'No Record Found',
+      invoice_not_exist: 'Invoice Does Not Exist',
+      invalid_invoice_id: 'Invoice with id does not exist',
     },
     customers: {
       add_customer_success: 'Customer Added Successfully',

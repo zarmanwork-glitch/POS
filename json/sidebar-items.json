@@ -23,7 +23,9 @@
   {
     "label": "Documents",
     "icon": "FileText",
-    "children": [{ "label": "Invoice", "href": "/documents/invoice" }]
+    "children": [
+      { "label": "Invoice", "href": "/documents/invoice/invoice-list" }
+    ]
   },
   {
     "label": "Customers",

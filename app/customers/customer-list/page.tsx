@@ -32,20 +32,43 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import Cookies from 'js-cookie';
-import { ChevronDown, MoreHorizontal, Plus, Settings2 } from 'lucide-react';
+import {
+  ChevronDown,
+  MoreHorizontal,
+  Plus,
+  Settings2,
+  SortAsc,
+  SortDesc,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { customerStatusFilters } from '@/enums/customerStatus';
+import { countries } from '@/enums/country';
 
 export default function CustomerListPage() {
   const [searchCustomer, setSearchCustomer] = useState('');
   const [sortBy, setSortBy] = useState('Chronological');
+  const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('desc');
   const [searchBy, setSearchBy] = useState('Name');
   const [showFilters, setShowFilters] = useState(false);
   const [customers, setCustomers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteCustomerId, setDeleteCustomerId] = useState<string | null>(null);
   const [deleteCustomerName, setDeleteCustomerName] = useState<string>('');
@@ -66,22 +89,61 @@ export default function CustomerListPage() {
           return;
         }
 
-        const response = await getCustomersList({
-          token,
-          offset: 0,
-          limit: 10,
-        });
+        const offset = Math.max(0, (page - 1) * limit);
 
-        // Handle response data structure
-        const customersList =
-          response?.data?.results?.customers ||
+        const payloadToSend: any = {
+          token,
+          offset,
+          limit,
+        };
+
+        if (searchCustomer)
+          Object.assign(payloadToSend, { searchBy, search: searchCustomer });
+        if (sortBy) Object.assign(payloadToSend, { sortBy });
+        if (orderBy) Object.assign(payloadToSend, { orderBy });
+        if (filters.status && filters.status !== 'Both')
+          Object.assign(payloadToSend, { status: filters.status });
+        if (filters.country && filters.country !== 'All')
+          Object.assign(payloadToSend, { country: filters.country });
+
+        const response = await getCustomersList(payloadToSend);
+
+        const fetchedCustomers =
           response?.data?.data?.results?.customers ||
+          response?.data?.results?.customers ||
           response?.data?.data?.results?.items ||
           response?.data?.results?.items ||
           response?.data?.items ||
           [];
 
-        setCustomers(Array.isArray(customersList) ? customersList : []);
+        const fetched = Array.isArray(fetchedCustomers) ? fetchedCustomers : [];
+
+        setCustomers(fetched);
+
+        const results =
+          response?.data?.data?.results ||
+          response?.data?.results ||
+          response?.data ||
+          {};
+
+        const total =
+          results?.total ||
+          results?.totalCount ||
+          results?.totalRecords ||
+          results?.count ||
+          results?.recordsCount ||
+          response?.data?.total ||
+          0;
+
+        if (typeof total === 'number' && total > 0) {
+          setTotalItems(total);
+        } else if (Array.isArray(fetched) && fetched.length > 0) {
+          setTotalItems((page - 1) * limit + fetched.length);
+        } else {
+          setTotalItems(0);
+        }
+
+        setHasMore(Array.isArray(fetched) ? fetched.length >= limit : false);
       } catch (error: any) {
         console.error('Error fetching customers:', error);
         toast.error('Error fetching customers', { duration: 2000 });
@@ -91,7 +153,7 @@ export default function CustomerListPage() {
     };
 
     fetchCustomers();
-  }, []);
+  }, [page, searchCustomer, sortBy, filters, searchBy, orderBy]);
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -176,9 +238,9 @@ export default function CustomerListPage() {
           <div className='relative mr-auto'>
             <button
               onClick={() => setShowFilters(true)}
-              className='p-2 hover:bg-gray-100 rounded-lg'
+              className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200 '
             >
-              <Settings2 className='h-7 w-7 text-gray-600' />
+              <Settings2 className='h-4 w-4 text-gray-600' />
             </button>
 
             {/* FILTER PANEL */}
@@ -228,9 +290,14 @@ export default function CustomerListPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='Both'>Both</SelectItem>
-                        <SelectItem value='Active'>Active</SelectItem>
-                        <SelectItem value='Inactive'>Inactive</SelectItem>
+                        {customerStatusFilters.map((status) => (
+                          <SelectItem
+                            key={status.value}
+                            value={status.value}
+                          >
+                            {status.displayText}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -248,18 +315,14 @@ export default function CustomerListPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='All'>All</SelectItem>
-                        <SelectItem value='Saudi Arabia'>
-                          Saudi Arabia
-                        </SelectItem>
-                        <SelectItem value='United Arab Emirates'>
-                          UAE
-                        </SelectItem>
-                        <SelectItem value='Kuwait'>Kuwait</SelectItem>
-                        <SelectItem value='Qatar'>Qatar</SelectItem>
-                        <SelectItem value='Bahrain'>Bahrain</SelectItem>
-                        <SelectItem value='Oman'>Oman</SelectItem>
-                        <SelectItem value='Jordan'>Jordan</SelectItem>
+                        {countries.map((country) => (
+                          <SelectItem
+                            key={country.value}
+                            value={country.value}
+                          >
+                            {country.displayText}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -304,6 +367,12 @@ export default function CustomerListPage() {
                 <DropdownMenuItem onClick={() => setSearchBy('Phone')}>
                   Phone
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSearchBy('Company Name')}>
+                  Company Name
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSearchBy('customerNumber')}>
+                  Customer Number
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -325,11 +394,29 @@ export default function CustomerListPage() {
                 <DropdownMenuItem onClick={() => setSortBy('Name')}>
                   Name
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('Company Name')}>
+                  Company Name
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortBy('Email')}>
                   Email
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <button
+              aria-label='Toggle order'
+              title={orderBy === 'desc' ? 'Descending' : 'Ascending'}
+              onClick={() => {
+                setOrderBy((o) => (o === 'desc' ? 'asc' : 'desc'));
+                setPage(1);
+              }}
+              className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200'
+            >
+              {orderBy === 'desc' ? (
+                <SortDesc className='h-4 w-4 text-gray-600' />
+              ) : (
+                <SortAsc className='h-4 w-4 text-gray-600' />
+              )}
+            </button>
           </div>
 
           {/* Search */}
@@ -380,7 +467,7 @@ export default function CustomerListPage() {
               ) : (
                 filteredCustomers.map((customer, index) => (
                   <TableRow key={customer.id}>
-                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{(page - 1) * limit + index + 1}</TableCell>
                     <TableCell className='font-medium'>
                       {customer.name}
                     </TableCell>
@@ -424,6 +511,85 @@ export default function CustomerListPage() {
           </Table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalItems > 0 && (
+        <div className='flex flex-col gap-4'>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page > 1) setPage(page - 1);
+                  }}
+                  className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+
+              {/* Page Numbers */}
+              {(() => {
+                const totalPages = Math.ceil(totalItems / limit);
+                const siblingCount = 1;
+                const left = Math.max(1, page - siblingCount);
+                const right = Math.min(totalPages, page + siblingCount);
+                const pages: (number | string)[] = [];
+
+                if (left > 1) {
+                  pages.push(1);
+                  if (left > 2) pages.push('ellipsis');
+                }
+
+                for (let i = left; i <= right; i++) {
+                  pages.push(i);
+                }
+
+                if (right < totalPages) {
+                  if (right < totalPages - 1) pages.push('ellipsis');
+                  pages.push(totalPages);
+                }
+
+                return pages.map((p, idx) =>
+                  p === 'ellipsis' ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        href='#'
+                        isActive={p === page}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(p as number);
+                        }}
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                );
+              })()}
+
+              <PaginationItem>
+                <PaginationNext
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page < Math.ceil(totalItems / limit)) setPage(page + 1);
+                  }}
+                  className={
+                    page >= Math.ceil(totalItems / limit)
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       <Dialog
