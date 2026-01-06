@@ -9,20 +9,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { X, Plus, Upload, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import Cookies from 'js-cookie';
 import { Card } from '@/components/ui/card';
 import { incoTerms } from '@/enums/incoTerms';
 import { unitOfMeasures } from '@/enums/unitOfMeasure';
-import { currencies } from '@/enums/currency';
-import { discountTypes } from '@/enums/discountType';
 import { taxCodes } from '@/enums/taxCode';
-import { billingArrangements } from '@/enums/billingArrangement';
-import { transactionTypes } from '@/enums/transactionType';
 import { getBusinessDetailsForSelection } from '@/api/business-details/business-details.api';
 import { getCustomersForSelection } from '@/api/customers/customer.api';
 import { getBankDetailsForSelection } from '@/api/bank-details/bank-details.api';
@@ -30,141 +35,13 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { createInvoice } from '@/api/invoices/invoice.api';
 import { formatNumber, parseNumber } from '@/lib/number';
-import { useEffect } from 'react';
 
 export default function InvoiceFormPage() {
   const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   const [isLoading, setIsLoading] = useState(false);
-
-  const formik = useFormik({
-    initialValues: {
-      invoiceNumber: '',
-      invoiceDate: '',
-      dueDate: '',
-      supplyDate: '',
-      supplyEndDate: '',
-      incoterms: 'NA',
-      location: '',
-      contractId: '',
-      customerPoNumber: '',
-      specialBillingArrangement: 'NA',
-      specialTransactionType: 'NA',
-      paymentTerms: '',
-      paymentMeans: '',
-      specialTaxTreatment: '',
-      prePaymentInvoice: false,
-      business_detail_id: '',
-      customer_id: '',
-      currency: 'SAR',
-    },
-    validationSchema: Yup.object({
-      invoiceDate: Yup.date().required('Invoice date is required'),
-      dueDate: Yup.date().required('Due date is required'),
-      paymentMeans: Yup.string().required('Payment means is required'),
-      business_detail_id: Yup.string().required('Business details required'),
-      customer_id: Yup.string().required('Customer required'),
-      currency: Yup.string().required('Currency required'),
-    }),
-    onSubmit: async (values) => {
-      try {
-        setIsLoading(true);
-        const token = Cookies.get('authToken');
-
-        if (!token) {
-          console.error('No token found');
-          return;
-        }
-
-        const payload: any = {
-          invoiceNumber: values.invoiceNumber,
-          incoterms: values.incoterms,
-          location: values.location,
-          invoiceDate: values.invoiceDate,
-          dueDate: values.dueDate,
-          supplyDate: values.supplyDate,
-          supplyEndDate: values.supplyEndDate,
-          contractId: values.contractId,
-          customerPoNumber: values.customerPoNumber,
-          paymentTerms: values.paymentTerms,
-          paymentMeans: values.paymentMeans,
-          specialTaxTreatment: values.specialTaxTreatment,
-          prePaymentInvoice: values.prePaymentInvoice,
-          business_detail_id: values.business_detail_id,
-          customer_id: values.customer_id,
-          currency: values.currency,
-          items,
-          notes: '',
-        };
-
-        // Map frontend field names to backend expected keys (camelCase)
-        const apiPayload: any = {
-          invoiceNumber: payload.invoiceNumber,
-          incoterms: payload.incoterms,
-          location: payload.location,
-          invoiceDate: payload.invoiceDate,
-          dueDate: payload.dueDate,
-          supplyDate: payload.supplyDate,
-          supplyEndDate: payload.supplyEndDate,
-          contractId: payload.contractId,
-          customerPoNumber: payload.customerPoNumber,
-          paymentTerms: payload.paymentTerms,
-          // backend expects numeric paymentMeans values
-          paymentMeans:
-            payload.paymentMeans !== undefined && payload.paymentMeans !== null
-              ? Number(payload.paymentMeans)
-              : undefined,
-          specialTaxTreatment: payload.specialTaxTreatment,
-          prePaymentInvoice: payload.prePaymentInvoice,
-          // convert snake_case ids to camelCase expected by backend
-          businessDetailId: payload.business_detail_id || undefined,
-          customerId: payload.customer_id || undefined,
-          // bankDetailId may come from payment info; include if present
-          bankDetailId:
-            (paymentInfo && (paymentInfo as any).bankDetailId) || undefined,
-          currency: payload.currency,
-          items: payload.items,
-          notes: payload.notes,
-        };
-
-        // If a logo file is attached, send as FormData so backend can accept the file
-        let payloadToSend: any = apiPayload;
-        if (logo) {
-          const form = new FormData();
-          // append simple fields (use camelCase keys)
-          Object.keys(apiPayload).forEach((k) => {
-            const val = (apiPayload as any)[k];
-            if (val === undefined || val === null) return;
-            // For items (array) send as a JSON blob part so backend can parse as array
-            if (k === 'items') {
-              form.append(
-                k,
-                new Blob([JSON.stringify(val)], { type: 'application/json' })
-              );
-              return;
-            }
-            // for other arrays/objects, stringify
-            if (typeof val === 'object') form.append(k, JSON.stringify(val));
-            else form.append(k, String(val));
-          });
-          form.append('logo', logo as Blob);
-          payloadToSend = form;
-        }
-
-        // Use same pattern as other forms: pass token and successCallbackFunction
-        await createInvoice({
-          token: token as any,
-          payload: payloadToSend,
-          successCallbackFunction: () => router.push('/documents/invoice'),
-        });
-      } catch (error) {
-        console.error('Error creating invoice:', error);
-        toast.error('Error creating invoice');
-      } finally {
-        setIsLoading(false);
-      }
-    },
-  });
 
   const [selectedBusinessDetails, setSelectedBusinessDetails] =
     useState<any>(null);
@@ -190,8 +67,7 @@ export default function InvoiceFormPage() {
     },
   ]);
 
-  const [reportingTagInput, setReportingTagInput] = useState('');
-  const [reportingTags, setReportingTags] = useState<string[]>([]);
+  // reporting tags removed (unused)
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -203,6 +79,86 @@ export default function InvoiceFormPage() {
   const [businessFocused, setBusinessFocused] = useState(false);
   const [customerFocused, setCustomerFocused] = useState(false);
   const [bankFocused, setBankFocused] = useState(false);
+
+  const invoiceValidationSchema = Yup.object({
+    invoiceDate: Yup.date().required('Invoice date is required'),
+    dueDate: Yup.date().required('Due date is required'),
+    paymentMeans: Yup.string().required('Payment means is required'),
+    business_detail_id: Yup.string().required('Business details required'),
+    customer_id: Yup.string().required('Customer required'),
+    currency: Yup.string().required('Currency required'),
+  });
+
+  const handleSubmitInvoice = async (values: any) => {
+    try {
+      setIsLoading(true);
+
+      const token = Cookies.get('authToken');
+      if (!token) {
+        console.error('No token found');
+        toast.error('Authentication error');
+        return;
+      }
+
+      const payload = {
+        invoiceNumber: values.invoiceNumber,
+        incoterms: values.incoterms,
+        location: values.location,
+        invoiceDate: values.invoiceDate,
+        dueDate: values.dueDate,
+        supplyDate: values.supplyDate,
+        supplyEndDate: values.supplyEndDate,
+        contractId: values.contractId,
+        customerPoNumber: values.customerPoNumber,
+        paymentTerms: values.paymentTerms,
+        paymentMeans: values.paymentMeans,
+        specialTaxTreatment: values.specialTaxTreatment,
+        prePaymentInvoice: values.prePaymentInvoice,
+        business_detail_id: values.business_detail_id,
+        bank_detail_id: values.bank_detail_id,
+        customer_id: values.customer_id,
+        currency: values.currency,
+        items,
+        notes: '',
+      };
+
+      await createInvoice({
+        token: token as any,
+        payload,
+        successCallbackFunction: () => router.push('/documents/invoice'),
+      });
+    } catch (error) {
+      console.error('Error creating invoice:', error);
+      toast.error('Error creating invoice');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const formik = useFormik({
+    initialValues: {
+      invoiceNumber: '',
+      invoiceDate: '',
+      dueDate: '',
+      supplyDate: '',
+      supplyEndDate: '',
+      incoterms: 'N/A',
+      location: '',
+      contractId: '',
+      customerPoNumber: '',
+      specialBillingArrangement: 'NA',
+      specialTransactionType: 'NA',
+      paymentTerms: '',
+      paymentMeans: '',
+      specialTaxTreatment: '',
+      prePaymentInvoice: false,
+      business_detail_id: '',
+      bank_detail_id: '',
+      customer_id: '',
+      currency: 'SAR - Saudi Riyal',
+    },
+    validationSchema: invoiceValidationSchema,
+    onSubmit: handleSubmitInvoice,
+  });
 
   const handleField = (key: string, value: any) => {
     formik.setFieldValue(key, value);
@@ -221,9 +177,12 @@ export default function InvoiceFormPage() {
 
   // Fetch lists for dropdowns on mount
   useEffect(() => {
+    let isMounted = true;
+
     const fetchLists = async () => {
       try {
         setListsLoading(true);
+
         const token = Cookies.get('authToken');
         if (!token) return;
 
@@ -233,42 +192,50 @@ export default function InvoiceFormPage() {
           getBankDetailsForSelection({ token }),
         ]);
 
-        // Support multiple possible response shapes from the selection endpoints
-        const biz =
+        if (!isMounted) return;
+
+        setBusinessOptions(
           bResp?.data?.data?.results?.businessDetails ||
-          bResp?.data?.data?.results ||
-          bResp?.data?.data ||
-          bResp?.data ||
-          [];
+            bResp?.data?.data?.results ||
+            bResp?.data?.data ||
+            bResp?.data ||
+            []
+        );
 
-        const cus =
+        setCustomerOptions(
           cResp?.data?.data?.results?.customers ||
-          cResp?.data?.results?.customers ||
-          cResp?.data?.data?.results ||
-          cResp?.data?.data ||
-          cResp?.data ||
-          [];
+            cResp?.data?.results?.customers ||
+            cResp?.data?.data?.results ||
+            cResp?.data?.data ||
+            cResp?.data ||
+            []
+        );
 
-        const bk =
+        setBankOptions(
           bkResp?.data?.data?.results?.bankDetails ||
-          bkResp?.data?.results?.bankDetails ||
-          bkResp?.data?.data?.results ||
-          bkResp?.data?.data ||
-          bkResp?.data ||
-          [];
-
-        setBusinessOptions(biz);
-        setCustomerOptions(cus);
-        setBankOptions(bk);
+            bkResp?.data?.results?.bankDetails ||
+            bkResp?.data?.data?.results ||
+            bkResp?.data?.data ||
+            bkResp?.data ||
+            []
+        );
       } catch (error) {
-        console.error('Error fetching dropdown lists:', error);
-        toast.error('Failed to load dropdown data');
+        if (isMounted) {
+          console.error('Error fetching dropdown lists:', error);
+          toast.error('Failed to load dropdown data');
+        }
       } finally {
-        setListsLoading(false);
+        if (isMounted) {
+          setListsLoading(false);
+        }
       }
     };
 
     fetchLists();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Filter functions for search
@@ -348,30 +315,41 @@ export default function InvoiceFormPage() {
   const removeItem = (index: number) => {
     setItems((it) => it.filter((_, i) => i !== index));
   };
+
   return (
-    <div className='space-y-6'>
+    <div
+      className={`space-y-6 ${isRTL ? 'rtl' : 'ltr'}`}
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
       <form
         onSubmit={formik.handleSubmit}
         className='space-y-6'
       >
         <div className='flex items-center justify-between'>
           <h2 className='text-3xl font-bold'>
-            <span className='text-blue-600'>Documents</span>
-            <span className='text-gray-800'> | Create Invoice</span>
+            <span className='text-blue-600'>{t('invoices.documents')}</span>
+            <span className='text-gray-800'>
+              {' '}
+              | {t('invoices.form.createInvoice')}
+            </span>
           </h2>
-          <div className='flex gap-3'>
+          <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Button
               variant='outline'
               onClick={() => router.back()}
             >
-              Cancel
+              {t('invoices.cancel')}
             </Button>
             <Button
               className='bg-blue-600 hover:bg-blue-700'
               onClick={() => formik.handleSubmit()}
               disabled={isLoading}
             >
-              {isLoading ? <Spinner className='h-4 w-4 text-white' /> : 'Save'}
+              {isLoading ? (
+                <Spinner className='h-4 w-4 text-white' />
+              ) : (
+                t('invoices.form.save')
+              )}
             </Button>
           </div>
         </div>
@@ -380,7 +358,7 @@ export default function InvoiceFormPage() {
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
           <div>
             <label className='block text-sm text-gray-700 mb-1'>
-              Invoice Number (Optional):
+              {t('invoices.form.invoiceNumber')} (Optional):
             </label>
             <Input
               className='bg-blue-50 h-10'
@@ -390,11 +368,11 @@ export default function InvoiceFormPage() {
               onChange={formik.handleChange}
             />
             <div className='text-xs text-gray-400 mt-1'>
-              Auto-generated if left blank
+              {t('invoices.form.autoGeneratedIfBlank')}
             </div>
 
             <label className='block text-sm text-gray-700 mt-4 mb-1'>
-              Invoice Date:
+              {t('invoices.form.invoiceDate')}:
             </label>
             <Input
               className='bg-blue-50 h-10'
@@ -405,11 +383,13 @@ export default function InvoiceFormPage() {
               onBlur={formik.handleBlur}
             />
             {!formik.values.invoiceDate && (
-              <div className='text-xs text-gray-400 mt-1'>Choose Date</div>
+              <div className='text-xs text-gray-400 mt-1'>
+                {t('invoices.form.chooseDate')}
+              </div>
             )}
 
             <label className='block text-sm text-gray-700 mt-4 mb-1'>
-              Supply Date:
+              {t('invoices.form.supplyDate')}:
             </label>
             <Input
               className='bg-blue-50 h-10'
@@ -419,13 +399,15 @@ export default function InvoiceFormPage() {
               onChange={formik.handleChange}
             />
             {!formik.values.supplyDate && (
-              <div className='text-xs text-gray-400 mt-1'>Choose Date</div>
+              <div className='text-xs text-gray-400 mt-1'>
+                {t('invoices.form.chooseDate')}
+              </div>
             )}
           </div>
 
           <div>
             <label className='block text-sm text-gray-700 mb-1'>
-              IncoTerms:
+              {t('invoices.form.incoTerms')}:
             </label>
             <div className='flex items-center gap-3'>
               <Select
@@ -448,7 +430,7 @@ export default function InvoiceFormPage() {
               </Select>
               <Input
                 className='bg-blue-50 h-10 flex-1'
-                placeholder='Location'
+                placeholder={t('invoices.form.location')}
                 name='location'
                 value={formik.values.location}
                 onChange={formik.handleChange}
@@ -456,7 +438,7 @@ export default function InvoiceFormPage() {
             </div>
 
             <label className='block text-sm text-gray-700 mt-4 mb-1'>
-              Due date:
+              {t('invoices.form.dueDate')}:
             </label>
             <Input
               className='bg-blue-50 h-10'
@@ -472,11 +454,13 @@ export default function InvoiceFormPage() {
               </div>
             ) : null}
             {!formik.values.dueDate && (
-              <div className='text-xs text-gray-400 mt-1'>Choose Date</div>
+              <div className='text-xs text-gray-400 mt-1'>
+                {t('invoices.form.chooseDate')}
+              </div>
             )}
 
             <label className='block text-sm text-gray-700 mt-4 mb-1'>
-              Supply End Date:
+              {t('invoices.form.supplyEndDate')}:
             </label>
             <Input
               className='bg-blue-50 h-10'
@@ -486,7 +470,9 @@ export default function InvoiceFormPage() {
               onChange={formik.handleChange}
             />
             {!formik.values.supplyEndDate && (
-              <div className='text-xs text-gray-400 mt-1'>Choose Date</div>
+              <div className='text-xs text-gray-400 mt-1'>
+                {t('invoices.form.chooseDate')}
+              </div>
             )}
           </div>
 
@@ -501,7 +487,7 @@ export default function InvoiceFormPage() {
                   <div className='w-full flex flex-col items-center gap-2'>
                     <img
                       src={logoPreview}
-                      alt='Logo preview'
+                      alt={t('invoices.form.logoPreviewAlt')}
                       className='w-auto h-auto max-w-40 max-h-40 object-contain'
                     />
                     <button
@@ -515,15 +501,17 @@ export default function InvoiceFormPage() {
                           fileInputRef.current.value = '';
                       }}
                     >
-                      Remove Logo
+                      {t('invoices.form.removeLogo')}
                     </button>
                   </div>
                 ) : (
                   <>
-                    <div className='text-2xl font-bold text-gray-300'>LOGO</div>
+                    <div className='text-2xl font-bold text-gray-300'>
+                      {t('invoices.form.logoLabel')}
+                    </div>
                     <Upload className='h-6 w-6 text-gray-400' />
                     <p className='text-center text-gray-400 text-sm'>
-                      Drag and drop an image or click here to select one
+                      {t('invoices.form.dragDropLogo')}
                     </p>
                   </>
                 )}
@@ -540,22 +528,22 @@ export default function InvoiceFormPage() {
 
           <div className='mt-4'>
             <label className='block text-sm text-gray-700 mb-1'>
-              Contract ID:
+              {t('invoices.form.contractId')}:
             </label>
             <Input
               className='bg-blue-50 h-10'
-              placeholder='Contract ID'
+              placeholder={t('invoices.form.contractId')}
               name='contractId'
               value={formik.values.contractId}
               onChange={formik.handleChange}
             />
 
             <label className='block text-sm text-gray-700 mt-4 mb-1'>
-              Customer PO / Order Number:
+              {t('invoices.customerPoNumber')}:
             </label>
             <Input
               className='bg-blue-50 h-10'
-              placeholder='PO / Order Number'
+              placeholder={t('invoices.customerPoNumber')}
               name='customerPoNumber'
               value={formik.values.customerPoNumber}
               onChange={formik.handleChange}
@@ -608,11 +596,11 @@ export default function InvoiceFormPage() {
 
           <div>
             <label className='block text-sm text-gray-700 mb-1'>
-              Special Tax Treatment:
+              {t('invoices.form.specialTaxTreatment')}:
             </label>
             <textarea
               className='w-full bg-blue-50 border rounded-md p-2 h-24'
-              placeholder='Narration regarding special tax treatment'
+              placeholder={t('invoices.form.specialTaxTreatment')}
               name='specialTaxTreatment'
               value={formik.values.specialTaxTreatment}
               onChange={formik.handleChange}
@@ -620,7 +608,7 @@ export default function InvoiceFormPage() {
 
             <div className='flex items-center gap-3 mt-3'>
               <label className='text-sm text-gray-700'>
-                Pre-payment invoice:
+                {t('invoices.form.prePaymentInvoice')}:
               </label>
               <button
                 type='button'
@@ -646,7 +634,9 @@ export default function InvoiceFormPage() {
               </button>
             </div>
             <p className='text-sm text-gray-600 mt-2'>
-              {formik.values.prePaymentInvoice ? 'Yes' : 'No'}
+              {formik.values.prePaymentInvoice
+                ? t('invoices.form.yes')
+                : t('invoices.form.no')}
             </p>
           </div>
         </div>
@@ -655,20 +645,29 @@ export default function InvoiceFormPage() {
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4'>
           {/* BILLED BY */}
           <div className='space-y-2'>
-            <div className='flex items-center justify-between mb-3'>
-              <h3 className='text-sm font-semibold text-gray-700'>BILLED BY</h3>
-              <span className='text-xs text-gray-400'>VENDOR INFO</span>
-            </div>
-            <div>
-              <button className='text-sm text-blue-600 mb-3'>Add</button>
+            <div className='flex items-center justify-between'>
+              <div className='mb-3'>
+                <h3 className='text-sm font-semibold text-gray-700'>
+                  {t('invoices.form.selectedBusinessDetails')}
+                </h3>
+                <span className='text-xs text-gray-400'>
+                  {t('invoices.form.selectBusinessDetails')}
+                </span>
+              </div>
+              <div>
+                <button className='text-sm text-blue-600 mb-3'>
+                  {t('invoices.form.change')}
+                </button>
+              </div>
             </div>
 
             {/* Selected Business Details Chip */}
             {selectedBusinessDetails && (
-              <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3'>
+              <div className='p-3 mb-3'>
                 <div className='flex items-center gap-2 mb-3'>
                   <span className='text-sm text-gray-700 font-medium'>
-                    Business Details: <span className='text-red-500'>*</span>
+                    {t('invoices.form.selectBusinessDetails')}:
+                    <span className='text-red-500'>*</span>
                   </span>
                   <div className='flex items-center gap-2 bg-white border rounded px-2 py-1'>
                     <span className='text-sm text-gray-700'>
@@ -692,17 +691,17 @@ export default function InvoiceFormPage() {
                 {/* Identification section */}
                 <div className='mb-3'>
                   <div className='text-xs text-gray-600 font-medium mb-2'>
-                    Identification
+                    {t('invoices.form.identification')}
                   </div>
                   <div className='grid grid-cols-2 gap-2'>
                     <Input
-                      placeholder='Identification Type'
+                      placeholder={t('invoices.form.identificationType')}
                       value={selectedBusinessDetails.identificationType || ''}
                       disabled
                       className='text-xs'
                     />
                     <Input
-                      placeholder='ID Number'
+                      placeholder={t('invoices.form.identificationNumber')}
                       value={selectedBusinessDetails.identificationNumber || ''}
                       disabled
                       className='text-xs'
@@ -710,85 +709,82 @@ export default function InvoiceFormPage() {
                   </div>
                 </div>
 
-                {/* Details Grid */}
-                <div className='grid grid-cols-2 gap-x-3 gap-y-2 text-xs'>
-                  <div>
-                    <span className='text-gray-600 font-medium'>Name:</span>
-                    <p className='text-gray-700'>
-                      {selectedBusinessDetails.name || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      Company Name:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedBusinessDetails.companyName || '-'}
-                    </p>
-                  </div>
-                  <div className='col-span-2'>
-                    <span className='text-gray-600 font-medium'>Address:</span>
-                    <p className='text-gray-700'>
-                      {selectedBusinessDetails.address || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>Country:</span>
-                    <p className='text-gray-700'>
-                      {selectedBusinessDetails.country || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>Phone:</span>
-                    <p className='text-gray-700'>
-                      {selectedBusinessDetails.phoneNumber || '-'}
-                    </p>
-                  </div>
-                  <div className='col-span-2'>
-                    <span className='text-gray-600 font-medium'>Email:</span>
-                    <p className='text-gray-700'>
-                      {selectedBusinessDetails.email || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>CR:</span>
-                    <p className='text-gray-700'>
-                      {selectedBusinessDetails.cr || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      VAT/GST No:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedBusinessDetails.vatGstNumber || '-'}
-                    </p>
-                  </div>
-                  {selectedBusinessDetails.momraLicense && (
-                    <>
-                      <div className='col-span-2'>
-                        <span className='text-gray-600 font-medium'>
-                          Momra license:
-                        </span>
-                        <p className='text-gray-700'>
-                          {selectedBusinessDetails.momraLicense}
-                        </p>
+                {/* Details Table-like layout (matches attached image) */}
+                <div className='mt-2 border border-gray-200 rounded-md overflow-hidden text-xs'>
+                  {(() => {
+                    const rows = [
+                      {
+                        label: t('invoices.form.name'),
+                        value: selectedBusinessDetails.name || '-',
+                      },
+                      {
+                        label: t('invoices.form.companyName'),
+                        value: selectedBusinessDetails.companyName || '-',
+                      },
+                      {
+                        label: t('invoices.form.address'),
+                        value: selectedBusinessDetails.address || '-',
+                      },
+                      {
+                        label: t('invoices.form.country'),
+                        value: selectedBusinessDetails.country || '-',
+                      },
+                      {
+                        label: t('invoices.form.phone'),
+                        value: selectedBusinessDetails.phoneNumber || '-',
+                      },
+                      {
+                        label: t('invoices.form.email'),
+                        value: selectedBusinessDetails.email || '-',
+                      },
+                      {
+                        label: t('invoices.form.cr'),
+                        value: selectedBusinessDetails.cr || '-',
+                      },
+                      {
+                        label: t('invoices.form.vatNo'),
+                        value: selectedBusinessDetails.vatGstNumber || '-',
+                      },
+                    ];
+
+                    if (selectedBusinessDetails.momraLicense) {
+                      rows.push({
+                        label: t('invoices.form.momraLicense'),
+                        value: selectedBusinessDetails.momraLicense,
+                      });
+                    }
+
+                    if (
+                      selectedBusinessDetails.isSaudiVatRegistered !== undefined
+                    ) {
+                      rows.push({
+                        label: t('invoices.form.isSaudiVatRegistered'),
+                        value: selectedBusinessDetails.isSaudiVatRegistered
+                          ? t('invoices.form.yes')
+                          : t('invoices.form.no'),
+                      });
+                    }
+
+                    return (
+                      <div className='divide-y divide-gray-200'>
+                        {rows.map((r, i) => (
+                          <div
+                            key={i}
+                            className={`flex items-start px-4 py-3 ${
+                              i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                            }`}
+                          >
+                            <div className='w-1/3 text-gray-600 font-medium'>
+                              {r.label}:
+                            </div>
+                            <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                              {r.value}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </>
-                  )}
-                  {selectedBusinessDetails.isSaudiVatRegistered !==
-                    undefined && (
-                    <div>
-                      <span className='text-gray-600 font-medium'>
-                        Is Saudi VAT registered:
-                      </span>
-                      <p className='text-gray-700'>
-                        {selectedBusinessDetails.isSaudiVatRegistered
-                          ? 'Yes'
-                          : 'No'}
-                      </p>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -798,7 +794,7 @@ export default function InvoiceFormPage() {
               <div className='relative'>
                 <Input
                   className='bg-blue-50 h-10 pr-10'
-                  placeholder='Search by: Name | Company | Email | Phone'
+                  placeholder={t('invoices.form.searchBusiness')}
                   value={businessSearch}
                   onChange={(e) => setBusinessSearch(e.target.value)}
                   onFocus={() => setBusinessFocused(true)}
@@ -854,7 +850,7 @@ export default function InvoiceFormPage() {
                   businessSearch &&
                   filteredBusinessOptions.length === 0 && (
                     <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-4 py-2 text-sm text-gray-500'>
-                      No results found
+                      {t('invoices.form.noResultsFound')}
                     </div>
                   )}
               </div>
@@ -869,12 +865,20 @@ export default function InvoiceFormPage() {
 
           {/* BILLED TO */}
           <div className='space-y-2'>
-            <div className='flex items-center justify-between mb-3'>
-              <h3 className='text-sm font-semibold text-gray-700'>BILLED TO</h3>
-              <span className='text-xs text-gray-400'>CUSTOMER INFO</span>
-            </div>
-            <div>
-              <button className='text-sm text-blue-600 mb-3'>Add</button>
+            <div className='flex items-center justify-between'>
+              <div className='mb-3'>
+                <h3 className='text-sm font-semibold text-gray-700'>
+                  {t('invoices.form.selectedCustomer')}
+                </h3>
+                <span className='text-xs text-gray-400'>
+                  {t('invoices.form.selectCustomer')}
+                </span>
+              </div>
+              <div>
+                <button className='text-sm text-blue-600 mb-3'>
+                  {t('invoices.form.change')}
+                </button>
+              </div>
             </div>
 
             {/* Selected Customer Chip */}
@@ -882,7 +886,8 @@ export default function InvoiceFormPage() {
               <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3'>
                 <div className='flex items-center gap-2 mb-3'>
                   <span className='text-sm text-gray-700 font-medium'>
-                    Choose Customer: <span className='text-red-500'>*</span>
+                    {t('invoices.form.selectCustomer')}:{' '}
+                    <span className='text-red-500'>*</span>
                   </span>
                   <div className='flex items-center gap-2 bg-white border rounded px-2 py-1'>
                     <span className='text-sm text-gray-700'>
@@ -907,74 +912,78 @@ export default function InvoiceFormPage() {
                 {/* Identification section */}
                 <div className='mb-3'>
                   <div className='text-xs text-gray-600 font-medium mb-2'>
-                    Identification
+                    {t('invoices.form.identification')}
                   </div>
                   <div className='grid grid-cols-2 gap-2'>
                     <Input
-                      placeholder='Identification Type'
+                      placeholder={t('invoices.form.identificationType')}
                       className='text-xs bg-gray-100'
                     />
                     <Input
-                      placeholder='Identification Number'
+                      placeholder={t('invoices.form.identificationNumber')}
                       className='text-xs bg-gray-100'
                     />
                   </div>
                 </div>
 
-                {/* Details Grid */}
-                <div className='grid grid-cols-2 gap-x-3 gap-y-2 text-xs'>
-                  <div>
-                    <span className='text-gray-600 font-medium'>Name:</span>
-                    <p className='text-gray-700'>
-                      {selectedCustomer.name || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      Company Name:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedCustomer.companyName || '-'}
-                    </p>
-                  </div>
-                  <div className='col-span-2'>
-                    <span className='text-gray-600 font-medium'>Address:</span>
-                    <p className='text-gray-700'>
-                      {selectedCustomer.address || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>Country:</span>
-                    <p className='text-gray-700'>
-                      {selectedCustomer.country || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>Phone:</span>
-                    <p className='text-gray-700'>
-                      {selectedCustomer.phoneNumber || '-'}
-                    </p>
-                  </div>
-                  <div className='col-span-2'>
-                    <span className='text-gray-600 font-medium'>Email:</span>
-                    <p className='text-gray-700'>
-                      {selectedCustomer.email || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>CIN:</span>
-                    <p className='text-gray-700'>
-                      {selectedCustomer.cin || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      VAT/GST No:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedCustomer.vatGstNumber || '-'}
-                    </p>
-                  </div>
+                {/* Details Table-like layout (small text) */}
+                <div className='mt-2 border border-gray-200 rounded-md overflow-hidden text-xs'>
+                  {(() => {
+                    const rows = [
+                      {
+                        label: t('invoices.form.name'),
+                        value: selectedCustomer.name || '-',
+                      },
+                      {
+                        label: t('invoices.form.companyName'),
+                        value: selectedCustomer.companyName || '-',
+                      },
+                      {
+                        label: t('invoices.form.address'),
+                        value: selectedCustomer.address || '-',
+                      },
+                      {
+                        label: t('invoices.form.country'),
+                        value: selectedCustomer.country || '-',
+                      },
+                      {
+                        label: t('invoices.form.phone'),
+                        value: selectedCustomer.phoneNumber || '-',
+                      },
+                      {
+                        label: t('invoices.form.email'),
+                        value: selectedCustomer.email || '-',
+                      },
+                      {
+                        label: t('invoices.form.cr'),
+                        value: selectedCustomer.cin || '-',
+                      },
+                      {
+                        label: t('invoices.form.vatNo'),
+                        value: selectedCustomer.vatGstNumber || '-',
+                      },
+                    ];
+
+                    return (
+                      <div className='divide-y divide-gray-200'>
+                        {rows.map((r, i) => (
+                          <div
+                            key={i}
+                            className={`flex items-start px-4 py-3 ${
+                              i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                            }`}
+                          >
+                            <div className='w-1/3 text-gray-600 font-medium'>
+                              {r.label}:
+                            </div>
+                            <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                              {r.value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -984,7 +993,7 @@ export default function InvoiceFormPage() {
               <div className='relative'>
                 <Input
                   className='bg-blue-50 h-10 pr-10'
-                  placeholder='Search by: Name | Company | Email | Phone'
+                  placeholder={t('invoices.form.searchCustomer')}
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
                   onFocus={() => setCustomerFocused(true)}
@@ -1044,7 +1053,7 @@ export default function InvoiceFormPage() {
                   customerSearch &&
                   filteredCustomerOptions.length === 0 && (
                     <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-4 py-2 text-sm text-gray-500'>
-                      No results found
+                      {t('invoices.form.noResultsFound')}
                     </div>
                   )}
               </div>
@@ -1058,28 +1067,28 @@ export default function InvoiceFormPage() {
 
           {/* PAYMENT INFO */}
           <div className='space-y-2'>
-            <div className='flex items-center justify-between mb-3'>
-              <h3 className='text-sm font-semibold text-gray-700'>
-                PAYMENT INFO
-              </h3>
-              <span className='text-xs text-gray-400'>BANK DETAILS</span>
+            <div className='flex items-center justify-between'>
+              <div className='mb-3'>
+                <h3 className='text-sm font-semibold text-gray-700'>
+                  {t('invoices.form.selectedPaymentDetails')}
+                </h3>
+                <span className='text-xs text-gray-400'>
+                  {t('invoices.form.selectPaymentDetails')}
+                </span>
+              </div>
+              <div>
+                <button className='text-sm text-blue-600 mb-3'>
+                  {t('invoices.form.change')}
+                </button>
+              </div>
             </div>
-            <div>
-              <button className='text-sm text-blue-600 mb-3'>Add</button>
-            </div>
-
-            {/* Payment Profile Input */}
-            <Input
-              className='bg-blue-50 h-10 mb-3'
-              placeholder='Search by: Bank | Account No. | Country'
-            />
 
             {/* Selected Bank Chip */}
             {selectedBank && (
               <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
                 <div className='flex items-center gap-2 mb-3'>
                   <span className='text-sm text-gray-700 font-medium'>
-                    Payment Profile:
+                    {t('invoices.form.selectPaymentDetails')}:
                   </span>
                   <div className='flex items-center gap-2 bg-white border rounded px-2 py-1'>
                     <span className='text-sm text-gray-700'>
@@ -1100,52 +1109,53 @@ export default function InvoiceFormPage() {
                   </div>
                 </div>
 
-                {/* Bank Details Grid */}
-                <div className='grid grid-cols-2 gap-x-3 gap-y-2 text-xs'>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      Bank Name:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedBank.bankName || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      Bank Country:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedBank.country || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      Beneficiary Name:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedBank.beneficiaryName || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      Account Number:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedBank.accountNumber || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>
-                      SWIFT Code:
-                    </span>
-                    <p className='text-gray-700'>
-                      {selectedBank.swiftCode || '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-gray-600 font-medium'>IBAN:</span>
-                    <p className='text-gray-700'>{selectedBank.iban || '-'}</p>
-                  </div>
+                {/* Bank Details Table-like layout (small text) */}
+                <div className='mt-2 border border-gray-200 rounded-md overflow-hidden text-xs'>
+                  {(() => {
+                    const rows = [
+                      {
+                        label: t('invoices.form.bankName'),
+                        value: selectedBank.bankName || '-',
+                      },
+                      {
+                        label: t('invoices.form.beneficiaryName'),
+                        value: selectedBank.beneficiaryName || '-',
+                      },
+                      {
+                        label: t('invoices.form.accountNumber') || 'Account',
+                        value: selectedBank.accountNumber || '-',
+                      },
+                      {
+                        label: t('invoices.form.country'),
+                        value: selectedBank.country || '-',
+                      },
+                      {
+                        label: t('invoices.form.swiftCode'),
+                        value: selectedBank.swiftCode || '-',
+                      },
+                      { label: 'IBAN', value: selectedBank.iban || '-' },
+                    ];
+
+                    return (
+                      <div className='divide-y divide-gray-200'>
+                        {rows.map((r, i) => (
+                          <div
+                            key={i}
+                            className={`flex items-start px-4 py-3 ${
+                              i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                            }`}
+                          >
+                            <div className='w-1/3 text-gray-600 font-medium'>
+                              {r.label}:
+                            </div>
+                            <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                              {r.value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -1155,7 +1165,7 @@ export default function InvoiceFormPage() {
               <div className='relative'>
                 <Input
                   className='bg-blue-50 h-10 pr-10'
-                  placeholder='Search by: Bank | Account No. | Country'
+                  placeholder={t('invoices.form.searchBank')}
                   value={bankSearch}
                   onChange={(e) => setBankSearch(e.target.value)}
                   onFocus={() => setBankFocused(true)}
@@ -1212,7 +1222,7 @@ export default function InvoiceFormPage() {
                   bankSearch &&
                   filteredBankOptions.length === 0 && (
                     <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-4 py-2 text-sm text-gray-500'>
-                      No results found
+                      {t('invoices.form.noResultsFound')}
                     </div>
                   )}
               </div>
@@ -1220,301 +1230,294 @@ export default function InvoiceFormPage() {
           </div>
         </div>
 
-        {/* Items table */}
-        <div>
-          <div className='flex items-center justify-between mb-4'>
-            <h3 className='text-sm font-semibold'>ITEM DETAILS</h3>
+        {/* ITEM DETAILS */}
+        <div className='space-y-3'>
+          {/* Header */}
+          <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+            <h3 className='text-xs font-semibold tracking-wide'>
+              ITEM DETAILS
+            </h3>
+
             <div className='flex items-center gap-2'>
-              <span className='text-sm text-gray-600'>Currency:</span>
-              <Select
-                value={formik.values.currency}
-                onValueChange={(v) => formik.setFieldValue('currency', v)}
-              >
-                <SelectTrigger className='w-40 bg-blue-50 h-10'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.map((currency) => (
-                    <SelectItem
-                      key={currency.value}
-                      value={currency.value}
-                    >
-                      {currency.displayText}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <span className='text-xs text-gray-500'>
+                Currency: <span className='text-red-500'>*</span>
+              </span>
+              <div className='w-44 h-9 bg-blue-50 border rounded-md px-3 flex items-center text-xs font-medium'>
+                SAR – Saudi Riyal
+              </div>
             </div>
           </div>
-          <div className='overflow-x-auto border rounded-lg'>
-            <table className='w-full text-sm'>
-              <thead className='bg-gray-50 border-b'>
-                <tr>
-                  <th className='px-4 py-3 text-left font-semibold'>No.</th>
-                  <th className='px-4 py-3 text-left font-semibold'>
-                    Item / Service Description
-                  </th>
-                  <th className='px-4 py-3 text-left font-semibold'>
-                    Quantity
-                  </th>
-                  <th className='px-4 py-3 text-left font-semibold'>
-                    Unit Rate
-                  </th>
-                  <th className='px-4 py-3 text-left font-semibold'>
-                    Discount
-                  </th>
-                  <th className='px-4 py-3 text-left font-semibold'>
-                    Tax Rate
-                  </th>
-                  <th className='px-4 py-3 text-left font-semibold'>
-                    Tax Code
-                  </th>
-                  <th className='px-4 py-3 text-left font-semibold'>Total</th>
-                  <th className='px-4 py-3 text-left' />
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((row, idx) => (
-                  <tr
-                    key={idx}
-                    className='border-b hover:bg-gray-50'
-                  >
-                    <td className='px-4 py-4 align-top font-medium'>
-                      {idx + 1}
-                    </td>
-                    <td className='px-4 py-4'>
-                      <div className='space-y-3'>
-                        <Input
-                          className='bg-blue-50 h-10'
-                          placeholder='Description'
-                          value={row.description}
-                          onChange={(e) =>
-                            updateItem(idx, 'description', e.target.value)
-                          }
-                        />
-                        <div className='flex gap-2'>
+
+          {/* Desktop Table */}
+          <div className='hidden md:block border rounded-lg overflow-x-auto'>
+            <Table className='text-xs'>
+              <TableHeader>
+                <TableRow className='bg-gray-50'>
+                  <TableHead>No.</TableHead>
+                  <TableHead>Item / Service</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Unit Rate</TableHead>
+                  <TableHead>Discount</TableHead>
+                  <TableHead>VAT %</TableHead>
+                  <TableHead>Tax Code</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {items.map((row, idx) => {
+                  const quantity = parseNumber(row.quantity) || 0;
+                  const unitRate = parseNumber(row.unitRate) || 0;
+                  const discountValue = parseNumber(row.discount) || 0;
+                  const vatPercent = parseNumber(row.taxRate) || 0;
+
+                  const price = quantity * unitRate;
+
+                  let discountAmount = 0;
+                  let vatAmount = 0;
+                  let totalAmount = 0;
+
+                  // Use formulas depending on discount type
+                  if (row.discountType === 'PERC') {
+                    // i) discount in percentage
+                    // VAT Amount = Price × (1 − Discount%/100) × (VAT%/100)
+                    // Final Total = Price × (1 − Discount%/100) × (1 + VAT%/100)
+                    const taxable = price * (1 - discountValue / 100);
+                    discountAmount = price - taxable;
+                    vatAmount = taxable * (vatPercent / 100);
+                    totalAmount = taxable * (1 + vatPercent / 100);
+                  } else {
+                    // ii) discount is a fixed number
+                    // VAT Amount = (Price − Discount) × (VAT% / 100)
+                    // Final Total = (Price − Discount) × (1 + VAT% / 100)
+                    const taxable = Math.max(price - discountValue, 0);
+                    discountAmount = Math.min(discountValue, price);
+                    vatAmount = taxable * (vatPercent / 100);
+                    totalAmount = taxable * (1 + vatPercent / 100);
+                  }
+
+                  return (
+                    <TableRow
+                      key={idx}
+                      className='align-top'
+                    >
+                      <TableCell className='font-medium'>{idx + 1}</TableCell>
+                      {/* Description */}
+                      <TableCell>
+                        <div className='space-y-2'>
                           <Input
-                            className='bg-blue-50 h-10 flex-1'
-                            placeholder='Service Code'
-                            value={row.serviceCode}
+                            className='bg-blue-50 h-9 text-xs'
+                            placeholder='Description'
+                            value={row.description}
                             onChange={(e) =>
-                              updateItem(idx, 'serviceCode', e.target.value)
+                              updateItem(idx, 'description', e.target.value)
                             }
                           />
-                          <select
-                            className='bg-blue-50 h-10 rounded-md border border-input px-3'
-                            value={row.unitOfMeasure}
-                            onChange={(e) =>
-                              updateItem(idx, 'unitOfMeasure', e.target.value)
-                            }
-                          >
-                            {unitOfMeasures.map((u) => (
-                              <option
-                                key={u.value}
-                                value={u.value}
-                              >
-                                {u.displayText}
-                              </option>
-                            ))}
-                          </select>
+                          <div className='flex gap-2'>
+                            <Input
+                              className='bg-blue-50 h-9 text-xs'
+                              placeholder='Service Code'
+                              value={row.serviceCode}
+                              onChange={(e) =>
+                                updateItem(idx, 'serviceCode', e.target.value)
+                              }
+                            />
+                            <Select
+                              value={row.unitOfMeasure}
+                              onValueChange={(v) =>
+                                updateItem(idx, 'unitOfMeasure', v)
+                              }
+                            >
+                              <SelectTrigger className='bg-blue-50 h-9 text-xs w-24'>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {unitOfMeasures.map((u) => (
+                                  <SelectItem
+                                    key={u.value}
+                                    value={u.value}
+                                  >
+                                    {u.displayText}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className='px-4 py-4'>
-                      <Input
-                        type='number'
-                        className='bg-blue-50 h-10'
-                        value={row.quantity}
-                        onChange={(e) =>
-                          updateItem(
-                            idx,
-                            'quantity',
-                            parseNumber(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
-                    <td className='px-4 py-4'>
-                      <Input
-                        className='bg-blue-50 h-10'
-                        type='number'
-                        placeholder='0.00'
-                        value={row.unitRate}
-                        onChange={(e) =>
-                          updateItem(idx, 'unitRate', e.target.value)
-                        }
-                      />
-                    </td>
-                    <td className='px-4 py-4'>
-                      <div className='flex items-center gap-2'>
-                        <button
-                          type='button'
-                          onClick={() =>
+                      </TableCell>
+                      {/* Quantity */}
+                      <TableCell>
+                        <Input
+                          type='number'
+                          className='bg-blue-50 h-9 text-xs'
+                          value={row.quantity}
+                          onChange={(e) =>
                             updateItem(
                               idx,
-                              'discountType',
-                              row.discountType === 'PERC' ? 'AMT' : 'PERC'
+                              'quantity',
+                              parseNumber(e.target.value)
                             )
                           }
-                          className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors flex-shrink-0 ${
-                            row.discountType === 'PERC'
-                              ? 'bg-blue-600'
-                              : 'bg-gray-300'
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                              row.discountType === 'PERC'
-                                ? 'translate-x-7'
-                                : 'translate-x-1'
-                            }`}
-                          />
-                        </button>
-                        <span className='text-xs font-medium text-gray-700 min-w-12'>
-                          {row.discountType === 'PERC' ? 'PERC %' : 'AMT'}
-                        </span>
+                        />
+                      </TableCell>
+                      {/* Rate */}
+                      <TableCell>
                         <Input
-                          className='bg-blue-50 h-10 flex-1'
                           type='number'
-                          placeholder='0'
-                          value={row.discount}
+                          className='bg-blue-50 h-9 text-xs'
+                          value={row.unitRate}
                           onChange={(e) =>
-                            updateItem(idx, 'discount', e.target.value)
+                            updateItem(idx, 'unitRate', e.target.value)
                           }
                         />
-                      </div>
-                    </td>
-                    <td className='px-4 py-4'>
-                      <Input
-                        className='bg-blue-50 h-10'
-                        type='number'
-                        placeholder='0'
-                        value={row.taxRate}
-                        onChange={(e) =>
-                          updateItem(idx, 'taxRate', Number(e.target.value))
-                        }
-                      />
-                    </td>
-                    <td className='px-4 py-4'>
-                      <select
-                        className='bg-blue-50 h-10 rounded-md border border-input w-full px-3'
-                        value={row.taxCode}
-                        onChange={(e) =>
-                          updateItem(idx, 'taxCode', e.target.value)
-                        }
-                      >
-                        {taxCodes.map((tc) => (
-                          <option
-                            key={tc.value}
-                            value={tc.value}
+                      </TableCell>
+                      {/* Discount */}
+                      <TableCell>
+                        <div className='flex gap-2'>
+                          <Button
+                            variant='secondary'
+                            size='sm'
+                            onClick={() =>
+                              updateItem(
+                                idx,
+                                'discountType',
+                                row.discountType === 'PERC' ? 'NUMBER' : 'PERC'
+                              )
+                            }
                           >
-                            {tc.displayText}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className='px-4 py-4'>
-                      <div className='space-y-2'>
-                        <div className='h-10 flex items-center font-medium'>
-                          {(() => {
-                            const q = parseNumber(row.quantity) || 0;
-                            const r = parseNumber(row.unitRate) || 0;
-                            const d = parseNumber(row.discount) || 0;
-                            const tax = parseNumber(row.taxRate) || 0;
-                            const sub = q * r - d;
-                            const total = sub + (sub * tax) / 100;
-                            return formatNumber(total);
-                          })()}
+                            {row.discountType === 'PERC'
+                              ? 'PERC %'
+                              : 'Number #'}
+                          </Button>
+                          <Input
+                            type='number'
+                            className='bg-blue-50 h-9 text-xs w-20'
+                            value={row.discount}
+                            onChange={(e) =>
+                              updateItem(idx, 'discount', e.target.value)
+                            }
+                          />
                         </div>
-                        <div className='text-xs text-gray-600'>
-                          VAT:{' '}
-                          {(() => {
-                            const q = parseNumber(row.quantity) || 0;
-                            const r = parseNumber(row.unitRate) || 0;
-                            const d = parseNumber(row.discount) || 0;
-                            const tax = parseNumber(row.taxRate) || 0;
-                            const sub = q * r - d;
-                            const vatAmount = (sub * tax) / 100;
-                            return formatNumber(vatAmount);
-                          })()}
+                      </TableCell>
+                      {/* VAT */}
+                      <TableCell>
+                        <Input
+                          type='number'
+                          className='bg-blue-50 h-9 text-xs'
+                          value={row.taxRate}
+                          onChange={(e) =>
+                            updateItem(idx, 'taxRate', Number(e.target.value))
+                          }
+                        />
+                      </TableCell>
+                      {/* Tax Code */}
+                      <TableCell>
+                        <Select
+                          value={row.taxCode}
+                          onValueChange={(v) => updateItem(idx, 'taxCode', v)}
+                        >
+                          <SelectTrigger className='bg-blue-50 h-9 text-xs'>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {taxCodes.map((tc) => (
+                              <SelectItem
+                                key={tc.value}
+                                value={tc.value}
+                              >
+                                {tc.displayText}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      {/* Total */}
+                      <TableCell>
+                        <div className='font-semibold text-sm'>
+                          {formatNumber(totalAmount)}
                         </div>
-                      </div>
-                    </td>
-                    <td className='px-4 py-4'>
-                      <button
-                        type='button'
-                        onClick={() => removeItem(idx)}
-                        className='text-red-500 hover:text-red-700 h-10 flex items-center'
-                      >
-                        <X className='h-5 w-5' />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        <div className='text-[11px] text-gray-500'>
+                          VAT: {formatNumber(vatAmount)}
+                        </div>
+                      </TableCell>
+                      {/* Remove */}
+                      <TableCell>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={() => removeItem(idx)}
+                        >
+                          <X className='h-4 w-4 text-red-500' />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
 
-          <div className='flex items-center justify-between mt-3'>
-            <div className='flex gap-2'>
-              <Button
-                variant='outline'
-                onClick={addItem}
+          {/* Mobile View */}
+          <div className='md:hidden space-y-3'>
+            {items.map((row, idx) => (
+              <div
+                key={idx}
+                className='border rounded-lg p-3 space-y-2 bg-white'
               >
-                <Plus className='h-4 w-4 mr-2' /> Add Item
-              </Button>
-              <Button
-                variant='outline'
-                onClick={addItem}
-              >
-                <Plus className='h-4 w-4 mr-2' /> Add Advance Payment Item
-              </Button>
-            </div>
-            <div className='text-sm text-gray-600'>
-              Currency: <strong>{formik.values.currency}</strong>
-            </div>
-          </div>
-        </div>
-
-        {/* Reporting tags */}
-        <div>
-          <label className='block text-sm text-gray-700 mb-2'>
-            Reporting Tags
-          </label>
-          <div className='flex gap-2 items-center'>
-            <Input
-              className='bg-blue-50 h-10'
-              placeholder='Type tag and press Enter'
-              value={reportingTagInput}
-              onChange={(e) => setReportingTagInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && reportingTagInput.trim()) {
-                  e.preventDefault();
-                  setReportingTags((t) => [...t, reportingTagInput.trim()]);
-                  setReportingTagInput('');
-                }
-              }}
-            />
-            <div className='flex flex-wrap gap-2'>
-              {reportingTags.map((t, i) => (
-                <div
-                  key={i}
-                  className='px-2 py-1 bg-gray-100 rounded-full flex items-center gap-2'
-                >
-                  <span className='text-sm'>{t}</span>
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setReportingTags((s) => s.filter((_, idx) => idx !== i))
-                    }
-                    className='text-gray-500'
+                <div className='flex justify-between text-xs font-semibold'>
+                  <span>Item #{idx + 1}</span>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    onClick={() => removeItem(idx)}
                   >
-                    <X className='h-3 w-3' />
-                  </button>
+                    <X className='h-4 w-4 text-red-500' />
+                  </Button>
                 </div>
-              ))}
-            </div>
+
+                <Input
+                  className='bg-blue-50 h-9 text-xs'
+                  placeholder='Description'
+                  value={row.description}
+                  onChange={(e) =>
+                    updateItem(idx, 'description', e.target.value)
+                  }
+                />
+
+                <div className='grid grid-cols-2 gap-2'>
+                  <Input
+                    type='number'
+                    className='bg-blue-50 h-9 text-xs'
+                    placeholder='Qty'
+                    value={row.quantity}
+                    onChange={(e) =>
+                      updateItem(idx, 'quantity', parseNumber(e.target.value))
+                    }
+                  />
+                  <Input
+                    type='number'
+                    className='bg-blue-50 h-9 text-xs'
+                    placeholder='Rate'
+                    value={row.unitRate}
+                    onChange={(e) =>
+                      updateItem(idx, 'unitRate', e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* Footer */}
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={addItem}
+          >
+            <Plus className='h-4 w-4 mr-2' />
+            Add Item
+          </Button>
         </div>
       </form>
     </div>

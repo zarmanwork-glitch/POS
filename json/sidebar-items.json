@@ -32,19 +32,7 @@
     "href": "/customers/customer-list",
     "icon": "Users"
   },
-  {
-    "label": "Invites",
-    "href": "/invites",
-    "icon": "Mail"
-  },
-  {
-    "label": "Teams",
-    "icon": "UserPlus",
-    "children": [
-      { "label": "Team Members", "href": "/teams/members" },
-      { "label": "Roles", "href": "/teams/roles" }
-    ]
-  },
+
   {
     "label": "Reports",
     "icon": "BarChart2",

@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
 import { getInvoicesList } from '@/api/invoices/invoice.api';
@@ -60,19 +61,18 @@ type Invoice = {
   status: InvoiceStatusType;
 };
 
-const SAMPLE_INVOICES: Invoice[] = Array.from({ length: 37 }).map((_, i) => ({
-  id: `inv-${i + 1}`,
-  invoiceNumber: `INV-${1000 + i}`,
-  invoiceDate: new Date(Date.now() - i * 86400000).toISOString().slice(0, 10),
-  customer: ['Acme Corp', 'Globex', 'Umbrella Ltd', 'Stark Industries'][i % 4],
-  type: (i % 2 === 0
-    ? invoiceTypes[0].value
-    : invoiceTypes[1].value) as InvoiceTypeType,
-  total: Math.round(Math.random() * 10000) / 100,
-  status: invoiceStatuses[i % 4].value as InvoiceStatusType,
-}));
-
 export default function InvoiceListPage() {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
+  const [items, setItems] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  // BACKEND-DRIVEN FILTER STATE
   const [search, setSearch] = useState('');
   const [searchBy, setSearchBy] = useState<
     | 'invoiceNumber'
@@ -81,10 +81,12 @@ export default function InvoiceListPage() {
     | 'companyName'
     | 'customerNumber'
   >('name');
+
   const [sortBy, setSortBy] = useState<'createdAt' | 'invoiceDate'>(
     'createdAt'
   );
   const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('desc');
+
   const [statusFilter, setStatusFilter] = useState<'All' | InvoiceStatusType>(
     'All'
   );
@@ -92,175 +94,67 @@ export default function InvoiceListPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [page, setPage] = useState(1);
-  const limit = 10;
-
-  const [items, setItems] = useState<Invoice[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [totalCount, setTotalCount] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    let list = items.slice();
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
-    if (statusFilter !== 'All') {
-      list = list.filter((i) => i.status === statusFilter);
-    }
-
-    if (typeFilter !== 'All') {
-      list = list.filter((i) => i.type === typeFilter);
-    }
-
-    if (startDate) {
-      list = list.filter((i) => i.invoiceDate >= startDate);
-    }
-
-    if (endDate) {
-      list = list.filter((i) => i.invoiceDate <= endDate);
-    }
-
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter((inv) => {
-        if (searchBy === 'Invoice Number')
-          return inv.invoiceNumber.toLowerCase().includes(q);
-        if (searchBy === 'Customer')
-          return inv.customer.toLowerCase().includes(q);
-        if (searchBy === 'Status') return inv.status.toLowerCase().includes(q);
-        return false;
-      });
-    }
-
-    list.sort((a, b) => {
-      if (sortBy === 'Creation Date')
-        return a.invoiceDate.localeCompare(b.invoiceDate);
-      if (sortBy === 'Invoice Number')
-        return a.invoiceNumber.localeCompare(b.invoiceNumber);
-      return a.customer.localeCompare(b.customer);
-    });
-
-    if (orderBy === 'desc') list.reverse();
-
-    return list;
-  }, [
-    items,
-    search,
-    searchBy,
-    sortBy,
-    orderBy,
-    statusFilter,
-    typeFilter,
-    startDate,
-    endDate,
-  ]);
-
-  const totalItems = filtered.length;
-  const totalPages = Math.max(1, Math.ceil((totalCount ?? totalItems) / limit));
-
-  const paged = useMemo(() => {
-    const start = (page - 1) * limit;
-    return filtered.slice(start, start + limit);
-  }, [filtered, page]);
-
-  useEffect(() => {
-    if (page > totalPages) setPage(1);
-  }, [page, totalPages]);
-
-  // Fetch invoices from API with current filters
-  const fetchInvoices = async (opts?: { page?: number }) => {
+  const fetchInvoices = async () => {
     try {
       setLoading(true);
       const token = Cookies.get('authToken');
-      const p = opts?.page ?? page;
 
-      // Send minimal payload: compute offset for requested page and send limit
-      const offset = (p - 1) * limit;
-      const res = await getInvoicesList({ token: token as any, offset, limit });
+      const payload = {
+        offSet: (page - 1) * limit,
+        limit,
+        sortBy,
+        orderBy,
+        searchBy,
+        search,
+        invoiceStartDate: startDate || undefined,
+        invoiceEndDate: endDate || undefined,
+        status: statusFilter !== 'All' ? statusFilter : undefined,
+        type: typeFilter !== 'All' ? typeFilter : undefined,
+      };
 
-      const invoices =
+      const res = await getInvoicesList({
+        token: token as any,
+        ...payload,
+      });
+
+      const results =
         res?.data?.data?.results?.invoice ??
         res?.data?.data?.results?.invoices ??
-        res?.data?.data?.results ??
-        res ??
         [];
-      // try to extract count if provided (recordsCount / records / count)
+
       const count =
         res?.data?.data?.results?.recordsCount ??
         res?.data?.data?.results?.totalCount ??
-        res?.data?.data?.results?.count ??
-        (Array.isArray(invoices) ? invoices.length : null);
+        0;
 
-      // Map API invoice objects to UI Invoice type
-      const mapped = Array.isArray(invoices)
-        ? invoices.map((inv: any) => {
-            const id = inv.id || inv._id || inv.invoiceId || '';
-            const invoiceNumber = inv.invoiceNumber || inv.invoice_no || '';
-            const invoiceDate = (inv.invoiceDate || inv.createdAt || '').slice(
-              0,
-              10
-            );
-            const customer =
-              (inv.customer &&
-                (inv.customer.name || inv.customer.companyName)) ||
-              inv.customer ||
-              '';
-
-            // compute total from items when available
-            let total = 0;
-            if (Array.isArray(inv.items) && inv.items.length > 0) {
-              total = inv.items.reduce((sum: number, it: any) => {
-                const q = Number(it.quantity) || 0;
-                const r = Number(it.unitRate) || 0;
-                const discount = Number(it.discount) || 0;
-                const tax = Number(it.taxRate) || 0;
-                let sub = q * r;
-                if ((it.discountType || '').toUpperCase() === 'PERC') {
-                  sub = sub - (sub * discount) / 100;
-                } else {
-                  sub = sub - discount;
-                }
-                const lineTotal = sub + (sub * tax) / 100;
-                return sum + lineTotal;
-              }, 0);
-            } else if (typeof inv.totalAmount === 'number') {
-              total = inv.totalAmount;
-            } else if (typeof inv.AmountPaidToDate === 'number') {
-              total = inv.AmountPaidToDate;
-            }
-
-            const status = inv.status || inv.invoiceStatus || '—';
-
-            return {
-              id,
-              invoiceNumber,
-              invoiceDate,
-              customer,
-              total,
-              status,
-            } as Invoice;
-          })
-        : [];
+      const mapped: Invoice[] = results.map((inv: any) => ({
+        id: inv.id || inv._id,
+        invoiceNumber: inv.invoiceNumber,
+        invoiceDate: (inv.invoiceDate || inv.createdAt)?.slice(0, 10),
+        customer:
+          inv.customer?.name || inv.customer?.companyName || inv.customer || '',
+        total: inv.totalAmount ?? inv.AmountPaidToDate ?? 0,
+        status: inv.status,
+      }));
 
       setItems(mapped);
-      if (typeof count === 'number') setTotalCount(count);
-    } catch (error) {
-      console.error('Error fetching invoices:', error);
+      setTotalCount(count);
+    } catch (err) {
+      console.error(err);
       toast.error('Failed to load invoices');
     } finally {
       setLoading(false);
     }
   };
 
-  // initial load
   useEffect(() => {
-    fetchInvoices({ page: 1 });
-  }, []);
-
-  // refetch when page changes
-  useEffect(() => {
-    fetchInvoices({ page });
-  }, [page]);
+    fetchInvoices();
+  }, [page, sortBy, orderBy]);
 
   const confirmDelete = () => {
     if (!deleteId) return;
@@ -269,28 +163,34 @@ export default function InvoiceListPage() {
     setDeleteModalOpen(false);
   };
 
-  /* ================= UI ================= */
   return (
-    <div className='space-y-6'>
+    <div
+      className={`space-y-6 ${isRTL ? 'rtl' : 'ltr'}`}
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
       <div className='flex items-center justify-between'>
         <h2 className='text-3xl font-bold'>
-          <span className='text-blue-600'>Documents</span>
-          <span className='text-gray-800'> | Invoice List</span>
+          <span className='text-blue-600'>{t('invoices.documents')}</span>
+          <span className='text-gray-800'> | {t('invoices.invoiceList')}</span>
         </h2>
         <Link href='/documents/invoice/invoice-form'>
           <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
-            <Plus className='h-4 w-4' /> New Invoice
+            <Plus className='h-4 w-4' /> {t('invoices.newInvoice')}
           </Button>
         </Link>
       </div>
 
-      <p className='text-sm text-gray-600'>Showing all sent invoices</p>
+      <p className='text-sm text-gray-600'>{t('invoices.showingAllSent')}</p>
 
       <div className='relative space-y-4'>
         {/* Controls */}
-        <div className='flex flex-wrap items-center justify-end gap-4'>
+        <div
+          className={`flex flex-wrap items-center justify-end gap-4 ${
+            isRTL ? 'flex-row-reverse' : ''
+          }`}
+        >
           {/* Filters button */}
-          <div className='relative mr-auto'>
+          <div className={`relative ${isRTL ? 'ml-auto' : 'mr-auto'}`}>
             <button
               onClick={() => setShowFilters(true)}
               className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200'
@@ -309,9 +209,11 @@ export default function InvoiceListPage() {
 
                 {/* Panel */}
                 <div
-                  className='
+                  className={`
                   fixed md:absolute
-                  inset-x-0 bottom-0 md:bottom-auto md:right-0
+                  inset-x-0 bottom-0 md:bottom-auto ${
+                    isRTL ? 'md:left-0' : 'md:right-0'
+                  }
                   md:top-[calc(100%+8px)]
                   z-50
                   w-full md:w-96
@@ -321,10 +223,15 @@ export default function InvoiceListPage() {
                   max-h-[80vh] md:max-h-[50vh]
                   overflow-y-auto
                   px-4 pb-4 pt-3
-                '
+                `}
+                  dir={isRTL ? 'rtl' : 'ltr'}
                 >
                   {/* Close */}
-                  <div className='flex justify-end'>
+                  <div
+                    className={`flex ${
+                      isRTL ? 'justify-start' : 'justify-end'
+                    }`}
+                  >
                     <button
                       onClick={() => setShowFilters(false)}
                       className='text-gray-400 hover:text-gray-600'
@@ -334,7 +241,9 @@ export default function InvoiceListPage() {
                   </div>
                   {/* Status */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Status</label>
+                    <label className='text-xs font-medium'>
+                      {t('invoices.status')}
+                    </label>
                     <select
                       className='h-8 border rounded-md px-2 text-sm'
                       value={statusFilter}
@@ -353,7 +262,9 @@ export default function InvoiceListPage() {
                   </div>
                   {/* Type */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Type</label>
+                    <label className='text-xs font-medium'>
+                      {t('invoices.type')}
+                    </label>
                     <select
                       className='h-8 border rounded-md px-2 text-sm'
                       value={typeFilter}
@@ -372,7 +283,9 @@ export default function InvoiceListPage() {
                   </div>
                   {/* Start Date */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Start Date</label>
+                    <label className='text-xs font-medium'>
+                      {t('invoices.startDate')}
+                    </label>
                     <Input
                       type='date'
                       value={startDate}
@@ -382,7 +295,9 @@ export default function InvoiceListPage() {
                   </div>
                   {/* End Date */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>End Date</label>
+                    <label className='text-xs font-medium'>
+                      {t('invoices.endDate')}
+                    </label>
                     <Input
                       type='date'
                       value={endDate}
@@ -403,13 +318,13 @@ export default function InvoiceListPage() {
                         setPage(1);
                       }}
                     >
-                      Reset
+                      {t('invoices.reset')}
                     </Button>
                     <Button
                       className='flex-1 h-8 text-xs bg-blue-600 hover:bg-blue-700'
                       onClick={() => setShowFilters(false)}
                     >
-                      Apply
+                      {t('invoices.apply')}
                     </Button>
                   </div>
                 </div>
@@ -423,12 +338,12 @@ export default function InvoiceListPage() {
                 if (statusFilter !== 'All')
                   active.push({
                     key: 'status',
-                    label: `Status: ${statusFilter}`,
+                    label: `${t('invoices.status')}: ${statusFilter}`,
                   });
                 if (typeFilter !== 'All')
                   active.push({
                     key: 'type',
-                    label: `Type: ${typeFilter}`,
+                    label: `${t('invoices.type')}: ${typeFilter}`,
                   });
                 if (startDate)
                   active.push({
@@ -473,8 +388,16 @@ export default function InvoiceListPage() {
                 };
 
                 return (
-                  <div className='mt-2 w-full max-w-2xl p-2'>
-                    <div className='flex flex-wrap gap-2'>
+                  <div
+                    className={`mt-2 w-full max-w-2xl p-2 ${
+                      isRTL ? 'text-right' : 'text-left'
+                    }`}
+                  >
+                    <div
+                      className={`flex flex-wrap gap-2 ${
+                        isRTL ? 'justify-end' : 'justify-start'
+                      }`}
+                    >
                       {active.map((a) => (
                         <span
                           key={a.key}
@@ -497,21 +420,33 @@ export default function InvoiceListPage() {
           </div>
 
           {/* Sort */}
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-gray-600'>Sort by</span>
+          <div
+            className={`flex items-center gap-2 ${
+              isRTL ? 'flex-row-reverse' : ''
+            }`}
+          >
+            <span className='text-sm text-gray-600'>
+              {t('invoices.sortBy')}
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className='flex items-center gap-1 text-sm font-medium'>
-                  {sortBy === 'createdAt' ? 'Creation Date' : 'Invoice Date'}
+                <button
+                  className={`flex items-center gap-1 text-sm font-medium ${
+                    isRTL ? 'flex-row-reverse' : ''
+                  }`}
+                >
+                  {sortBy === 'createdAt'
+                    ? t('invoices.creationDate')
+                    : t('invoices.invoiceDate')}
                   <ChevronDown className='h-4 w-4' />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setSortBy('createdAt')}>
-                  Creation Date
+                  {t('invoices.creationDate')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortBy('invoiceDate')}>
-                  Invoice Date
+                  {t('invoices.invoiceDate')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -533,32 +468,42 @@ export default function InvoiceListPage() {
           </div>
 
           {/* Search By */}
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-gray-600'>Search By</span>
+          <div
+            className={`flex items-center gap-2 ${
+              isRTL ? 'flex-row-reverse' : ''
+            }`}
+          >
+            <span className='text-sm text-gray-600'>
+              {t('invoices.searchBy')}
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className='flex items-center gap-1 text-sm font-medium'>
-                  {searchBy}
+                <button
+                  className={`flex items-center gap-1 text-sm font-medium ${
+                    isRTL ? 'flex-row-reverse' : ''
+                  }`}
+                >
+                  {t(`invoices.${searchBy}`)}
                   <ChevronDown className='h-4 w-4' />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setSearchBy('invoiceNumber')}>
-                  Invoice Number
+                  {t('invoices.invoiceNumber')}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setSearchBy('customerPoNumber')}
                 >
-                  Customer PO Number
+                  {t('invoices.customerPoNumber')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSearchBy('name')}>
-                  Name
+                  {t('invoices.name')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSearchBy('companyName')}>
-                  Company Name
+                  {t('invoices.companyName')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSearchBy('customerNumber')}>
-                  Customer Number
+                  {t('invoices.customerNumber')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -568,19 +513,16 @@ export default function InvoiceListPage() {
           <div className='flex items-center gap-2'>
             <Input
               className='h-9 w-40'
-              placeholder='Search'
+              placeholder={t('invoices.search')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
             <Button
               className='h-9 bg-blue-600 hover:bg-blue-700'
-              onClick={() => {
-                setPage(1);
-                fetchInvoices({ page: 1 });
-              }}
+              onClick={() => {}}
               disabled={loading}
             >
-              {loading ? 'Loading...' : 'Go'}
+              {loading ? 'Loading...' : t('invoices.go')}
             </Button>
           </div>
 
@@ -589,7 +531,7 @@ export default function InvoiceListPage() {
             variant='outline'
             size='icon'
             className='h-9 w-9'
-            title='Download'
+            title={t('invoices.download')}
             onClick={() => {
               // TODO: Implement download functionality
               console.log('Download invoices');
@@ -604,27 +546,27 @@ export default function InvoiceListPage() {
         <Table>
           <TableHeader className='bg-blue-50'>
             <TableRow>
-              <TableHead>#</TableHead>
-              <TableHead>Invoice</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t('invoices.table.no')}</TableHead>
+              <TableHead>{t('invoices.table.invoice')}</TableHead>
+              <TableHead>{t('invoices.table.date')}</TableHead>
+              <TableHead>{t('invoices.table.customer')}</TableHead>
+              <TableHead>{t('invoices.table.total')}</TableHead>
+              <TableHead>{t('invoices.table.status')}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paged.length === 0 ? (
+            {items.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={7}
                   className='text-center py-8'
                 >
-                  No invoices found
+                  {loading ? 'Loading…' : t('invoices.noInvoicesFound')}
                 </TableCell>
               </TableRow>
             ) : (
-              paged.map((inv, idx) => (
+              items.map((inv, idx) => (
                 <TableRow key={inv.id}>
                   <TableCell>{(page - 1) * limit + idx + 1}</TableCell>
                   <TableCell className='font-medium'>
@@ -730,23 +672,23 @@ export default function InvoiceListPage() {
         open={deleteModalOpen}
         onOpenChange={setDeleteModalOpen}
       >
-        <DialogContent>
+        <DialogContent dir={isRTL ? 'rtl' : 'ltr'}>
           <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogTitle>{t('invoices.confirmDelete')}</DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to delete this invoice?</p>
-          <DialogFooter>
+          <p>{t('invoices.deleteInvoiceMessage')}</p>
+          <DialogFooter className={isRTL ? 'flex-row-reverse' : ''}>
             <Button
               variant='outline'
               onClick={() => setDeleteModalOpen(false)}
             >
-              Cancel
+              {t('invoices.cancel')}
             </Button>
             <Button
               className='bg-red-600 hover:bg-red-700'
               onClick={confirmDelete}
             >
-              Delete
+              {t('invoices.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
