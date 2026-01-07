@@ -70,3 +70,18 @@ export const getInvoiceById = async ({
     payload: { id: invoiceId },
   });
 };
+
+export const downloadInvoicePdf = async ({
+  token,
+  invoiceId,
+}: {
+  token: string;
+  invoiceId: string;
+}) => {
+  return api_client({
+    token,
+    endpoint: backendApiEnums.ENDPOINTS.INVOICES.DOWNLOAD,
+    method: backendApiEnums.METHODS.POST,
+    payload: { id: invoiceId },
+  });
+};

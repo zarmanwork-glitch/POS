@@ -106,12 +106,12 @@ export default function PaymentInfoSection({
       </div>
 
       {selectedBank && (
-        <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
-          <div className='flex items-center gap-2 mb-3'>
+        <div className='border border-gray-200 rounded-lg overflow-hidden'>
+          <div className='bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between'>
             <span className='text-sm text-gray-700 font-medium'>
               {t('invoices.form.selectPaymentDetails')}:
             </span>
-            <div className='flex items-center gap-2 bg-white border rounded px-2 py-1'>
+            <div className='flex items-center gap-2'>
               <span className='text-sm text-gray-700'>
                 {selectedBank.bankName || selectedBank.accountNumber || 'Bank'}
               </span>
@@ -128,52 +128,54 @@ export default function PaymentInfoSection({
             </div>
           </div>
 
-          <div className='mt-2 border border-gray-200 rounded-md overflow-hidden text-xs'>
-            {(() => {
-              const rows = [
-                {
-                  label: t('invoices.form.bankName'),
-                  value: selectedBank.bankName || '-',
-                },
-                {
-                  label: t('invoices.form.beneficiaryName'),
-                  value: selectedBank.beneficiaryName || '-',
-                },
-                {
-                  label: t('invoices.form.accountNumber') || 'Account',
-                  value: selectedBank.accountNumber || '-',
-                },
-                {
-                  label: t('invoices.form.country'),
-                  value: selectedBank.country || '-',
-                },
-                {
-                  label: t('invoices.form.swiftCode'),
-                  value: selectedBank.swiftCode || '-',
-                },
-                { label: 'IBAN', value: selectedBank.iban || '-' },
-              ];
+          <div className='p-4'>
+            <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>
+              {(() => {
+                const rows = [
+                  {
+                    label: t('invoices.form.bankName'),
+                    value: selectedBank.bankName || '-',
+                  },
+                  {
+                    label: t('invoices.form.beneficiaryName'),
+                    value: selectedBank.beneficiaryName || '-',
+                  },
+                  {
+                    label: t('invoices.form.accountNumber') || 'Account',
+                    value: selectedBank.accountNumber || '-',
+                  },
+                  {
+                    label: t('invoices.form.country'),
+                    value: selectedBank.country || '-',
+                  },
+                  {
+                    label: t('invoices.form.swiftCode'),
+                    value: selectedBank.swiftCode || '-',
+                  },
+                  { label: 'IBAN', value: selectedBank.iban || '-' },
+                ];
 
-              return (
-                <div className='divide-y divide-gray-200'>
-                  {rows.map((r, i) => (
-                    <div
-                      key={i}
-                      className={`flex items-start px-4 py-3 ${
-                        i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                      }`}
-                    >
-                      <div className='w-1/3 text-gray-600 font-medium'>
-                        {r.label}:
+                return (
+                  <div className='divide-y divide-gray-200'>
+                    {rows.map((r, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-start px-4 py-3 ${
+                          i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                        }`}
+                      >
+                        <div className='w-1/3 text-gray-600 font-medium'>
+                          {r.label}:
+                        </div>
+                        <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                          {r.value}
+                        </div>
                       </div>
-                      <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
-                        {r.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </div>
       )}

@@ -110,13 +110,13 @@ export default function BilledToSection({
       </div>
 
       {selectedCustomer && (
-        <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3'>
-          <div className='flex items-center gap-2 mb-3'>
+        <div className='border border-gray-200 rounded-lg overflow-hidden'>
+          <div className='bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between'>
             <span className='text-sm text-gray-700 font-medium'>
               {t('invoices.form.selectCustomer')}:{' '}
               <span className='text-red-500'>*</span>
             </span>
-            <div className='flex items-center gap-2 bg-white border rounded px-2 py-1'>
+            <div className='flex items-center gap-2'>
               <span className='text-sm text-gray-700'>
                 {selectedCustomer.companyName ||
                   selectedCustomer.displayName ||
@@ -136,79 +136,81 @@ export default function BilledToSection({
             </div>
           </div>
 
-          <div className='mb-3'>
-            <div className='text-xs text-gray-600 font-medium mb-2'>
-              {t('invoices.form.identification')}
+          <div className='p-4 space-y-3'>
+            <div>
+              <div className='text-xs text-gray-600 font-medium mb-2'>
+                {t('invoices.form.identification')}
+              </div>
+              <div className='grid grid-cols-2 gap-2'>
+                <Input
+                  placeholder={t('invoices.form.identificationType')}
+                  className='text-xs bg-blue-50'
+                />
+                <Input
+                  placeholder={t('invoices.form.identificationNumber')}
+                  className='text-xs bg-blue-50'
+                />
+              </div>
             </div>
-            <div className='grid grid-cols-2 gap-2'>
-              <Input
-                placeholder={t('invoices.form.identificationType')}
-                className='text-xs bg-gray-100'
-              />
-              <Input
-                placeholder={t('invoices.form.identificationNumber')}
-                className='text-xs bg-gray-100'
-              />
+
+            <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>
+              {(() => {
+                const rows = [
+                  {
+                    label: t('invoices.form.name'),
+                    value: selectedCustomer.name || '-',
+                  },
+                  {
+                    label: t('invoices.form.companyName'),
+                    value: selectedCustomer.companyName || '-',
+                  },
+                  {
+                    label: t('invoices.form.address'),
+                    value: selectedCustomer.address || '-',
+                  },
+                  {
+                    label: t('invoices.form.country'),
+                    value: selectedCustomer.country || '-',
+                  },
+                  {
+                    label: t('invoices.form.phone'),
+                    value: selectedCustomer.phoneNumber || '-',
+                  },
+                  {
+                    label: t('invoices.form.email'),
+                    value: selectedCustomer.email || '-',
+                  },
+                  {
+                    label: t('invoices.form.cr'),
+                    value: selectedCustomer.cin || '-',
+                  },
+                  {
+                    label: t('invoices.form.vatNo'),
+                    value: selectedCustomer.vatGstNumber || '-',
+                  },
+                ];
+
+                return (
+                  <div className='divide-y divide-gray-200'>
+                    {rows.map((r, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-start px-4 py-3 ${
+                          i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                        }`}
+                      >
+                        <div className='w-1/3 text-gray-600 font-medium'>
+                          {r.label}:
+                        </div>
+                        <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                          {r.value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
-          </div>
-
-          <div className='mt-2 border border-gray-200 rounded-md overflow-hidden text-xs'>
-            {(() => {
-              const rows = [
-                {
-                  label: t('invoices.form.name'),
-                  value: selectedCustomer.name || '-',
-                },
-                {
-                  label: t('invoices.form.companyName'),
-                  value: selectedCustomer.companyName || '-',
-                },
-                {
-                  label: t('invoices.form.address'),
-                  value: selectedCustomer.address || '-',
-                },
-                {
-                  label: t('invoices.form.country'),
-                  value: selectedCustomer.country || '-',
-                },
-                {
-                  label: t('invoices.form.phone'),
-                  value: selectedCustomer.phoneNumber || '-',
-                },
-                {
-                  label: t('invoices.form.email'),
-                  value: selectedCustomer.email || '-',
-                },
-                {
-                  label: t('invoices.form.cr'),
-                  value: selectedCustomer.cin || '-',
-                },
-                {
-                  label: t('invoices.form.vatNo'),
-                  value: selectedCustomer.vatGstNumber || '-',
-                },
-              ];
-
-              return (
-                <div className='divide-y divide-gray-200'>
-                  {rows.map((r, i) => (
-                    <div
-                      key={i}
-                      className={`flex items-start px-4 py-3 ${
-                        i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                      }`}
-                    >
-                      <div className='w-1/3 text-gray-600 font-medium'>
-                        {r.label}:
-                      </div>
-                      <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
-                        {r.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
           </div>
         </div>
       )}

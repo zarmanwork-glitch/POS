@@ -9,16 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { X, Plus, Upload, Search, Info } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
@@ -30,32 +23,30 @@ import { taxCodes } from '@/enums/taxCode';
 import { getBusinessDetailsForSelection } from '@/api/business-details/business-details.api';
 import { getCustomersForSelection } from '@/api/customers/customer.api';
 import { getBankDetailsForSelection } from '@/api/bank-details/bank-details.api';
+import { getItemsForSelection } from '@/api/items/item.api';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { createInvoice } from '@/api/invoices/invoice.api';
-import { formatNumber, parseNumber } from '@/lib/number';
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from '@/components/ui/alert-dialog';
 import { SummaryRow } from '@/components/page-component/SummaryRow';
-import { Label } from '@/components/ui/label';
 import BilledBySection from '@/components/page-component/BilledBySection';
 import BilledToSection from '@/components/page-component/BilledToSection';
 import PaymentInfoSection from '@/components/page-component/PaymentInfoSection';
 import ItemDetailsSection from '@/components/page-component/ItemDetailsSection';
+import SecondaryControlsSection from '@/components/page-component/SecondaryControlsSection';
+import InvoiceFooterSection from '@/components/page-component/InvoiceFooterSection';
+import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
+import { calculateItemRow } from '@/utils/itemCalculations';
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import {
+  BusinessDetail,
+  Customer,
+  BankDetail,
+  InvoiceItem,
+  InvoiceFormValues,
+} from '@/types/invoiceTypes';
 
 export default function InvoiceFormPage() {
   const router = useRouter();
@@ -65,16 +56,18 @@ export default function InvoiceFormPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedBusinessDetails, setSelectedBusinessDetails] =
-    useState<any>(null);
-  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
-  const [selectedBank, setSelectedBank] = useState<any>(null);
+    useState<BusinessDetail | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
+  const [selectedBank, setSelectedBank] = useState<BankDetail | null>(null);
 
-  const [businessOptions, setBusinessOptions] = useState<any[]>([]);
-  const [customerOptions, setCustomerOptions] = useState<any[]>([]);
-  const [bankOptions, setBankOptions] = useState<any[]>([]);
-  const [listsLoading, setListsLoading] = useState(true);
+  const [businessOptions, setBusinessOptions] = useState<BusinessDetail[]>([]);
+  const [customerOptions, setCustomerOptions] = useState<Customer[]>([]);
+  const [bankOptions, setBankOptions] = useState<BankDetail[]>([]);
+  const [itemOptions, setItemOptions] = useState<any[]>([]);
 
-  const [items, setItems] = useState<any[]>([
+  const [items, setItems] = useState<InvoiceItem[]>([
     {
       description: '',
       serviceCode: '',
@@ -88,14 +81,13 @@ export default function InvoiceFormPage() {
     },
   ]);
 
-  // reporting tags removed (unused)
-  const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [businessSearch, setBusinessSearch] = useState('');
   const [customerSearch, setCustomerSearch] = useState('');
   const [bankSearch, setBankSearch] = useState('');
+  const [itemSearch, setItemSearch] = useState('');
 
   const [businessFocused, setBusinessFocused] = useState(false);
   const [customerFocused, setCustomerFocused] = useState(false);
@@ -110,9 +102,39 @@ export default function InvoiceFormPage() {
     currency: Yup.string().required('Currency required'),
   });
 
-  const handleSubmitInvoice = async (values: any) => {
+  const handleSubmitInvoice = async (values: InvoiceFormValues) => {
     try {
       setIsLoading(true);
+
+      // Validate required selections
+      if (!values.business_detail_id) {
+        toast.error('Please select a business detail');
+        return;
+      }
+      if (!values.customer_id) {
+        toast.error('Please select a customer');
+        return;
+      }
+      if (!values.bank_detail_id) {
+        toast.error('Please select a bank detail');
+        return;
+      }
+
+      // Validate items
+      if (items.length === 0) {
+        toast.error('Please add at least one item');
+        return;
+      }
+
+      const hasInvalidItems = items.some(
+        (item) => !item.description || !item.quantity || !item.unitRate
+      );
+      if (hasInvalidItems) {
+        toast.error(
+          'Please fill in all required item fields (description, quantity, rate)'
+        );
+        return;
+      }
 
       const token = Cookies.get('authToken');
       if (!token) {
@@ -120,6 +142,25 @@ export default function InvoiceFormPage() {
         toast.error('Authentication error');
         return;
       }
+
+      // Transform items to include calculated fields
+      const transformedItems = items.map((item, idx) => {
+        const { vatAmount, totalAmount } = calculateItemRow(item);
+        return {
+          no: idx + 1,
+          description: item.description,
+          serviceCode: item.serviceCode,
+          unit: item.unitOfMeasure,
+          quantity: item.quantity,
+          unitRate: item.unitRate,
+          discount: item.discount,
+          discountType: item.discountType,
+          taxRate: item.taxRate,
+          taxCode: item.taxCode,
+          vatAmount: vatAmount,
+          total: totalAmount,
+        };
+      });
 
       const payload = {
         invoiceNumber: values.invoiceNumber,
@@ -135,22 +176,27 @@ export default function InvoiceFormPage() {
         paymentMeans: values.paymentMeans,
         specialTaxTreatment: values.specialTaxTreatment,
         prePaymentInvoice: values.prePaymentInvoice,
-        business_detail_id: values.business_detail_id,
-        bank_detail_id: values.bank_detail_id,
-        customer_id: values.customer_id,
+        businessDetailId: values.business_detail_id,
+        bankDetailId: values.bank_detail_id,
+        customerId: values.customer_id,
         currency: values.currency,
-        items,
+        items: transformedItems,
+        subTotal: subTotal,
+        totalDiscount: totalDiscount,
+        totalTaxableAmount: totalTaxable,
+        totalVat: totalVAT,
+        invoiceNetTotal: invoiceTotal,
         notes: '',
       };
 
       await createInvoice({
-        token: token as any,
+        token: token || '',
         payload,
-        successCallbackFunction: () => router.push('/documents/invoice'),
+        successCallbackFunction: () =>
+          router.push('/documents/invoice/invoice-list'),
       });
     } catch (error) {
       console.error('Error creating invoice:', error);
-      toast.error('Error creating invoice');
     } finally {
       setIsLoading(false);
     }
@@ -181,14 +227,9 @@ export default function InvoiceFormPage() {
     onSubmit: handleSubmitInvoice,
   });
 
-  const handleField = (key: string, value: any) => {
-    formik.setFieldValue(key, value);
-  };
-
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setLogo(file);
       const reader = new FileReader();
       reader.onloadend = () => setLogoPreview(reader.result as string);
       reader.readAsDataURL(file);
@@ -202,15 +243,14 @@ export default function InvoiceFormPage() {
 
     const fetchLists = async () => {
       try {
-        setListsLoading(true);
-
         const token = Cookies.get('authToken');
         if (!token) return;
 
-        const [bResp, cResp, bkResp] = await Promise.all([
+        const [bResp, cResp, bkResp, itemResp] = await Promise.all([
           getBusinessDetailsForSelection({ token }),
           getCustomersForSelection({ token }),
           getBankDetailsForSelection({ token }),
+          getItemsForSelection({ token }),
         ]);
 
         if (!isMounted) return;
@@ -240,14 +280,26 @@ export default function InvoiceFormPage() {
             bkResp?.data ||
             []
         );
+
+        const itemsArray = Array.isArray(
+          itemResp?.data?.data?.results?.items ||
+            itemResp?.data?.data?.results ||
+            itemResp?.data?.data ||
+            itemResp?.data ||
+            []
+        )
+          ? itemResp?.data?.data?.results?.items ||
+            itemResp?.data?.data?.results ||
+            itemResp?.data?.data ||
+            itemResp?.data ||
+            []
+          : [];
+
+        setItemOptions(itemsArray);
       } catch (error) {
         if (isMounted) {
           console.error('Error fetching dropdown lists:', error);
           toast.error('Failed to load dropdown data');
-        }
-      } finally {
-        if (isMounted) {
-          setListsLoading(false);
         }
       }
     };
@@ -302,7 +354,6 @@ export default function InvoiceFormPage() {
     if (files.length > 0) {
       const file = files[0];
       if (file.type.startsWith('image/')) {
-        setLogo(file);
         const reader = new FileReader();
         reader.onloadend = () => setLogoPreview(reader.result as string);
         reader.readAsDataURL(file);
@@ -327,7 +378,11 @@ export default function InvoiceFormPage() {
     ]);
   };
 
-  const updateItem = (index: number, key: string, value: any) => {
+  const updateItem = (
+    index: number,
+    key: string,
+    value: string | number | boolean
+  ) => {
     setItems((it) =>
       it.map((r, i) => (i === index ? { ...r, [key]: value } : r))
     );
@@ -336,6 +391,13 @@ export default function InvoiceFormPage() {
   const removeItem = (index: number) => {
     setItems((it) => it.filter((_, i) => i !== index));
   };
+
+  const totals = calculateInvoiceTotals(items);
+  const subTotal = totals.subTotal;
+  const totalDiscount = totals.totalDiscount;
+  const totalTaxable = totals.totalTaxableAmount;
+  const totalVAT = totals.totalVATAmount;
+  const invoiceTotal = totals.totalInvoiceAmount;
 
   return (
     <div
@@ -506,9 +568,11 @@ export default function InvoiceFormPage() {
               <label className='w-full h-full flex flex-col items-center justify-center cursor-pointer gap-3'>
                 {logoPreview ? (
                   <div className='w-full flex flex-col items-center gap-2'>
-                    <img
+                    <Image
                       src={logoPreview}
                       alt={t('invoices.form.logoPreviewAlt')}
+                      width={160}
+                      height={160}
                       className='w-auto h-auto max-w-40 max-h-40 object-contain'
                     />
                     <button
@@ -516,7 +580,6 @@ export default function InvoiceFormPage() {
                       className='text-xs text-blue-600 hover:text-blue-800 mt-2'
                       onClick={(e) => {
                         e.preventDefault();
-                        setLogo(null);
                         setLogoPreview('');
                         if (fileInputRef.current)
                           fileInputRef.current.value = '';
@@ -573,94 +636,10 @@ export default function InvoiceFormPage() {
         </div>
 
         {/* Secondary controls */}
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
-          <div>
-            <label className='block text-sm text-gray-700 mt-4 mb-1'>
-              Payment Terms:
-            </label>
-            <Input
-              className='bg-blue-50 h-10'
-              placeholder='Terms'
-              name='paymentTerms'
-              value={formik.values.paymentTerms}
-              onChange={formik.handleChange}
-            />
-          </div>
-
-          <div>
-            <label className='block text-sm text-gray-700 mt-4 mb-1'>
-              Payment Means:
-            </label>
-            <div>
-              <Select
-                value={formik.values.paymentMeans}
-                onValueChange={(v) => formik.setFieldValue('paymentMeans', v)}
-              >
-                <SelectTrigger className='bg-blue-50 h-10'>
-                  <SelectValue placeholder='Select payment means' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='10'>10</SelectItem>
-                  <SelectItem value='30'>30</SelectItem>
-                  <SelectItem value='42'>42</SelectItem>
-                  <SelectItem value='48'>48</SelectItem>
-                  <SelectItem value='1'>1</SelectItem>
-                </SelectContent>
-              </Select>
-              {formik.touched.paymentMeans && formik.errors.paymentMeans ? (
-                <div className='text-sm text-red-500'>
-                  {String(formik.errors.paymentMeans)}
-                </div>
-              ) : null}
-            </div>
-          </div>
-
-          <div>
-            <label className='block text-sm text-gray-700 mb-1'>
-              {t('invoices.form.specialTaxTreatment')}:
-            </label>
-            <textarea
-              className='w-full bg-blue-50 border rounded-md p-2 h-24'
-              placeholder={t('invoices.form.specialTaxTreatment')}
-              name='specialTaxTreatment'
-              value={formik.values.specialTaxTreatment}
-              onChange={formik.handleChange}
-            />
-
-            <div className='flex items-center gap-3 mt-3'>
-              <label className='text-sm text-gray-700'>
-                {t('invoices.form.prePaymentInvoice')}:
-              </label>
-              <button
-                type='button'
-                onClick={() =>
-                  formik.setFieldValue(
-                    'prePaymentInvoice',
-                    !formik.values.prePaymentInvoice
-                  )
-                }
-                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                  formik.values.prePaymentInvoice
-                    ? 'bg-blue-600'
-                    : 'bg-gray-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                    formik.values.prePaymentInvoice
-                      ? 'translate-x-6'
-                      : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-            <p className='text-sm text-gray-600 mt-2'>
-              {formik.values.prePaymentInvoice
-                ? t('invoices.form.yes')
-                : t('invoices.form.no')}
-            </p>
-          </div>
-        </div>
+        <SecondaryControlsSection
+          formik={formik}
+          t={t}
+        />
 
         {/* Middle section - billed by / billed to / payment info */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4'>
@@ -712,6 +691,9 @@ export default function InvoiceFormPage() {
           updateItem={updateItem}
           removeItem={removeItem}
           addItem={addItem}
+          itemOptions={itemOptions}
+          itemSearch={itemSearch}
+          setItemSearch={setItemSearch}
         />
 
         {/* total section */}
@@ -721,24 +703,24 @@ export default function InvoiceFormPage() {
 
           <SummaryRow
             label='Sub Total:'
-            value='366.00'
+            value={subTotal.toFixed(2)}
           />
           <SummaryRow
             label='Total Item Discount Amount:'
-            value='-128.10'
+            value={`-${totalDiscount.toFixed(2)}`}
           />
           <SummaryRow
             label='Total Taxable Amount:'
-            value='237.90'
+            value={totalTaxable.toFixed(2)}
           />
           <SummaryRow
             label='Total VAT:'
-            value='35.69'
+            value={totalVAT.toFixed(2)}
           />
 
           <SummaryRow
             label='Total VAT (SAR):'
-            value='35.69'
+            value={totalVAT.toFixed(2)}
             editable
           />
 
@@ -746,23 +728,19 @@ export default function InvoiceFormPage() {
 
           <SummaryRow
             label='Invoice Net Total:'
-            value='273.59'
+            value={invoiceTotal.toFixed(2)}
             bold
           />
 
           <Separator />
 
-          {/* Amount in words */}
-          <div className='pt-4 text-sm text-right text-muted-foreground'>
-            <span className='font-medium text-foreground'>
-              Grand Total (in words):
-            </span>
-            SAR – Two hundred seventy-three and fifty-nine
-          </div>
+          {/* Invoice Footer */}
+          <InvoiceFooterSection
+            formik={formik}
+            invoiceTotal={invoiceTotal}
+            t={t}
+          />
         </div>
-        {/* total amounts in words section */}
-
-        <InvoiceFormPage />
       </form>
     </div>
   );

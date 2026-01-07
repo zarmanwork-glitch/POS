@@ -25,6 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+
 import {
   Dialog,
   DialogContent,
@@ -41,13 +42,19 @@ import {
   ChevronDown,
   SortAsc,
   SortDesc,
+  Eye,
+  FileText,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
-import { getInvoicesList } from '@/api/invoices/invoice.api';
+import {
+  getInvoicesList,
+  downloadInvoicePdf,
+} from '@/api/invoices/invoice.api';
 import { invoiceStatuses, type InvoiceStatusType } from '@/enums/invoiceStatus';
 import { invoiceTypes, type InvoiceTypeType } from '@/enums/invoiceType';
 
@@ -58,6 +65,19 @@ type Invoice = {
   type: InvoiceTypeType;
   customer: string;
   total: number;
+  status: InvoiceStatusType;
+};
+
+type ApiInvoice = {
+  id?: string;
+  _id?: string;
+  invoiceNumber: string;
+  invoiceDate?: string;
+  createdAt?: string;
+  type: InvoiceTypeType;
+  customer?: { name?: string; companyName?: string } | string;
+  totalAmount?: number;
+  AmountPaidToDate?: number;
   status: InvoiceStatusType;
 };
 
@@ -94,74 +114,141 @@ export default function InvoiceListPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
-  const fetchInvoices = async () => {
+  const handleDownloadPdf = async (invoiceId: string) => {
     try {
-      setLoading(true);
       const token = Cookies.get('authToken');
+      if (!token) {
+        toast.error('Authentication error');
+        return;
+      }
 
-      const payload = {
-        offSet: (page - 1) * limit,
-        limit,
-        sortBy,
-        orderBy,
-        searchBy,
-        search,
-        invoiceStartDate: startDate || undefined,
-        invoiceEndDate: endDate || undefined,
-        status: statusFilter !== 'All' ? statusFilter : undefined,
-        type: typeFilter !== 'All' ? typeFilter : undefined,
-      };
-
-      const res = await getInvoicesList({
-        token: token as any,
-        ...payload,
+      const response = await downloadInvoicePdf({
+        token,
+        invoiceId,
       });
 
-      const results =
-        res?.data?.data?.results?.invoice ??
-        res?.data?.data?.results?.invoices ??
-        [];
+      // Check if response contains PDF data
+      if (response?.data) {
+        // Create blob from response
+        const blob = new Blob([response.data], { type: 'application/pdf' });
 
-      const count =
-        res?.data?.data?.results?.recordsCount ??
-        res?.data?.data?.results?.totalCount ??
-        0;
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `invoice-${invoiceId}.pdf`;
 
-      const mapped: Invoice[] = results.map((inv: any) => ({
-        id: inv.id || inv._id,
-        invoiceNumber: inv.invoiceNumber,
-        invoiceDate: (inv.invoiceDate || inv.createdAt)?.slice(0, 10),
-        customer:
-          inv.customer?.name || inv.customer?.companyName || inv.customer || '',
-        total: inv.totalAmount ?? inv.AmountPaidToDate ?? 0,
-        status: inv.status,
-      }));
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
 
-      setItems(mapped);
-      setTotalCount(count);
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to load invoices');
-    } finally {
-      setLoading(false);
+        toast.success('Invoice PDF downloaded');
+      } else {
+        toast.error('Failed to download invoice');
+      }
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      toast.error('Failed to download invoice PDF');
     }
   };
 
-  useEffect(() => {
-    fetchInvoices();
-  }, [page, sortBy, orderBy]);
-
-  const confirmDelete = () => {
-    if (!deleteId) return;
-    setItems((prev) => prev.filter((i) => i.id !== deleteId));
-    setDeleteId(null);
-    setDeleteModalOpen(false);
+  const handlePreview = (invoiceId: string) => {
+    console.log('Preview invoice:', invoiceId);
+    toast.info('Preview feature coming soon');
   };
+
+  const handleViewDetails = (invoiceId: string) => {
+    console.log('View invoice details:', invoiceId);
+    toast.info('View details feature coming soon');
+  };
+
+  const handleEmailInvoice = (invoiceId: string) => {
+    console.log('Email invoice:', invoiceId);
+    toast.info('Email feature coming soon');
+  };
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        setLoading(true);
+        const token = Cookies.get('authToken');
+
+        const payload = {
+          offSet: (page - 1) * limit,
+          limit,
+          sortBy,
+          orderBy,
+          searchBy,
+          search,
+          invoiceStartDate: startDate || undefined,
+          invoiceEndDate: endDate || undefined,
+          status: statusFilter !== 'All' ? statusFilter : undefined,
+          type: typeFilter !== 'All' ? typeFilter : undefined,
+        };
+
+        const res = await getInvoicesList({
+          token: token || '',
+          ...payload,
+        });
+
+        const results =
+          res?.data?.data?.results?.invoice ??
+          res?.data?.data?.results?.invoices ??
+          [];
+
+        const count =
+          res?.data?.data?.results?.recordsCount ??
+          res?.data?.data?.results?.totalCount ??
+          0;
+
+        const mapped: Invoice[] = results.map((inv: ApiInvoice) => ({
+          id: inv.id || inv._id || '',
+          invoiceNumber: inv.invoiceNumber,
+          invoiceDate:
+            (typeof inv.invoiceDate === 'string'
+              ? inv.invoiceDate
+              : typeof inv.createdAt === 'string'
+              ? inv.createdAt
+              : ''
+            )?.slice(0, 10) || '',
+          customer:
+            (typeof inv.customer === 'object'
+              ? inv.customer?.name || inv.customer?.companyName || ''
+              : inv.customer) || '',
+          total: inv.totalAmount ?? inv.AmountPaidToDate ?? 0,
+          status: inv.status,
+          type: inv.type,
+        }));
+
+        setItems(mapped);
+        setTotalCount(count);
+      } catch (err) {
+        console.error(err);
+        toast.error('Failed to load invoices');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvoices();
+  }, [
+    page,
+    limit,
+    sortBy,
+    orderBy,
+    searchBy,
+    search,
+    startDate,
+    endDate,
+    statusFilter,
+    typeFilter,
+  ]);
 
   return (
     <div
@@ -247,7 +334,12 @@ export default function InvoiceListPage() {
                     <select
                       className='h-8 border rounded-md px-2 text-sm'
                       value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value as any)}
+                      onChange={(e) => {
+                        setStatusFilter(
+                          e.target.value as InvoiceStatusType | 'All'
+                        );
+                        setPage(1);
+                      }}
                     >
                       <option value='All'>All</option>
                       {invoiceStatuses.map((status) => (
@@ -268,7 +360,12 @@ export default function InvoiceListPage() {
                     <select
                       className='h-8 border rounded-md px-2 text-sm'
                       value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value as any)}
+                      onChange={(e) => {
+                        setTypeFilter(
+                          e.target.value as InvoiceTypeType | 'All'
+                        );
+                        setPage(1);
+                      }}
                     >
                       <option value='All'>All</option>
                       {invoiceTypes.map((type) => (
@@ -289,7 +386,10 @@ export default function InvoiceListPage() {
                     <Input
                       type='date'
                       value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
+                      onChange={(e) => {
+                        setStartDate(e.target.value);
+                        setPage(1);
+                      }}
                       className='h-8'
                     />
                   </div>
@@ -301,7 +401,10 @@ export default function InvoiceListPage() {
                     <Input
                       type='date'
                       value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
+                      onChange={(e) => {
+                        setEndDate(e.target.value);
+                        setPage(1);
+                      }}
                       className='h-8'
                     />
                   </div>
@@ -315,6 +418,7 @@ export default function InvoiceListPage() {
                         setTypeFilter('All');
                         setStartDate('');
                         setEndDate('');
+                        setSearch('');
                         setPage(1);
                       }}
                     >
@@ -322,7 +426,10 @@ export default function InvoiceListPage() {
                     </Button>
                     <Button
                       className='flex-1 h-8 text-xs bg-blue-600 hover:bg-blue-700'
-                      onClick={() => setShowFilters(false)}
+                      onClick={() => {
+                        setShowFilters(false);
+                        setPage(1);
+                      }}
                     >
                       {t('invoices.apply')}
                     </Button>
@@ -376,7 +483,6 @@ export default function InvoiceListPage() {
                       break;
                     case 'invoiceEndDate':
                       setEndDate('');
-                      break;
                       break;
                     case 'search':
                       setSearch('');
@@ -519,7 +625,9 @@ export default function InvoiceListPage() {
             />
             <Button
               className='h-9 bg-blue-600 hover:bg-blue-700'
-              onClick={() => {}}
+              onClick={() => {
+                setPage(1);
+              }}
               disabled={loading}
             >
               {loading ? 'Loading...' : t('invoices.go')}
@@ -577,16 +685,47 @@ export default function InvoiceListPage() {
                   <TableCell>{formatNumber(inv.total)}</TableCell>
                   <TableCell>{inv.status}</TableCell>
                   <TableCell>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      onClick={() => {
-                        setDeleteId(inv.id);
-                        setDeleteModalOpen(true);
-                      }}
-                    >
-                      <MoreHorizontal className='h-4 w-4' />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                        >
+                          <MoreHorizontal className='h-4 w-4' />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent
+                        align='end'
+                        className='w-48'
+                      >
+                        <DropdownMenuItem
+                          onClick={() => handleDownloadPdf(inv.id)}
+                        >
+                          <Download className='mr-2 h-4 w-4' />
+                          Download PDF
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem onClick={() => handlePreview(inv.id)}>
+                          <Eye className='mr-2 h-4 w-4' />
+                          Preview
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onClick={() => handleViewDetails(inv.id)}
+                        >
+                          <FileText className='mr-2 h-4 w-4' />
+                          Details
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onClick={() => handleEmailInvoice(inv.id)}
+                        >
+                          <Mail className='mr-2 h-4 w-4' />
+                          Email invoice
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
@@ -667,32 +806,6 @@ export default function InvoiceListPage() {
           </Pagination>
         </div>
       )}
-
-      <Dialog
-        open={deleteModalOpen}
-        onOpenChange={setDeleteModalOpen}
-      >
-        <DialogContent dir={isRTL ? 'rtl' : 'ltr'}>
-          <DialogHeader>
-            <DialogTitle>{t('invoices.confirmDelete')}</DialogTitle>
-          </DialogHeader>
-          <p>{t('invoices.deleteInvoiceMessage')}</p>
-          <DialogFooter className={isRTL ? 'flex-row-reverse' : ''}>
-            <Button
-              variant='outline'
-              onClick={() => setDeleteModalOpen(false)}
-            >
-              {t('invoices.cancel')}
-            </Button>
-            <Button
-              className='bg-red-600 hover:bg-red-700'
-              onClick={confirmDelete}
-            >
-              {t('invoices.delete')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -18,6 +18,7 @@ export const backendApiEnums = {
       DELETE_ITEM: '/items/delete',
       GET_ITEMS_LIST: '/items/list',
       GET_ITEMS_BY_ID: '/items/id',
+      LIST_FOR_SELECTION: '/items/listForSelection',
     },
     BANK_DETAILS: {
       ADD_BANK_DETAILS: '/bank-details/create',
@@ -39,6 +40,7 @@ export const backendApiEnums = {
       ADD_INVOICE: '/invoices/create',
       GET_INVOICES_LIST: '/invoices/list',
       GET_INVOICE_BY_ID: '/invoices/id',
+      DOWNLOAD: '/invoices/download',
     },
   },
   METHODS: {

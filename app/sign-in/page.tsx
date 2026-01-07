@@ -18,15 +18,13 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitch from '@/components/base-components/LanguageSwitch';
 import { Spinner } from '@/components/ui/spinner';
 
-// Validation Schema
-const SignInValidationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Please enter a valid email address')
-    .required('Email is required'),
-  password: Yup.string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-});
+// Error code mapping to i18n keys
+const ERROR_CODE_MAP: Record<string, string> = {
+  invalid_email_or_password: 'auth.signIn.errors.invalidEmailOrPassword',
+  user_not_found: 'auth.signIn.errors.userNotFound',
+  account_disabled: 'auth.signIn.errors.accountDisabled',
+  invalid_credentials: 'auth.signIn.errors.invalidCredentials',
+};
 
 export default function SignInPage() {
   const { t } = useTranslation();
@@ -53,7 +51,7 @@ export default function SignInPage() {
       setIsLoading(true);
 
       try {
-        const response = await login({
+        await login({
           payload: {
             email: values.email,
             password: values.password,
@@ -62,11 +60,43 @@ export default function SignInPage() {
             router.push('/dashboard');
           },
         });
-      } catch (err: any) {
-        const errorMessage =
-          err?.response?.data?.message ||
-          err?.message ||
-          'An unexpected error occurred. Please try again.';
+      } catch (err: unknown) {
+        const error = err as Record<string, unknown>;
+
+        // Get error code from response
+        const errorCode =
+          (
+            (error?.response as Record<string, unknown>)?.data as Record<
+              string,
+              unknown
+            >
+          )?.code ||
+          (
+            (error?.response as Record<string, unknown>)?.data as Record<
+              string,
+              unknown
+            >
+          )?.error;
+        const backendMessage = (
+          (error?.response as Record<string, unknown>)?.data as Record<
+            string,
+            unknown
+          >
+        )?.message;
+
+        // Map error code to i18n key
+        const i18nKey = errorCode ? ERROR_CODE_MAP[errorCode as string] : null;
+
+        // Get appropriate error message
+        let errorMessage: string;
+        if (i18nKey) {
+          errorMessage = t(i18nKey);
+        } else if (backendMessage) {
+          errorMessage = backendMessage as string;
+        } else {
+          errorMessage = t('auth.signIn.errors.unexpectedError');
+        }
+
         toast.error(errorMessage, { duration: 2000 });
         console.error('Sign in error:', err);
       } finally {

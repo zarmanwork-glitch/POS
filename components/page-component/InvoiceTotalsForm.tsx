@@ -22,7 +22,7 @@ export default function InvoiceTotalsForm() {
           </div>
           <Textarea
             placeholder='Enter number in Arabic'
-            className='min-h-[60px]'
+            className='min-h-15'
           />
           <p className='text-xs text-muted-foreground'>
             This is a system-generated translation and may not be accurate. We
@@ -35,7 +35,7 @@ export default function InvoiceTotalsForm() {
           <Label>Notes</Label>
           <Textarea
             placeholder='Additional Notes'
-            className='min-h-[120px]'
+            className='min-h-30'
           />
         </div>
 

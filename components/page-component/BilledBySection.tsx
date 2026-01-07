@@ -116,61 +116,54 @@ export default function BilledBySection({
       </div>
 
       {selectedBusinessDetails && (
-        <Card className='mb-4 border-none bg-transparent shadow-none'>
-          <CardHeader className='pb-3 px-0'>
-            <CardTitle className='text-sm font-medium flex items-center gap-2'>
-              {t('invoices.form.selectBusinessDetails')}
+        <div className='border border-gray-200 rounded-lg overflow-hidden'>
+          <div className='bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between'>
+            <span className='text-sm text-gray-700 font-medium'>
+              {t('invoices.form.selectBusinessDetails')}:{' '}
               <span className='text-red-500'>*</span>
-
-              <Badge
-                variant='outline'
-                className='flex items-center gap-2 bg-transparent border-muted'
+            </span>
+            <div className='flex items-center gap-2'>
+              <span className='text-sm text-gray-700'>
+                {selectedBusinessDetails.companyName ||
+                  selectedBusinessDetails.displayName ||
+                  selectedBusinessDetails.name}
+              </span>
+              <button
+                type='button'
+                onClick={() => {
+                  setSelectedBusinessDetails(null);
+                  formik.setFieldValue('business_detail_id', '');
+                }}
+                className='text-gray-400 hover:text-gray-600'
               >
-                <span className='text-foreground text-sm'>
-                  {selectedBusinessDetails.companyName ||
-                    selectedBusinessDetails.displayName ||
-                    selectedBusinessDetails.name}
-                </span>
+                <X className='h-4 w-4' />
+              </button>
+            </div>
+          </div>
 
-                <Button
-                  type='button'
-                  variant='ghost'
-                  size='icon'
-                  className='h-4 w-4 text-muted-foreground hover:text-foreground'
-                  onClick={() => {
-                    setSelectedBusinessDetails(null);
-                    formik.setFieldValue('business_detail_id', '');
-                  }}
-                >
-                  <X className='h-3 w-3' />
-                </Button>
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className='space-y-4 px-0 text-xs'>
+          <div className='p-4 space-y-3'>
             <div>
-              <div className='text-muted-foreground font-medium mb-2'>
+              <div className='text-xs text-gray-600 font-medium mb-2'>
                 {t('invoices.form.identification')}
               </div>
 
               <div className='grid grid-cols-2 gap-2'>
                 <Input
                   disabled
-                  className='text-xs bg-muted/60 border-muted'
+                  className='text-xs bg-blue-50 border-gray-200'
                   placeholder={t('invoices.form.identificationType')}
                   value={selectedBusinessDetails.identificationType || ''}
                 />
                 <Input
                   disabled
-                  className='text-xs bg-muted/60 border-muted'
+                  className='text-xs bg-blue-50 border-gray-200'
                   placeholder={t('invoices.form.identificationNumber')}
                   value={selectedBusinessDetails.identificationNumber || ''}
                 />
               </div>
             </div>
 
-            <div className='rounded-md overflow-hidden border border-muted'>
+            <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>
               {(() => {
                 const rows = [
                   {
@@ -225,26 +218,30 @@ export default function BilledBySection({
                   });
                 }
 
-                return rows.map((row, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-start text-xs px-3 py-2 ${
-                      index % 2 === 0 ? 'bg-muted/60' : 'bg-muted/20'
-                    }`}
-                  >
-                    <div className='w-[26%] font-medium bg-gray-200'>
-                      {row.label}:
-                    </div>
+                return (
+                  <div className='divide-y divide-gray-200'>
+                    {rows.map((row, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-start px-4 py-3 ${
+                          index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                        }`}
+                      >
+                        <div className='w-1/3 text-gray-600 font-medium'>
+                          {row.label}:
+                        </div>
 
-                    <div className='w-[74%] whitespace-pre-wrap  bg-gray-200'>
-                      {row.value || '-'}
-                    </div>
+                        <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                          {row.value || '-'}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ));
+                );
               })()}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {!selectedBusinessDetails && (

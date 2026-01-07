@@ -1,10 +1,14 @@
 export const taxCodes = [
-  { value: 'S', displayText: 'S - Standard Rate (15%)' },
-  { value: 'Z', displayText: 'Z - Zero Rated' },
-  { value: 'E', displayText: 'E - Exempt' },
-  { value: 'A', displayText: 'A - Not Subject to VAT' },
-  { value: 'R', displayText: 'R - Reverse Charge' },
-  { value: 'N/A', displayText: 'N/A - No VAT' },
+  { value: 'S', displayText: 'Standard Rate' },
+  { value: 'Z', displayText: 'Zero Rated' },
+  {
+    value: 'O',
+    displayText: 'Services Outside the scope of tax / Not subject to VAT',
+  },
+  {
+    value: 'E',
+    displayText: 'Exempt From Tax',
+  },
 ];
 
-export type TaxCodeType = 'S' | 'Z' | 'E' | 'A' | 'R' | 'N/A';
+export type TaxCodeType = 'S' | 'Z' | 'O' | 'E';

@@ -19,27 +19,13 @@ import {
 } from '@/components/ui/table';
 import { X, Plus } from 'lucide-react';
 import { formatNumber, parseNumber } from '@/lib/number';
-
-interface Item {
-  description: string;
-  serviceCode: string;
-  unitOfMeasure: string;
-  quantity: number | string;
-  unitRate: number | string;
-  discount: number | string;
-  discountType: 'PERC' | 'NUMBER';
-  taxRate: number | string;
-  taxCode: string;
-}
-
-interface ItemDetailsSectionProps {
-  items: Item[];
-  unitOfMeasures: Array<{ value: string; displayText: string }>;
-  taxCodes: Array<{ value: string; displayText: string }>;
-  updateItem: (idx: number, field: string, value: any) => void;
-  removeItem: (idx: number) => void;
-  addItem: () => void;
-}
+import { calculateItemRow } from '@/utils/itemCalculations';
+import {
+  Item,
+  SelectableItem,
+  ItemDetailsSectionProps,
+} from '@/types/itemTypes';
+import { useState } from 'react';
 
 export default function ItemDetailsSection({
   items,
@@ -48,7 +34,53 @@ export default function ItemDetailsSection({
   updateItem,
   removeItem,
   addItem,
+  itemOptions,
+  itemSearch,
+  setItemSearch,
 }: ItemDetailsSectionProps) {
+  const [focusedItemIdx, setFocusedItemIdx] = useState<number | null>(null);
+
+  // Filter items by description
+  const filteredItems = Array.isArray(itemOptions)
+    ? itemOptions.filter((item) => {
+        const query = itemSearch.toLowerCase();
+        return (
+          (item.description &&
+            item.description.toLowerCase().includes(query)) ||
+          (item.name && item.name.toLowerCase().includes(query))
+        );
+      })
+    : [];
+
+  const handleSelectItem = (itemId: string, itemIndex: number) => {
+    const selected = itemOptions.find((i) => {
+      const id = i.id || i._id;
+      return id === itemId;
+    });
+
+    if (selected) {
+      updateItem(itemIndex, 'description', selected.description || '');
+      updateItem(itemIndex, 'serviceCode', selected.materialNo || '');
+      updateItem(itemIndex, 'unitOfMeasure', selected.unitOfMeasure || '');
+      updateItem(itemIndex, 'unitRate', selected.sellPrice || '');
+      updateItem(itemIndex, 'discount', selected.discountPercentage || '');
+      setItemSearch('');
+      setFocusedItemIdx(null);
+    }
+  };
+
+  const handleTaxCodeChange = (taxCode: string, itemIndex: number) => {
+    updateItem(itemIndex, 'taxCode', taxCode);
+    // Set based on tax code
+    const vatMap: { [key: string]: number } = {
+      S: 15,
+      Z: 0,
+      O: 0,
+      E: 0,
+    };
+    updateItem(itemIndex, 'taxRate', vatMap[taxCode] || 15);
+  };
+
   return (
     <div className='space-y-3'>
       {/* Header */}
@@ -65,8 +97,8 @@ export default function ItemDetailsSection({
         </div>
       </div>
 
-      {/* Desktop Table */}
-      <div className='hidden md:block border rounded-lg overflow-x-auto'>
+      {/* Table */}
+      <div className='border rounded-lg overflow-x-auto'>
         <Table className='text-xs'>
           <TableHeader>
             <TableRow className='bg-gray-50'>
@@ -84,40 +116,8 @@ export default function ItemDetailsSection({
 
           <TableBody>
             {items.map((row, idx) => {
-              const quantity = parseNumber(row.quantity) || 0;
-              const unitRate = parseNumber(row.unitRate) || 0;
-              const discountValue = parseNumber(row.discount) || 0;
-              const vatPercent = parseNumber(row.taxRate) || 0;
-
-              const price = quantity * unitRate;
-              const discount = quantity * discountValue;
-
-              let discountAmount = 0;
-              let vatAmount = 0;
-              let totalAmount = 0;
-              let taxableAmount = 0;
-
-              // Use formulas depending on discount type
-              if (row.discountType === 'PERC') {
-                // i) discount in percentage
-                // VAT Amount = Price × (1 − Discount%/100) × (VAT%/100)
-                // Final Total = Price × (1 − Discount%/100) × (1 + VAT%/100)
-                const taxable = price * (1 - discountValue / 100);
-                discountAmount = price * (discountValue / 100);
-                const vat = 1 + vatPercent / 100;
-                vatAmount = taxable * (vatPercent / 100);
-                totalAmount = taxable * vat;
-                taxableAmount = totalAmount / vat;
-              } else {
-                // ii) discount is a fixed number
-                // VAT Amount = (Price − Discount) × (VAT% / 100)
-                // Final Total = (Price − Discount) × (1 + VAT% / 100)
-                const taxable = price - discount;
-                discountAmount = discount;
-                vatAmount = taxable * (vatPercent / 100);
-                totalAmount = taxable * (1 + vatPercent / 100);
-                taxableAmount = price - discount;
-              }
+              const { discountAmount, vatAmount, totalAmount } =
+                calculateItemRow(row);
 
               return (
                 <TableRow
@@ -128,14 +128,45 @@ export default function ItemDetailsSection({
                   {/* Description */}
                   <TableCell>
                     <div className='space-y-2'>
-                      <Input
-                        className='bg-blue-50 h-9 text-xs'
-                        placeholder='Description'
-                        value={row.description}
-                        onChange={(e) =>
-                          updateItem(idx, 'description', e.target.value)
-                        }
-                      />
+                      <div className='relative'>
+                        <Input
+                          className='bg-blue-50 h-9 text-xs'
+                          placeholder='Search or type description'
+                          value={row.description}
+                          onChange={(e) => {
+                            updateItem(idx, 'description', e.target.value);
+                            setItemSearch(e.target.value);
+                          }}
+                          onFocus={() => {
+                            setFocusedItemIdx(idx);
+                          }}
+                          onBlur={() => {
+                            setTimeout(() => setFocusedItemIdx(null), 200);
+                          }}
+                        />
+                        {/* Item dropdown suggestions - show when focused */}
+                        {focusedItemIdx === idx && itemOptions.length > 0 && (
+                          <div className='absolute z-20  w-full mt-1 bg-white border rounded-md shadow-lg h-32 overflow-y-auto flex flex-col'>
+                            {(itemSearch ? filteredItems : itemOptions).map(
+                              (item) => (
+                                <button
+                                  key={item.id || item._id}
+                                  type='button'
+                                  className='w-full text-left px-3 py-2 text-xs hover:bg-blue-50 border-b last:border-b-0 whitespace-nowrap overflow-hidden text-ellipsis'
+                                  onClick={() => {
+                                    handleSelectItem(
+                                      item.id || item._id || '',
+                                      idx
+                                    );
+                                  }}
+                                >
+                                  {item.description}
+                                </button>
+                              )
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <div className='flex gap-2'>
                         <Input
                           className='bg-blue-50 h-9 text-xs'
@@ -222,16 +253,15 @@ export default function ItemDetailsSection({
                       type='number'
                       className='bg-blue-50 h-9 text-xs'
                       value={row.taxRate}
-                      onChange={(e) =>
-                        updateItem(idx, 'taxRate', Number(e.target.value))
-                      }
+                      readOnly
+                      disabled
                     />
                   </TableCell>
                   {/* Tax Code */}
                   <TableCell>
                     <Select
                       value={row.taxCode}
-                      onValueChange={(v) => updateItem(idx, 'taxCode', v)}
+                      onValueChange={(v) => handleTaxCodeChange(v, idx)}
                     >
                       <SelectTrigger className='bg-blue-50 h-9 text-xs'>
                         <SelectValue />
@@ -241,8 +271,17 @@ export default function ItemDetailsSection({
                           <SelectItem
                             key={tc.value}
                             value={tc.value}
+                            textValue={`${tc.value} ${tc.displayText}`}
+                            className='py-3'
                           >
-                            {tc.displayText}
+                            <div className='flex flex-col gap-1'>
+                              <span className='font-medium leading-none'>
+                                {tc.value}
+                              </span>
+                              <span className='text-sm text-muted-foreground leading-snug'>
+                                {tc.displayText}
+                              </span>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -272,53 +311,6 @@ export default function ItemDetailsSection({
             })}
           </TableBody>
         </Table>
-      </div>
-
-      {/* Mobile View */}
-      <div className='md:hidden space-y-3'>
-        {items.map((row, idx) => (
-          <div
-            key={idx}
-            className='border rounded-lg p-3 space-y-2 bg-white'
-          >
-            <div className='flex justify-between text-xs font-semibold'>
-              <span>Item #{idx + 1}</span>
-              <Button
-                variant='ghost'
-                size='icon'
-                onClick={() => removeItem(idx)}
-              >
-                <X className='h-4 w-4 text-red-500' />
-              </Button>
-            </div>
-
-            <Input
-              className='bg-blue-50 h-9 text-xs'
-              placeholder='Description'
-              value={row.description}
-              onChange={(e) => updateItem(idx, 'description', e.target.value)}
-            />
-
-            <div className='grid grid-cols-2 gap-2'>
-              <Input
-                type='number'
-                className='bg-blue-50 h-9 text-xs'
-                placeholder='Qty'
-                value={row.quantity}
-                onChange={(e) =>
-                  updateItem(idx, 'quantity', parseNumber(e.target.value))
-                }
-              />
-              <Input
-                type='number'
-                className='bg-blue-50 h-9 text-xs'
-                placeholder='Rate'
-                value={row.unitRate}
-                onChange={(e) => updateItem(idx, 'unitRate', e.target.value)}
-              />
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Footer */}

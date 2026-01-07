@@ -9,6 +9,14 @@ interface ItemType {
   successMessage?: string;
 }
 
+export const getItemsForSelection = async ({ token }: { token: string }) => {
+  return api_client({
+    token,
+    endpoint: backendApiEnums.ENDPOINTS.ITEMS.LIST_FOR_SELECTION,
+    method: backendApiEnums.METHODS.POST,
+  });
+};
+
 export const addITEM = async ({
   token,
   payload,
