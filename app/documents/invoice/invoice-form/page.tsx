@@ -17,14 +17,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { X, Plus, Upload, Search } from 'lucide-react';
+import { X, Plus, Upload, Search, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import Cookies from 'js-cookie';
-import { Card } from '@/components/ui/card';
 import { incoTerms } from '@/enums/incoTerms';
 import { unitOfMeasures } from '@/enums/unitOfMeasure';
 import { taxCodes } from '@/enums/taxCode';
@@ -35,6 +34,28 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { createInvoice } from '@/api/invoices/invoice.api';
 import { formatNumber, parseNumber } from '@/lib/number';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
+import { SummaryRow } from '@/components/page-component/SummaryRow';
+import { Label } from '@/components/ui/label';
+import BilledBySection from '@/components/page-component/BilledBySection';
+import BilledToSection from '@/components/page-component/BilledToSection';
+import PaymentInfoSection from '@/components/page-component/PaymentInfoSection';
+import ItemDetailsSection from '@/components/page-component/ItemDetailsSection';
+
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 export default function InvoiceFormPage() {
   const router = useRouter();
@@ -643,882 +664,105 @@ export default function InvoiceFormPage() {
 
         {/* Middle section - billed by / billed to / payment info */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4'>
-          {/* BILLED BY */}
-          <div className='space-y-2'>
-            <div className='flex items-center justify-between'>
-              <div className='mb-3'>
-                <h3 className='text-sm font-semibold text-gray-700'>
-                  {t('invoices.form.selectedBusinessDetails')}
-                </h3>
-                <span className='text-xs text-gray-400'>
-                  {t('invoices.form.selectBusinessDetails')}
-                </span>
-              </div>
-              <div>
-                <button className='text-sm text-blue-600 mb-3'>
-                  {t('invoices.form.change')}
-                </button>
-              </div>
-            </div>
+          <BilledBySection
+            selectedBusinessDetails={selectedBusinessDetails}
+            setSelectedBusinessDetails={setSelectedBusinessDetails}
+            businessSearch={businessSearch}
+            setBusinessSearch={setBusinessSearch}
+            businessFocused={businessFocused}
+            setBusinessFocused={setBusinessFocused}
+            businessOptions={businessOptions}
+            filteredBusinessOptions={filteredBusinessOptions}
+            formik={formik}
+            t={t}
+          />
 
-            {/* Selected Business Details Chip */}
-            {selectedBusinessDetails && (
-              <div className='p-3 mb-3'>
-                <div className='flex items-center gap-2 mb-3'>
-                  <span className='text-sm text-gray-700 font-medium'>
-                    {t('invoices.form.selectBusinessDetails')}:
-                    <span className='text-red-500'>*</span>
-                  </span>
-                  <div className='flex items-center gap-2 bg-white border rounded px-2 py-1'>
-                    <span className='text-sm text-gray-700'>
-                      {selectedBusinessDetails.companyName ||
-                        selectedBusinessDetails.displayName ||
-                        selectedBusinessDetails.name}
-                    </span>
-                    <button
-                      type='button'
-                      onClick={() => {
-                        setSelectedBusinessDetails(null);
-                        formik.setFieldValue('business_detail_id', '');
-                      }}
-                      className='text-gray-400 hover:text-gray-600'
-                    >
-                      <X className='h-4 w-4' />
-                    </button>
-                  </div>
-                </div>
+          <BilledToSection
+            selectedCustomer={selectedCustomer}
+            setSelectedCustomer={setSelectedCustomer}
+            customerSearch={customerSearch}
+            setCustomerSearch={setCustomerSearch}
+            customerFocused={customerFocused}
+            setCustomerFocused={setCustomerFocused}
+            customerOptions={customerOptions}
+            filteredCustomerOptions={filteredCustomerOptions}
+            formik={formik}
+            t={t}
+          />
 
-                {/* Identification section */}
-                <div className='mb-3'>
-                  <div className='text-xs text-gray-600 font-medium mb-2'>
-                    {t('invoices.form.identification')}
-                  </div>
-                  <div className='grid grid-cols-2 gap-2'>
-                    <Input
-                      placeholder={t('invoices.form.identificationType')}
-                      value={selectedBusinessDetails.identificationType || ''}
-                      disabled
-                      className='text-xs'
-                    />
-                    <Input
-                      placeholder={t('invoices.form.identificationNumber')}
-                      value={selectedBusinessDetails.identificationNumber || ''}
-                      disabled
-                      className='text-xs'
-                    />
-                  </div>
-                </div>
-
-                {/* Details Table-like layout (matches attached image) */}
-                <div className='mt-2 border border-gray-200 rounded-md overflow-hidden text-xs'>
-                  {(() => {
-                    const rows = [
-                      {
-                        label: t('invoices.form.name'),
-                        value: selectedBusinessDetails.name || '-',
-                      },
-                      {
-                        label: t('invoices.form.companyName'),
-                        value: selectedBusinessDetails.companyName || '-',
-                      },
-                      {
-                        label: t('invoices.form.address'),
-                        value: selectedBusinessDetails.address || '-',
-                      },
-                      {
-                        label: t('invoices.form.country'),
-                        value: selectedBusinessDetails.country || '-',
-                      },
-                      {
-                        label: t('invoices.form.phone'),
-                        value: selectedBusinessDetails.phoneNumber || '-',
-                      },
-                      {
-                        label: t('invoices.form.email'),
-                        value: selectedBusinessDetails.email || '-',
-                      },
-                      {
-                        label: t('invoices.form.cr'),
-                        value: selectedBusinessDetails.cr || '-',
-                      },
-                      {
-                        label: t('invoices.form.vatNo'),
-                        value: selectedBusinessDetails.vatGstNumber || '-',
-                      },
-                    ];
-
-                    if (selectedBusinessDetails.momraLicense) {
-                      rows.push({
-                        label: t('invoices.form.momraLicense'),
-                        value: selectedBusinessDetails.momraLicense,
-                      });
-                    }
-
-                    if (
-                      selectedBusinessDetails.isSaudiVatRegistered !== undefined
-                    ) {
-                      rows.push({
-                        label: t('invoices.form.isSaudiVatRegistered'),
-                        value: selectedBusinessDetails.isSaudiVatRegistered
-                          ? t('invoices.form.yes')
-                          : t('invoices.form.no'),
-                      });
-                    }
-
-                    return (
-                      <div className='divide-y divide-gray-200'>
-                        {rows.map((r, i) => (
-                          <div
-                            key={i}
-                            className={`flex items-start px-4 py-3 ${
-                              i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                            }`}
-                          >
-                            <div className='w-1/3 text-gray-600 font-medium'>
-                              {r.label}:
-                            </div>
-                            <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
-                              {r.value}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
-            {/* Select Dropdown if not selected */}
-            {!selectedBusinessDetails && (
-              <div className='relative'>
-                <Input
-                  className='bg-blue-50 h-10 pr-10'
-                  placeholder={t('invoices.form.searchBusiness')}
-                  value={businessSearch}
-                  onChange={(e) => setBusinessSearch(e.target.value)}
-                  onFocus={() => setBusinessFocused(true)}
-                  onBlur={() =>
-                    setTimeout(() => setBusinessFocused(false), 200)
-                  }
-                />
-                <Search className='absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none' />
-
-                {/* Dropdown list */}
-                {businessFocused &&
-                  (businessSearch
-                    ? filteredBusinessOptions.length > 0
-                    : businessOptions.length > 0) && (
-                    <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto'>
-                      {(businessSearch
-                        ? filteredBusinessOptions
-                        : businessOptions
-                      ).map((b) => {
-                        const id = b.id || b._id || '';
-                        const primary =
-                          b.companyName || b.displayName || b.name || id;
-                        const secondary = [b.email || b.phoneNumber]
-                          .filter(Boolean)
-                          .join(' • ');
-
-                        return (
-                          <button
-                            key={id}
-                            type='button'
-                            onClick={() => {
-                              formik.setFieldValue('business_detail_id', id);
-                              setSelectedBusinessDetails(b);
-                              setBusinessSearch('');
-                              setBusinessFocused(false);
-                            }}
-                            className='w-full text-left px-4 py-2 hover:bg-blue-50 border-b last:border-b-0'
-                          >
-                            <div className='text-sm font-medium text-gray-800'>
-                              {primary}
-                            </div>
-                            {secondary && (
-                              <div className='text-xs text-gray-500'>
-                                {secondary}
-                              </div>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                {businessFocused &&
-                  businessSearch &&
-                  filteredBusinessOptions.length === 0 && (
-                    <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-4 py-2 text-sm text-gray-500'>
-                      {t('invoices.form.noResultsFound')}
-                    </div>
-                  )}
-              </div>
-            )}
-            {formik.touched.business_detail_id &&
-            formik.errors.business_detail_id ? (
-              <div className='text-sm text-red-500'>
-                {String(formik.errors.business_detail_id)}
-              </div>
-            ) : null}
-          </div>
-
-          {/* BILLED TO */}
-          <div className='space-y-2'>
-            <div className='flex items-center justify-between'>
-              <div className='mb-3'>
-                <h3 className='text-sm font-semibold text-gray-700'>
-                  {t('invoices.form.selectedCustomer')}
-                </h3>
-                <span className='text-xs text-gray-400'>
-                  {t('invoices.form.selectCustomer')}
-                </span>
-              </div>
-              <div>
-                <button className='text-sm text-blue-600 mb-3'>
-                  {t('invoices.form.change')}
-                </button>
-              </div>
-            </div>
-
-            {/* Selected Customer Chip */}
-            {selectedCustomer && (
-              <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3'>
-                <div className='flex items-center gap-2 mb-3'>
-                  <span className='text-sm text-gray-700 font-medium'>
-                    {t('invoices.form.selectCustomer')}:{' '}
-                    <span className='text-red-500'>*</span>
-                  </span>
-                  <div className='flex items-center gap-2 bg-white border rounded px-2 py-1'>
-                    <span className='text-sm text-gray-700'>
-                      {selectedCustomer.companyName ||
-                        selectedCustomer.displayName ||
-                        selectedCustomer.name ||
-                        selectedCustomer.customerNumber}
-                    </span>
-                    <button
-                      type='button'
-                      onClick={() => {
-                        setSelectedCustomer(null);
-                        formik.setFieldValue('customer_id', '');
-                      }}
-                      className='text-gray-400 hover:text-gray-600'
-                    >
-                      <X className='h-4 w-4' />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Identification section */}
-                <div className='mb-3'>
-                  <div className='text-xs text-gray-600 font-medium mb-2'>
-                    {t('invoices.form.identification')}
-                  </div>
-                  <div className='grid grid-cols-2 gap-2'>
-                    <Input
-                      placeholder={t('invoices.form.identificationType')}
-                      className='text-xs bg-gray-100'
-                    />
-                    <Input
-                      placeholder={t('invoices.form.identificationNumber')}
-                      className='text-xs bg-gray-100'
-                    />
-                  </div>
-                </div>
-
-                {/* Details Table-like layout (small text) */}
-                <div className='mt-2 border border-gray-200 rounded-md overflow-hidden text-xs'>
-                  {(() => {
-                    const rows = [
-                      {
-                        label: t('invoices.form.name'),
-                        value: selectedCustomer.name || '-',
-                      },
-                      {
-                        label: t('invoices.form.companyName'),
-                        value: selectedCustomer.companyName || '-',
-                      },
-                      {
-                        label: t('invoices.form.address'),
-                        value: selectedCustomer.address || '-',
-                      },
-                      {
-                        label: t('invoices.form.country'),
-                        value: selectedCustomer.country || '-',
-                      },
-                      {
-                        label: t('invoices.form.phone'),
-                        value: selectedCustomer.phoneNumber || '-',
-                      },
-                      {
-                        label: t('invoices.form.email'),
-                        value: selectedCustomer.email || '-',
-                      },
-                      {
-                        label: t('invoices.form.cr'),
-                        value: selectedCustomer.cin || '-',
-                      },
-                      {
-                        label: t('invoices.form.vatNo'),
-                        value: selectedCustomer.vatGstNumber || '-',
-                      },
-                    ];
-
-                    return (
-                      <div className='divide-y divide-gray-200'>
-                        {rows.map((r, i) => (
-                          <div
-                            key={i}
-                            className={`flex items-start px-4 py-3 ${
-                              i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                            }`}
-                          >
-                            <div className='w-1/3 text-gray-600 font-medium'>
-                              {r.label}:
-                            </div>
-                            <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
-                              {r.value}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
-            {/* Select Dropdown if not selected */}
-            {!selectedCustomer && (
-              <div className='relative'>
-                <Input
-                  className='bg-blue-50 h-10 pr-10'
-                  placeholder={t('invoices.form.searchCustomer')}
-                  value={customerSearch}
-                  onChange={(e) => setCustomerSearch(e.target.value)}
-                  onFocus={() => setCustomerFocused(true)}
-                  onBlur={() =>
-                    setTimeout(() => setCustomerFocused(false), 200)
-                  }
-                />
-                <Search className='absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none' />
-
-                {/* Dropdown list */}
-                {customerFocused &&
-                  (customerSearch
-                    ? filteredCustomerOptions.length > 0
-                    : customerOptions.length > 0) && (
-                    <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto'>
-                      {(customerSearch
-                        ? filteredCustomerOptions
-                        : customerOptions
-                      ).map((c) => {
-                        const id = c.id || c._id || '';
-                        const primary =
-                          c.companyName ||
-                          c.displayName ||
-                          c.name ||
-                          c.customerNumber ||
-                          id;
-                        const secondary = [c.email || c.phoneNumber]
-                          .filter(Boolean)
-                          .join(' • ');
-
-                        return (
-                          <button
-                            key={id}
-                            type='button'
-                            onClick={() => {
-                              formik.setFieldValue('customer_id', id);
-                              setSelectedCustomer(c);
-                              setCustomerSearch('');
-                              setCustomerFocused(false);
-                            }}
-                            className='w-full text-left px-4 py-2 hover:bg-blue-50 border-b last:border-b-0'
-                          >
-                            <div className='text-sm font-medium text-gray-800'>
-                              {primary}
-                            </div>
-                            {secondary && (
-                              <div className='text-xs text-gray-500'>
-                                {secondary}
-                              </div>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                {customerFocused &&
-                  customerSearch &&
-                  filteredCustomerOptions.length === 0 && (
-                    <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-4 py-2 text-sm text-gray-500'>
-                      {t('invoices.form.noResultsFound')}
-                    </div>
-                  )}
-              </div>
-            )}
-            {formik.touched.customer_id && formik.errors.customer_id ? (
-              <div className='text-sm text-red-500'>
-                {String(formik.errors.customer_id)}
-              </div>
-            ) : null}
-          </div>
-
-          {/* PAYMENT INFO */}
-          <div className='space-y-2'>
-            <div className='flex items-center justify-between'>
-              <div className='mb-3'>
-                <h3 className='text-sm font-semibold text-gray-700'>
-                  {t('invoices.form.selectedPaymentDetails')}
-                </h3>
-                <span className='text-xs text-gray-400'>
-                  {t('invoices.form.selectPaymentDetails')}
-                </span>
-              </div>
-              <div>
-                <button className='text-sm text-blue-600 mb-3'>
-                  {t('invoices.form.change')}
-                </button>
-              </div>
-            </div>
-
-            {/* Selected Bank Chip */}
-            {selectedBank && (
-              <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
-                <div className='flex items-center gap-2 mb-3'>
-                  <span className='text-sm text-gray-700 font-medium'>
-                    {t('invoices.form.selectPaymentDetails')}:
-                  </span>
-                  <div className='flex items-center gap-2 bg-white border rounded px-2 py-1'>
-                    <span className='text-sm text-gray-700'>
-                      {selectedBank.bankName ||
-                        selectedBank.accountNumber ||
-                        'Bank'}
-                    </span>
-                    <button
-                      type='button'
-                      onClick={() => {
-                        setSelectedBank(null);
-                        formik.setFieldValue('bank_detail_id', '');
-                      }}
-                      className='text-gray-400 hover:text-gray-600'
-                    >
-                      <X className='h-4 w-4' />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Bank Details Table-like layout (small text) */}
-                <div className='mt-2 border border-gray-200 rounded-md overflow-hidden text-xs'>
-                  {(() => {
-                    const rows = [
-                      {
-                        label: t('invoices.form.bankName'),
-                        value: selectedBank.bankName || '-',
-                      },
-                      {
-                        label: t('invoices.form.beneficiaryName'),
-                        value: selectedBank.beneficiaryName || '-',
-                      },
-                      {
-                        label: t('invoices.form.accountNumber') || 'Account',
-                        value: selectedBank.accountNumber || '-',
-                      },
-                      {
-                        label: t('invoices.form.country'),
-                        value: selectedBank.country || '-',
-                      },
-                      {
-                        label: t('invoices.form.swiftCode'),
-                        value: selectedBank.swiftCode || '-',
-                      },
-                      { label: 'IBAN', value: selectedBank.iban || '-' },
-                    ];
-
-                    return (
-                      <div className='divide-y divide-gray-200'>
-                        {rows.map((r, i) => (
-                          <div
-                            key={i}
-                            className={`flex items-start px-4 py-3 ${
-                              i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                            }`}
-                          >
-                            <div className='w-1/3 text-gray-600 font-medium'>
-                              {r.label}:
-                            </div>
-                            <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
-                              {r.value}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
-            {/* Select Dropdown if not selected */}
-            {!selectedBank && (
-              <div className='relative'>
-                <Input
-                  className='bg-blue-50 h-10 pr-10'
-                  placeholder={t('invoices.form.searchBank')}
-                  value={bankSearch}
-                  onChange={(e) => setBankSearch(e.target.value)}
-                  onFocus={() => setBankFocused(true)}
-                  onBlur={() => setTimeout(() => setBankFocused(false), 200)}
-                />
-                <Search className='absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none' />
-
-                {/* Dropdown list */}
-                {bankFocused &&
-                  (bankSearch
-                    ? filteredBankOptions.length > 0
-                    : bankOptions.length > 0) && (
-                    <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto'>
-                      {(bankSearch ? filteredBankOptions : bankOptions).map(
-                        (b) => {
-                          const id = b.id || b._id || '';
-                          const primary = b.bankName || b.accountNumber || id;
-                          const secondary = [
-                            b.accountNumber && b.accountNumber !== primary
-                              ? b.accountNumber
-                              : null,
-                            b.country,
-                          ]
-                            .filter(Boolean)
-                            .join(' • ');
-
-                          return (
-                            <button
-                              key={id}
-                              type='button'
-                              onClick={() => {
-                                setSelectedBank(b);
-                                formik.setFieldValue('bank_detail_id', id);
-                                setBankSearch('');
-                                setBankFocused(false);
-                              }}
-                              className='w-full text-left px-4 py-2 hover:bg-blue-50 border-b last:border-b-0'
-                            >
-                              <div className='text-sm font-medium text-gray-800'>
-                                {primary}
-                              </div>
-                              {secondary && (
-                                <div className='text-xs text-gray-500'>
-                                  {secondary}
-                                </div>
-                              )}
-                            </button>
-                          );
-                        }
-                      )}
-                    </div>
-                  )}
-                {bankFocused &&
-                  bankSearch &&
-                  filteredBankOptions.length === 0 && (
-                    <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-4 py-2 text-sm text-gray-500'>
-                      {t('invoices.form.noResultsFound')}
-                    </div>
-                  )}
-              </div>
-            )}
-          </div>
+          <PaymentInfoSection
+            selectedBank={selectedBank}
+            setSelectedBank={setSelectedBank}
+            bankSearch={bankSearch}
+            setBankSearch={setBankSearch}
+            bankFocused={bankFocused}
+            setBankFocused={setBankFocused}
+            bankOptions={bankOptions}
+            filteredBankOptions={filteredBankOptions}
+            formik={formik}
+            t={t}
+          />
         </div>
 
         {/* ITEM DETAILS */}
-        <div className='space-y-3'>
-          {/* Header */}
-          <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
-            <h3 className='text-xs font-semibold tracking-wide'>
-              ITEM DETAILS
-            </h3>
+        <ItemDetailsSection
+          items={items}
+          unitOfMeasures={unitOfMeasures}
+          taxCodes={taxCodes}
+          updateItem={updateItem}
+          removeItem={removeItem}
+          addItem={addItem}
+        />
 
-            <div className='flex items-center gap-2'>
-              <span className='text-xs text-gray-500'>
-                Currency: <span className='text-red-500'>*</span>
-              </span>
-              <div className='w-44 h-9 bg-blue-50 border rounded-md px-3 flex items-center text-xs font-medium'>
-                SAR – Saudi Riyal
-              </div>
-            </div>
+        {/* total section */}
+
+        <div className='space-y-2'>
+          <Separator />
+
+          <SummaryRow
+            label='Sub Total:'
+            value='366.00'
+          />
+          <SummaryRow
+            label='Total Item Discount Amount:'
+            value='-128.10'
+          />
+          <SummaryRow
+            label='Total Taxable Amount:'
+            value='237.90'
+          />
+          <SummaryRow
+            label='Total VAT:'
+            value='35.69'
+          />
+
+          <SummaryRow
+            label='Total VAT (SAR):'
+            value='35.69'
+            editable
+          />
+
+          <Separator />
+
+          <SummaryRow
+            label='Invoice Net Total:'
+            value='273.59'
+            bold
+          />
+
+          <Separator />
+
+          {/* Amount in words */}
+          <div className='pt-4 text-sm text-right text-muted-foreground'>
+            <span className='font-medium text-foreground'>
+              Grand Total (in words):
+            </span>
+            SAR – Two hundred seventy-three and fifty-nine
           </div>
-
-          {/* Desktop Table */}
-          <div className='hidden md:block border rounded-lg overflow-x-auto'>
-            <Table className='text-xs'>
-              <TableHeader>
-                <TableRow className='bg-gray-50'>
-                  <TableHead>No.</TableHead>
-                  <TableHead>Item / Service</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Unit Rate</TableHead>
-                  <TableHead>Discount</TableHead>
-                  <TableHead>VAT %</TableHead>
-                  <TableHead>Tax Code</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {items.map((row, idx) => {
-                  const quantity = parseNumber(row.quantity) || 0;
-                  const unitRate = parseNumber(row.unitRate) || 0;
-                  const discountValue = parseNumber(row.discount) || 0;
-                  const vatPercent = parseNumber(row.taxRate) || 0;
-
-                  const price = quantity * unitRate;
-
-                  let discountAmount = 0;
-                  let vatAmount = 0;
-                  let totalAmount = 0;
-
-                  // Use formulas depending on discount type
-                  if (row.discountType === 'PERC') {
-                    // i) discount in percentage
-                    // VAT Amount = Price × (1 − Discount%/100) × (VAT%/100)
-                    // Final Total = Price × (1 − Discount%/100) × (1 + VAT%/100)
-                    const taxable = price * (1 - discountValue / 100);
-                    discountAmount = price - taxable;
-                    vatAmount = taxable * (vatPercent / 100);
-                    totalAmount = taxable * (1 + vatPercent / 100);
-                  } else {
-                    // ii) discount is a fixed number
-                    // VAT Amount = (Price − Discount) × (VAT% / 100)
-                    // Final Total = (Price − Discount) × (1 + VAT% / 100)
-                    const taxable = Math.max(price - discountValue, 0);
-                    discountAmount = Math.min(discountValue, price);
-                    vatAmount = taxable * (vatPercent / 100);
-                    totalAmount = taxable * (1 + vatPercent / 100);
-                  }
-
-                  return (
-                    <TableRow
-                      key={idx}
-                      className='align-top'
-                    >
-                      <TableCell className='font-medium'>{idx + 1}</TableCell>
-                      {/* Description */}
-                      <TableCell>
-                        <div className='space-y-2'>
-                          <Input
-                            className='bg-blue-50 h-9 text-xs'
-                            placeholder='Description'
-                            value={row.description}
-                            onChange={(e) =>
-                              updateItem(idx, 'description', e.target.value)
-                            }
-                          />
-                          <div className='flex gap-2'>
-                            <Input
-                              className='bg-blue-50 h-9 text-xs'
-                              placeholder='Service Code'
-                              value={row.serviceCode}
-                              onChange={(e) =>
-                                updateItem(idx, 'serviceCode', e.target.value)
-                              }
-                            />
-                            <Select
-                              value={row.unitOfMeasure}
-                              onValueChange={(v) =>
-                                updateItem(idx, 'unitOfMeasure', v)
-                              }
-                            >
-                              <SelectTrigger className='bg-blue-50 h-9 text-xs w-24'>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {unitOfMeasures.map((u) => (
-                                  <SelectItem
-                                    key={u.value}
-                                    value={u.value}
-                                  >
-                                    {u.displayText}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </TableCell>
-                      {/* Quantity */}
-                      <TableCell>
-                        <Input
-                          type='number'
-                          className='bg-blue-50 h-9 text-xs'
-                          value={row.quantity}
-                          onChange={(e) =>
-                            updateItem(
-                              idx,
-                              'quantity',
-                              parseNumber(e.target.value)
-                            )
-                          }
-                        />
-                      </TableCell>
-                      {/* Rate */}
-                      <TableCell>
-                        <Input
-                          type='number'
-                          className='bg-blue-50 h-9 text-xs'
-                          value={row.unitRate}
-                          onChange={(e) =>
-                            updateItem(idx, 'unitRate', e.target.value)
-                          }
-                        />
-                      </TableCell>
-                      {/* Discount */}
-                      <TableCell>
-                        <div className='flex gap-2'>
-                          <Button
-                            variant='secondary'
-                            size='sm'
-                            onClick={() =>
-                              updateItem(
-                                idx,
-                                'discountType',
-                                row.discountType === 'PERC' ? 'NUMBER' : 'PERC'
-                              )
-                            }
-                          >
-                            {row.discountType === 'PERC'
-                              ? 'PERC %'
-                              : 'Number #'}
-                          </Button>
-                          <Input
-                            type='number'
-                            className='bg-blue-50 h-9 text-xs w-20'
-                            value={row.discount}
-                            onChange={(e) =>
-                              updateItem(idx, 'discount', e.target.value)
-                            }
-                          />
-                        </div>
-                      </TableCell>
-                      {/* VAT */}
-                      <TableCell>
-                        <Input
-                          type='number'
-                          className='bg-blue-50 h-9 text-xs'
-                          value={row.taxRate}
-                          onChange={(e) =>
-                            updateItem(idx, 'taxRate', Number(e.target.value))
-                          }
-                        />
-                      </TableCell>
-                      {/* Tax Code */}
-                      <TableCell>
-                        <Select
-                          value={row.taxCode}
-                          onValueChange={(v) => updateItem(idx, 'taxCode', v)}
-                        >
-                          <SelectTrigger className='bg-blue-50 h-9 text-xs'>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {taxCodes.map((tc) => (
-                              <SelectItem
-                                key={tc.value}
-                                value={tc.value}
-                              >
-                                {tc.displayText}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      {/* Total */}
-                      <TableCell>
-                        <div className='font-semibold text-sm'>
-                          {formatNumber(totalAmount)}
-                        </div>
-                        <div className='text-[11px] text-gray-500'>
-                          VAT: {formatNumber(vatAmount)}
-                        </div>
-                      </TableCell>
-                      {/* Remove */}
-                      <TableCell>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          onClick={() => removeItem(idx)}
-                        >
-                          <X className='h-4 w-4 text-red-500' />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Mobile View */}
-          <div className='md:hidden space-y-3'>
-            {items.map((row, idx) => (
-              <div
-                key={idx}
-                className='border rounded-lg p-3 space-y-2 bg-white'
-              >
-                <div className='flex justify-between text-xs font-semibold'>
-                  <span>Item #{idx + 1}</span>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={() => removeItem(idx)}
-                  >
-                    <X className='h-4 w-4 text-red-500' />
-                  </Button>
-                </div>
-
-                <Input
-                  className='bg-blue-50 h-9 text-xs'
-                  placeholder='Description'
-                  value={row.description}
-                  onChange={(e) =>
-                    updateItem(idx, 'description', e.target.value)
-                  }
-                />
-
-                <div className='grid grid-cols-2 gap-2'>
-                  <Input
-                    type='number'
-                    className='bg-blue-50 h-9 text-xs'
-                    placeholder='Qty'
-                    value={row.quantity}
-                    onChange={(e) =>
-                      updateItem(idx, 'quantity', parseNumber(e.target.value))
-                    }
-                  />
-                  <Input
-                    type='number'
-                    className='bg-blue-50 h-9 text-xs'
-                    placeholder='Rate'
-                    value={row.unitRate}
-                    onChange={(e) =>
-                      updateItem(idx, 'unitRate', e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Footer */}
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={addItem}
-          >
-            <Plus className='h-4 w-4 mr-2' />
-            Add Item
-          </Button>
         </div>
+        {/* total amounts in words section */}
+
+        <InvoiceFormPage />
       </form>
     </div>
   );
