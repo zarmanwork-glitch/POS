@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitch from '@/components/base-components/LanguageSwitch';
 import { Spinner } from '@/components/ui/spinner';
+import { Separator } from '@/components/ui/separator';
 
 export default function SignUpPage() {
   const { t } = useTranslation();
@@ -38,9 +39,9 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className='min-h-screen grid grid-cols-1 md:grid-cols-[55%_45%]'>
+    <div className='grid min-h-screen grid-cols-1 lg:grid-cols-[55%_45%] bg-white'>
       {/* Left: Image (55%) */}
-      <div className='hidden md:block relative '>
+      <div className='relative hidden lg:block bg-gray-50 overflow-hidden'>
         <Image
           src={loginBackground}
           alt='Login background illustration'
@@ -51,24 +52,24 @@ export default function SignUpPage() {
       </div>
 
       {/* Right: Form (45%) */}
-      <div className='flex items-center justify-center bg-white'>
-        <div className='w-full max-w-md px-6 py-10'>
-          <div className='flex justify-end mb-4'>
+      <div className='flex items-center justify-center py-8 px-6 lg:py-0 lg:px-8'>
+        <div className='w-full max-w-sm space-y-8'>
+          {/* Language Switch */}
+          <div className='flex justify-end'>
             <LanguageSwitch />
           </div>
+
           {/* Header */}
-          <div className='mb-8 text-center'>
+          <div className='text-center space-y-2'>
             <h1 className='text-3xl font-bold text-gray-900'>
               {t('auth.signUp.brand')}
             </h1>
-            <p className='text-gray-500 text-sm mt-1'>
-              {t('auth.signUp.subtitle')}
-            </p>
+            <p className='text-sm text-gray-600'>{t('auth.signUp.subtitle')}</p>
           </div>
 
           {/* Form */}
           <form
-            className='space-y-5'
+            className='space-y-[clamp(1rem,2vw,1.5rem)]'
             onSubmit={handleSubmit}
           >
             {/* Email */}
@@ -77,7 +78,7 @@ export default function SignUpPage() {
                 {t('auth.signUp.emailLabel')}
               </label>
               <div className='relative'>
-                <Mail className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
+                <Mail className='absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400' />
                 <Input
                   type='email'
                   placeholder={t('auth.signUp.emailPlaceholder')}
@@ -95,7 +96,7 @@ export default function SignUpPage() {
                 {t('auth.signUp.passwordLabel')}
               </label>
               <div className='relative'>
-                <Lock className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
+                <Lock className='absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400' />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   placeholder={
@@ -109,12 +110,12 @@ export default function SignUpPage() {
                 <button
                   type='button'
                   onClick={() => setShowPassword(!showPassword)}
-                  className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400'
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
                 >
                   {showPassword ? (
-                    <EyeOff className='h-4 w-4' />
+                    <EyeOff className='h-5 w-5' />
                   ) : (
-                    <Eye className='h-4 w-4' />
+                    <Eye className='h-5 w-5' />
                   )}
                 </button>
               </div>
@@ -126,7 +127,7 @@ export default function SignUpPage() {
                 {t('auth.signUp.confirmPasswordLabel')}
               </label>
               <div className='relative'>
-                <Lock className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
+                <Lock className='absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400' />
                 <Input
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder={
@@ -140,54 +141,64 @@ export default function SignUpPage() {
                 <button
                   type='button'
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400'
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
                 >
                   {showConfirmPassword ? (
-                    <EyeOff className='h-4 w-4' />
+                    <EyeOff className='h-5 w-5' />
                   ) : (
-                    <Eye className='h-4 w-4' />
+                    <Eye className='h-5 w-5' />
                   )}
                 </button>
               </div>
             </div>
 
             {/* Checkboxes */}
-            <div className='flex items-center space-x-2'>
-              <Checkbox id='show-password' />
-              <label
-                htmlFor='show-password'
-                className='text-sm text-gray-600'
-              >
-                {t('auth.signUp.showPassword')}
-              </label>
-            </div>
+            <div className='space-y-3'>
+              <div className='flex items-center space-x-2'>
+                <Checkbox id='show-password' />
+                <label
+                  htmlFor='show-password'
+                  className='text-sm text-gray-600'
+                >
+                  {t('auth.signUp.showPassword')}
+                </label>
+              </div>
 
-            <div className='flex items-center space-x-2'>
-              <Checkbox id='robot' />
-              <span className='text-sm text-gray-600'>
-                {t('auth.signUp.robot')}
-              </span>
+              <div className='flex items-center space-x-2'>
+                <Checkbox id='robot' />
+                <span className='text-sm text-gray-600'>
+                  {t('auth.signUp.robot')}
+                </span>
+              </div>
             </div>
 
             {/* Submit */}
+            <div className='flex items-center gap-3'>
+              <Separator className='flex-1' />
+              <span className='text-sm text-gray-500 px-2'>
+                {t('auth.signIn.or')}
+              </span>
+              <Separator className='flex-1' />
+            </div>
+
             <Button
               type='submit'
               disabled={isLoading}
-              className='w-full bg-blue-700 text-white hover:bg-blue-800'
+              className='w-full bg-blue-700 text-white hover:bg-blue-800 py-2'
             >
               {isLoading ? (
-                <Spinner className='h-5 w-5 text-white mx-auto' />
+                <Spinner className='h-5 w-5 text-white' />
               ) : (
                 t('auth.signUp.signUp')
               )}
             </Button>
 
-            {/* Link */}
+            {/* Sign In Link */}
             <p className='text-center text-sm text-gray-600'>
               {t('auth.signUp.haveAccount')}{' '}
               <Link
                 href='/sign-in'
-                className='font-semibold text-blue-600'
+                className='font-semibold text-blue-600 hover:text-blue-700 transition-colors'
               >
                 {t('auth.signIn.signIn')}
               </Link>

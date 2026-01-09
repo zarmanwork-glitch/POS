@@ -55,7 +55,7 @@ export default function BusinessDetailsFormPage() {
       email: '',
       phoneNumber: '',
       companyNameLocal: '',
-      isVatRegistered: '',
+      isVatRegistered: 'yes',
       country: '',
       addressStreet: '',
       addressStreetAdditional: '',
@@ -71,6 +71,8 @@ export default function BusinessDetailsFormPage() {
       groupVatNumber: '',
       identificationType: '',
       identificationNumber: '',
+      refundPolicy: '',
+      refundPolicyLocal: '',
     },
     validationSchema,
     onSubmit: handleAddBusinessDetails,
@@ -125,6 +127,14 @@ export default function BusinessDetailsFormPage() {
             if (data.logoUrl) {
               setExistingLogoUrl(data.logoUrl);
               setLogoPreview(data.logoUrl);
+            }
+
+            // Set refund policy fields if available
+            if (data.refundPolicy) {
+              formik.setFieldValue('refundPolicy', data.refundPolicy);
+            }
+            if (data.refundPolicyLocal) {
+              formik.setFieldValue('refundPolicyLocal', data.refundPolicyLocal);
             }
           }
         } catch (error) {
@@ -230,6 +240,14 @@ export default function BusinessDetailsFormPage() {
       }
       if (values.identificationNumber) {
         payload.identificationNumber = values.identificationNumber;
+      }
+
+      // Always include refund policy fields if they have values
+      if (values.refundPolicy) {
+        payload.refundPolicy = values.refundPolicy;
+      }
+      if (values.refundPolicyLocal) {
+        payload.refundPolicyLocal = values.refundPolicyLocal;
       }
 
       // If id exists, update otherwise create new

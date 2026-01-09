@@ -34,7 +34,7 @@ function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   };
 
   return (
-    <nav className='sticky top-0 z-50 h-18 w-full border-b flex items-center justify-between px-6 shadow-md bg-white'>
+    <nav className='sticky top-0 z-30 h-18 w-full border-b flex items-center justify-between px-6 shadow-md bg-white'>
       {/* Left */}
       <div className='flex items-center gap-3'>
         <Button

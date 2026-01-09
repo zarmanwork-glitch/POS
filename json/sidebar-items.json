@@ -31,14 +31,5 @@
     "label": "Customers",
     "href": "/customers/customer-list",
     "icon": "Users"
-  },
-
-  {
-    "label": "Reports",
-    "icon": "BarChart2",
-    "children": [
-      { "label": "Compliance", "href": "/reports/compliance" },
-      { "label": "Analytics", "href": "/reports/analytics" }
-    ]
   }
 ]

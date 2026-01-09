@@ -17,6 +17,7 @@ import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitch from '@/components/base-components/LanguageSwitch';
 import { Spinner } from '@/components/ui/spinner';
+import { Separator } from '@/components/ui/separator';
 
 // Error code mapping to i18n keys
 const ERROR_CODE_MAP: Record<string, string> = {
@@ -106,9 +107,9 @@ export default function SignInPage() {
   });
 
   return (
-    <div className='min-h-screen grid grid-cols-1 md:grid-cols-[55%_45%]'>
+    <div className='grid min-h-screen grid-cols-1 lg:grid-cols-[55%_45%] bg-white'>
       {/* Left Side - Background Image */}
-      <div className='hidden md:block relative '>
+      <div className='relative hidden lg:block bg-gray-50 overflow-hidden'>
         <Image
           src={loginBackground}
           alt='Login background illustration'
@@ -119,24 +120,24 @@ export default function SignInPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className='flex flex-col items-center justify-center bg-white h-screen md:h-auto'>
-        <div className='w-full max-w-md overflow-y-auto max-h-[80vh] md:max-h-none px-6 md:px-8 lg:px-12 py-6 md:py-8 lg:py-12'>
-          <div className='flex justify-end mb-4'>
+      <div className='flex items-center justify-center py-8 px-6 lg:py-0 lg:px-8'>
+        <div className='w-full max-w-sm space-y-8'>
+          {/* Language Switch */}
+          <div className='flex justify-end'>
             <LanguageSwitch />
           </div>
+
           {/* Logo/Brand */}
-          <div className='mb-8 text-center'>
-            <h1 className='text-2xl md:text-3xl font-bold text-gray-900 mb-2'>
+          <div className='text-center space-y-2'>
+            <h1 className='text-3xl font-bold text-gray-900'>
               {t('auth.signIn.brand')}
             </h1>
-            <p className='text-gray-500 text-sm md:text-base'>
-              {t('auth.signIn.subtitle')}
-            </p>
+            <p className='text-sm text-gray-600'>{t('auth.signIn.subtitle')}</p>
           </div>
 
           {/* Form */}
           <form
-            className='space-y-5 md:space-y-6'
+            className='space-y-[clamp(1rem,2vw,1.5rem)]'
             onSubmit={formik.handleSubmit}
           >
             {/* Email Field */}
@@ -148,7 +149,7 @@ export default function SignInPage() {
                 {t('auth.signIn.emailLabel')}
               </Label>
               <div className='relative'>
-                <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 md:h-5 md:w-5' />
+                <Mail className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5' />
                 <Input
                   id='email'
                   name='email'
@@ -158,7 +159,7 @@ export default function SignInPage() {
                   value={formik.values.email}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className='pl-10 bg-yellow-50 border-yellow-200 text-sm md:text-base'
+                  className='pl-10 bg-yellow-50 border-yellow-200'
                 />
               </div>
               {formik.touched.email && formik.errors.email && (
@@ -175,7 +176,7 @@ export default function SignInPage() {
                 {t('auth.signIn.passwordLabel')}
               </Label>
               <div className='relative'>
-                <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 md:h-5 md:w-5' />
+                <Lock className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5' />
                 <Input
                   id='password'
                   name='password'
@@ -185,17 +186,17 @@ export default function SignInPage() {
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className='pl-10 pr-10 bg-yellow-50 border-yellow-200 text-sm md:text-base'
+                  className='pl-10 pr-10 bg-yellow-50 border-yellow-200'
                 />
                 <button
                   type='button'
                   onClick={() => setShowPassword(!showPassword)}
-                  className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition'
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
                 >
                   {showPassword ? (
-                    <EyeOff className='h-4 w-4 md:h-5 md:w-5' />
+                    <EyeOff className='h-5 w-5' />
                   ) : (
-                    <Eye className='h-4 w-4 md:h-5 md:w-5' />
+                    <Eye className='h-5 w-5' />
                   )}
                 </button>
               </div>
@@ -204,11 +205,11 @@ export default function SignInPage() {
               )}
             </div>
 
-            {/* Show Password & Forgot Password */}
-            <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2'>
+            {/* Forgot Password Link */}
+            <div className='flex justify-end'>
               <Link
                 href='#'
-                className='text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium transition'
+                className='text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors'
               >
                 {t('auth.signIn.forgotPassword')}
               </Link>
@@ -217,7 +218,7 @@ export default function SignInPage() {
             {/* reCAPTCHA Notice */}
             <div className='flex items-center space-x-2'>
               <Checkbox id='recaptcha' />
-              <span className='text-xs text-gray-600'>
+              <span className='text-sm text-gray-600'>
                 {t('auth.signIn.robot')}
               </span>
             </div>
@@ -226,35 +227,30 @@ export default function SignInPage() {
             <Button
               type='submit'
               disabled={isLoading || !formik.isValid}
-              className='w-full bg-blue-700 text-white hover:bg-blue-800 text-base py-2 transition disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full bg-blue-700 text-white hover:bg-blue-800 py-2 transition disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isLoading ? (
-                <Spinner className='h-5 w-5 text-white mx-auto' />
+                <Spinner className='h-5 w-5 text-white' />
               ) : (
                 t('auth.signIn.signIn')
               )}
             </Button>
 
             {/* Divider */}
-            <div className='relative'>
-              <div className='absolute inset-0 flex items-center'>
-                <div className='w-full border-t border-gray-300'></div>
-              </div>
-              <div className='relative flex justify-center text-sm'>
-                <span className='px-2 bg-white text-gray-500'>
-                  {t('auth.signIn.or')}
-                </span>
-              </div>
+            <div className='flex items-center gap-3'>
+              <Separator className='flex-1' />
+              <span className='text-sm text-gray-500 px-2'>
+                {t('auth.signIn.or')}
+              </span>
+              <Separator className='flex-1' />
             </div>
 
-            {/* Alternative Login */}
-
             {/* Sign Up Link */}
-            <p className='text-center text-xs md:text-sm text-gray-600'>
+            <p className='text-center text-sm text-gray-600'>
               {t('auth.signIn.noAccount')}{' '}
               <Link
                 href='/sign-up'
-                className='font-semibold text-blue-600 hover:text-blue-700 transition'
+                className='font-semibold text-blue-600 hover:text-blue-700 transition-colors'
               >
                 {t('auth.signUp.signUp')}
               </Link>

@@ -1,3 +1,5 @@
+import { Invoice } from '@/hooks/useInvoiceListData';
+import { useTranslation } from 'react-i18next';
 export type BusinessDetail = {
   id?: string;
   _id?: string;
@@ -58,3 +60,15 @@ export type InvoiceFormValues = {
   customer_id: string;
   currency: string;
 };
+
+export interface InvoiceTableProps {
+  invoices: Invoice[];
+  loading: boolean;
+  page: number;
+  limit: number;
+  onDownloadPdf: (invoiceId: string) => void;
+  onPreview: (invoiceId: string) => void;
+  onViewDetails: (invoiceId: string) => void;
+  onEmailInvoice: (invoiceId: string) => void;
+  t: ReturnType<typeof useTranslation>[0];
+}

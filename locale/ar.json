@@ -283,10 +283,10 @@
     "delete": "حذف",
     "table": {
       "no": "#",
-      "invoice": "الفاتورة",
-      "date": "التاريخ",
-      "customer": "العميل",
-      "total": "الإجمالي",
+      "invoice": "بيانات الفاتورة",
+      "customer": "بيانات العميل",
+      "dueDate": "تاريخ الاستحقاق",
+      "amount": "المبلغ",
       "status": "الحالة",
       "actions": "الإجراءات"
     },
@@ -355,7 +355,23 @@
       "identification": "الهوية",
       "identificationType": "نوع الهوية",
       "identificationNumber": "رقم الهوية",
-      "noResultsFound": "لم يتم العثور على نتائج"
+      "noResultsFound": "لم يتم العثور على نتائج",
+      "invoiceNumberLabel": "رقم الفاتورة (اختياري):",
+      "invoiceDateLabel": "تاريخ الفاتورة:",
+      "supplyDateLabel": "تاريخ التوريد:",
+      "errors": {
+        "invoiceDateRequired": "حقل تاريخ الفاتورة مطلوب",
+        "invoiceDateInvalid": "يجب أن يكون تاريخ الفاتورة تاريخًا صالحًا",
+        "dueDateRequired": "حقل تاريخ الاستحقاق مطلوب",
+        "dueDateInvalid": "يجب أن يكون تاريخ الاستحقاق تاريخًا صالحًا",
+        "supplyDateRequired": "حقل تاريخ التوريد مطلوب",
+        "supplyDateInvalid": "يجب أن يكون تاريخ التوريد تاريخًا صالحًا",
+        "supplyDateMin": "يجب أن يكون تاريخ التوريد في نفس يوم أو بعد تاريخ الفاتورة",
+        "supplyEndDateInvalid": "يجب أن يكون تاريخ نهاية التوريد تاريخًا صالحًا",
+        "supplyEndDateMin": "يجب أن يكون تاريخ نهاية التوريد في نفس يوم أو بعد تاريخ التوريد",
+        "paymentMeansRequired": "حقل وسيلة الدفع مطلوب",
+        "paymentMeansInvalid": "يجب أن تكون وسيلة الدفع قيمة صحيحة"
+      }
     }
   }
 }

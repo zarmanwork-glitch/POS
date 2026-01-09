@@ -32,40 +32,44 @@ export default function ClientShell({
     }
   }, []);
 
+  if (isAuthPage) {
+    return (
+      <div className='grid min-h-screen bg-background'>
+        {children}
+        <Toaster
+          position='top-right'
+          theme='light'
+          richColors
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className='h-screen flex flex-col'>
-      {/* Navbar - Fixed at top - Hide on auth pages */}
-      {!isAuthPage && (
-        <div className='sticky top-0 z-10 lg:z-50'>
-          <Navbar onMenuClick={() => setMobileOpen(true)} />
-        </div>
-      )}
+    <div className='grid min-h-screen grid-rows-[auto_1fr] bg-background'>
+      {/* Navbar */}
+      <header className='sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 row-start-1 row-end-2'>
+        <Navbar onMenuClick={() => setMobileOpen(true)} />
+      </header>
 
-      {/* Sidebar + Main Content */}
-      <div className={`flex ${isAuthPage ? '' : 'flex-1 overflow-hidden'}`}>
-        {/* Sidebar - Fixed on the left - Hide on auth pages */}
-        {!isAuthPage && (
-          <>
-            <Sidebar
-              collapsed={collapsed}
-              mobileOpen={mobileOpen}
-              onClose={() => setMobileOpen(false)}
-              onToggle={() => setCollapsed((v) => !v)}
-            />
-            {/* Resize handle - desktop only */}
-            <div className='resize-handle hidden lg:block absolute top-0 right-0 h-full w-1 cursor-col-resize hover:bg-blue-500/30' />
-          </>
-        )}
+      {/* Main Grid: Sidebar + Content */}
+      <div className='grid grid-cols-[auto_1fr] overflow-hidden row-start-2 row-end-3'>
+        {/* Sidebar */}
+        <Sidebar
+          collapsed={collapsed}
+          mobileOpen={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          onToggle={() => setCollapsed((v) => !v)}
+        />
 
-        {/* Main Content - Only this scrolls */}
-        <main
-          className={`${
-            isAuthPage ? 'w-full' : 'flex-1 overflow-y-auto p-8 2xl:p-10'
-          } `}
-        >
-          {children}
+        {/* Main Content */}
+        <main className='overflow-y-auto col-start-2 col-end-3'>
+          <div className='h-full px-[clamp(1rem,5vw,2.5rem)] py-[clamp(1rem,4vw,2.5rem)]'>
+            {children}
+          </div>
         </main>
       </div>
+
       <Toaster
         position='top-right'
         theme='light'

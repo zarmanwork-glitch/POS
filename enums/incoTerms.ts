@@ -10,5 +10,5 @@ export const incoTerms = [
   { value: 'dpu', displayText: 'DPU' },
   { value: 'dap', displayText: 'DAP' },
   { value: 'ddp', displayText: 'DDP' },
-  { value: 'na', displayText: 'N/A' },
+  { value: 'na', displayText: 'NA' },
 ];

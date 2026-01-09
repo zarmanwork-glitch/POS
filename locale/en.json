@@ -283,10 +283,10 @@
     "delete": "Delete",
     "table": {
       "no": "No.",
-      "invoice": "Invoice",
-      "date": "Date",
-      "customer": "Customer",
-      "total": "Total",
+      "invoice": "Invoice Info",
+      "customer": "Customer Info",
+      "dueDate": "Due Date",
+      "amount": "Amount",
       "status": "Status",
       "actions": "Actions"
     },
@@ -355,7 +355,23 @@
       "identification": "Identification",
       "identificationType": "Identification Type",
       "identificationNumber": "Identification Number",
-      "noResultsFound": "No results found"
+      "noResultsFound": "No results found",
+      "invoiceNumberLabel": "Invoice Number (Optional):",
+      "invoiceDateLabel": "Invoice Date:",
+      "supplyDateLabel": "Supply Date:",
+      "errors": {
+        "invoiceDateRequired": "Invoice date is required",
+        "invoiceDateInvalid": "Invoice date must be a valid date",
+        "dueDateRequired": "Due date is required",
+        "dueDateInvalid": "Due date must be a valid date",
+        "supplyDateRequired": "Supply date is required",
+        "supplyDateInvalid": "Supply date must be a valid date",
+        "supplyDateMin": "Supply date must be on or after invoice date",
+        "supplyEndDateInvalid": "Supply end date must be a valid date",
+        "supplyEndDateMin": "Supply end date must be on or after supply date",
+        "paymentMeansRequired": "Payment means is required",
+        "paymentMeansInvalid": "Payment means must be a valid value"
+      }
     }
   }
 }

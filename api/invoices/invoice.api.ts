@@ -36,17 +36,29 @@ export const getInvoicesList = async ({
   offset = 0,
   limit = 10,
   filters = {},
+  startDate = '',
+  endDate = '',
 }: {
   token: string;
   offset?: number;
   limit?: number;
   filters?: any;
+  startDate?: string;
+  endDate?: string;
 }) => {
   const payload: any = {
     offSet: offset,
     limit,
     ...filters,
   };
+
+  // Add date filters if provided
+  if (startDate) {
+    payload.invoiceStartDate = startDate;
+  }
+  if (endDate) {
+    payload.invoiceEndDate = endDate;
+  }
 
   return api_client({
     token,
@@ -83,5 +95,6 @@ export const downloadInvoicePdf = async ({
     endpoint: backendApiEnums.ENDPOINTS.INVOICES.DOWNLOAD,
     method: backendApiEnums.METHODS.POST,
     payload: { id: invoiceId },
+    responseType: 'blob',
   });
 };

@@ -21,6 +21,7 @@ interface ApiGatewayParams {
   errorCallback?: (() => void) | null;
   directAction?: boolean;
   onUploadProgress?: ((progressEvent: AxiosProgressEvent) => void) | null;
+  responseType?: AxiosRequestConfig['responseType'];
 }
 
 export const api_client = async ({
@@ -36,6 +37,7 @@ export const api_client = async ({
   errorCallback = null,
   directAction = false,
   onUploadProgress = null,
+  responseType = 'json',
 }: ApiGatewayParams) => {
   const isFormData =
     typeof FormData !== 'undefined' && payload instanceof FormData;
@@ -48,13 +50,13 @@ export const api_client = async ({
     // allow explicit contentType for FormData if provided
     headers['Content-Type'] = contentType;
   }
-
   const config: AxiosRequestConfig = {
     method,
     url: `${process.env.NEXT_PUBLIC_API_BASE_URL}${endpoint}`,
     headers,
     ...(payload && { data: payload }),
     ...(onUploadProgress && { onUploadProgress }),
+    ...(responseType && { responseType }),
   };
 
   try {

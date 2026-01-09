@@ -1,8 +1,10 @@
 export const ApiKeys = [
   {
     auth: {
-      login_success: 'Login successful',
-      login_failed: 'Invalid email or password',
+      user_not_exist: 'User does not Exist',
+      account_blocked: 'Your Account is Blocked',
+      invalid_email_or_password: 'Invalid Email or password',
+      login_success: 'Login Successful',
     },
     items: {
       add_item_success: 'Item Added Successfully',
@@ -26,6 +28,8 @@ export const ApiKeys = [
       bank_details_unique_iban: 'A bank detail with the iban already exists',
       no_record_found: 'No Record Found',
       invalid_bank_detail_id: 'Bank Detail with id does not exit',
+      bank_detail_linked_with_invoice:
+        'You cannot delete bank detail as it is already linked with invoice',
     },
     business_details: {
       add_business_details_success: 'Business Details Added Successfully',
@@ -39,15 +43,8 @@ export const ApiKeys = [
       business_details_unique_email: 'A profile with the email already exists',
       business_detail_not_exist: 'Business detail does not exist',
       invalid_business_detail_id: 'Business Detail with id does not exist',
-    },
-    invoices: {
-      add_invoice_success: 'Invoice Added Successfully',
-      create_invoice_success: 'Invoice Added Successfully',
-      get_invoice_success: 'Invoice Fetched Successfully',
-      get_invoices_list_success: 'Invoices Data Fetched Successfully',
-      no_record_found: 'No Record Found',
-      invoice_not_exist: 'Invoice Does Not Exist',
-      invalid_invoice_id: 'Invoice with id does not exist',
+      business_detail_linked_with_invoice:
+        'You cannot delete business detail as it is already linked with invoice',
     },
     customers: {
       add_customer_success: 'Customer Added Successfully',
@@ -59,6 +56,20 @@ export const ApiKeys = [
       customer_unique_email: 'A customer with the email already exists',
       customer_not_exist: 'Customer does not exist',
       invalid_customer_id: 'Customer with id does not exist',
+    },
+    invoices: {
+      create_invoice_success: 'Invoice Created Successfully',
+      get_invoices_success: 'Invoices Fetched Successfully',
+      invoice_unique_invoiceNo:
+        'An invoice with the same invoice number already exists',
+      invalid_invoice_id: 'Invoice with id does not exist',
+      invoice_not_exist: 'Invoice does not exist',
+      get_invoice_by_id_success: 'Invoice Fetched Successfully',
+      no_record_found: 'No Record Found',
+      customer_linked_with_invoice:
+        'You cannot delete customer as it is already linked with invoice',
+      invoiceNetTotal_greater_than_zero:
+        'invoiceNetTotal must be greater than 0',
     },
   },
 ];
