@@ -359,6 +359,7 @@
       "invoiceNumberLabel": "Invoice Number (Optional):",
       "invoiceDateLabel": "Invoice Date:",
       "supplyDateLabel": "Supply Date:",
+
       "errors": {
         "invoiceDateRequired": "Invoice date is required",
         "invoiceDateInvalid": "Invoice date must be a valid date",

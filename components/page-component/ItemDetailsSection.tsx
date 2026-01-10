@@ -36,7 +36,7 @@ export default function ItemDetailsSection({
   taxCodes,
   updateItem,
   removeItem,
-  addItem,
+  addItemDetail,
   itemOptions,
   itemSearch,
   setItemSearch,
@@ -72,7 +72,7 @@ export default function ItemDetailsSection({
       updateItem(itemIndex, 'unitRate', selected.sellPrice || '');
       updateItem(itemIndex, 'discount', selected.discountPercentage || '');
       setItemSearch('');
-      setFocusedItemIdx(null);
+      setActiveDescriptionIdx(null);
     }
   };
 
@@ -459,7 +459,7 @@ export default function ItemDetailsSection({
       <Button
         variant='outline'
         size='sm'
-        onClick={addItem}
+        onClick={addItemDetail}
       >
         <Plus className='h-4 w-4 mr-2' />
         Add Item

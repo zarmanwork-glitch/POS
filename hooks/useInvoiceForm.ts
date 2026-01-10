@@ -18,7 +18,7 @@ export const useInvoiceForm = () => {
 
   const [logoPreview, setLogoPreview] = useState<string>('');
 
-  const addItem = () => {
+  const addItemDetail = () => {
     setItems((it) => [
       ...it,
       {
@@ -26,7 +26,7 @@ export const useInvoiceForm = () => {
         serviceCode: '',
         quantity: 1,
         unitRate: '',
-        unitOfMeasure: 'unit',
+        unitOfMeasure: '',
         discount: '',
         discountType: 'PERC',
         taxRate: 0,
@@ -54,7 +54,7 @@ export const useInvoiceForm = () => {
     setItems,
     logoPreview,
     setLogoPreview,
-    addItem,
+    addItemDetail,
     updateItem,
     removeItem,
   };

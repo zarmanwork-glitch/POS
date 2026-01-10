@@ -55,7 +55,7 @@ export default function ClientShell({
       {/* Main Grid: Sidebar + Content */}
       <div className='flex pt-16'>
         {/* Sidebar - Fixed */}
-        <div className='fixed left-0 top-16 bottom-0 z-100'>
+        <div className='fixed left-0 top-18 bottom-0 z-100'>
           <Sidebar
             collapsed={collapsed}
             mobileOpen={mobileOpen}

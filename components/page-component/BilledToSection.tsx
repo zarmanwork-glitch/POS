@@ -14,8 +14,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { SearchableDropdown } from '@/components/page-component/SearchableDropdown';
 
 interface Customer {
   id?: string;
@@ -58,6 +59,33 @@ export default function BilledToSection({
   t,
 }: BilledToSectionProps) {
   const router = useRouter();
+
+  const handleSelectCustomer = (customer: Customer) => {
+    const id = customer.id || customer._id || '';
+    formik.setFieldValue('customer_id', id);
+    setSelectedCustomer(customer);
+    setCustomerSearch('');
+    setCustomerFocused(false);
+  };
+
+  const handleClear = () => {
+    setSelectedCustomer(null);
+    formik.setFieldValue('customer_id', '');
+    setCustomerSearch('');
+  };
+
+  const customerOptionsForDropdown: any[] = customerOptions.map((c) => ({
+    value: c.id || c._id || '',
+    displayText: c.companyName || c.displayName || c.name || c.customerNumber,
+    description: [c.email, c.phoneNumber].filter(Boolean).join(' • '),
+    original: c,
+  }));
+
+  const displayName =
+    selectedCustomer?.companyName ||
+    selectedCustomer?.displayName ||
+    selectedCustomer?.name ||
+    selectedCustomer?.customerNumber;
 
   return (
     <div className='space-y-2'>
@@ -109,6 +137,43 @@ export default function BilledToSection({
         </div>
       </div>
 
+      {/* SearchableDropdown for customer selection */}
+      <SearchableDropdown
+        label={t('invoices.form.selectCustomer') || 'Choose Customer'}
+        placeholder={t('invoices.form.searchCustomer') || 'Search customer...'}
+        value={formik.values.customer_id || ''}
+        searchValue={customerSearch}
+        isOpen={customerFocused}
+        options={customerOptionsForDropdown}
+        onSearchChange={setCustomerSearch}
+        onFocus={() => setCustomerFocused(true)}
+        onBlur={() => setTimeout(() => setCustomerFocused(false), 150)}
+        onSelect={(option) => {
+          const originalCustomer = customerOptions.find(
+            (c) => (c.id || c._id) === option.value
+          );
+          if (originalCustomer) {
+            handleSelectCustomer(originalCustomer);
+          }
+        }}
+        onClear={handleClear}
+        error={String(formik.errors.customer_id)}
+        touched={formik.touched.customer_id}
+        isSelected={!!selectedCustomer}
+        selectedDisplayValue={displayName}
+        renderOption={(option) => (
+          <div>
+            <span className='font-bold'>{option.displayText}</span>
+            {option.description && (
+              <div className='text-gray-500 text-xs mt-0.5'>
+                {option.description}
+              </div>
+            )}
+          </div>
+        )}
+      />
+
+      {/* Customer Details Display */}
       {selectedCustomer && (
         <div className='border border-gray-200 rounded-lg overflow-hidden'>
           <div className='bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between'>
@@ -117,18 +182,10 @@ export default function BilledToSection({
               <span className='text-red-500'>*</span>
             </span>
             <div className='flex items-center gap-2'>
-              <span className='text-sm text-gray-700'>
-                {selectedCustomer.companyName ||
-                  selectedCustomer.displayName ||
-                  selectedCustomer.name ||
-                  selectedCustomer.customerNumber}
-              </span>
+              <span className='text-sm text-gray-700'>{displayName}</span>
               <button
                 type='button'
-                onClick={() => {
-                  setSelectedCustomer(null);
-                  formik.setFieldValue('customer_id', '');
-                }}
+                onClick={handleClear}
                 className='text-gray-400 hover:text-gray-600'
               >
                 <X className='h-4 w-4' />
@@ -138,9 +195,9 @@ export default function BilledToSection({
 
           <div className='p-4 space-y-3'>
             <div>
-              <div className='text-xs text-gray-600 font-medium mb-2'>
+              <Label className='text-xs text-gray-600 font-medium mb-2'>
                 {t('invoices.form.identification')}
-              </div>
+              </Label>
               <div className='grid grid-cols-2 gap-2'>
                 <Input
                   placeholder={t('invoices.form.identificationType')}
@@ -214,82 +271,6 @@ export default function BilledToSection({
           </div>
         </div>
       )}
-
-      {!selectedCustomer && (
-        <div className='relative space-y-1'>
-          <Label
-            htmlFor='business-detail'
-            className='text-sm font-medium text-gray-500'
-          >
-            Choose Customer: <span className='text-red-500'>*</span>
-          </Label>
-          <Input
-            className='bg-blue-50 h-10 pr-10'
-            placeholder={t('invoices.form.searchCustomer')}
-            value={customerSearch}
-            onChange={(e) => setCustomerSearch(e.target.value)}
-            onFocus={() => setCustomerFocused(true)}
-            onBlur={() => setTimeout(() => setCustomerFocused(false), 200)}
-          />
-          <Search className='absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none' />
-
-          {customerFocused &&
-            (customerSearch
-              ? filteredCustomerOptions.length > 0
-              : customerOptions.length > 0) && (
-              <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto'>
-                {(customerSearch
-                  ? filteredCustomerOptions
-                  : customerOptions
-                ).map((c) => {
-                  const id = c.id || c._id || '';
-                  const primary =
-                    c.companyName ||
-                    c.displayName ||
-                    c.name ||
-                    c.customerNumber ||
-                    id;
-                  const secondary = [c.email || c.phoneNumber]
-                    .filter(Boolean)
-                    .join(' • ');
-
-                  return (
-                    <button
-                      key={id}
-                      type='button'
-                      onClick={() => {
-                        formik.setFieldValue('customer_id', id);
-                        setSelectedCustomer(c);
-                        setCustomerSearch('');
-                        setCustomerFocused(false);
-                      }}
-                      className='w-full text-left px-4 py-2 hover:bg-blue-50 border-b last:border-b-0'
-                    >
-                      <div className='text-sm font-medium text-gray-800'>
-                        {primary}
-                      </div>
-                      {secondary && (
-                        <div className='text-xs text-gray-500'>{secondary}</div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          {customerFocused &&
-            customerSearch &&
-            filteredCustomerOptions.length === 0 && (
-              <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-4 py-2 text-sm text-gray-500'>
-                {t('invoices.form.noResultsFound')}
-              </div>
-            )}
-        </div>
-      )}
-      {formik.touched.customer_id && formik.errors.customer_id ? (
-        <div className='text-sm text-red-500'>
-          {String(formik.errors.customer_id)}
-        </div>
-      ) : null}
     </div>
   );
 }

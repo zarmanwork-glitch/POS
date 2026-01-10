@@ -12,10 +12,9 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Search, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { SearchableDropdown } from '@/components/page-component/SearchableDropdown';
+import { DetailsDisplayCard } from '@/components/base-components/DetailsDisplayCard';
 
 interface BankDetail {
   id?: string;
@@ -54,6 +53,52 @@ export default function PaymentInfoSection({
   t,
 }: PaymentInfoSectionProps) {
   const router = useRouter();
+
+  const handleSelectBank = (bank: BankDetail) => {
+    const id = bank.id || bank._id || '';
+    formik.setFieldValue('bank_detail_id', id);
+    setSelectedBank(bank);
+    setBankSearch('');
+    setBankFocused(false);
+  };
+
+  const handleClear = () => {
+    setSelectedBank(null);
+    formik.setFieldValue('bank_detail_id', '');
+    setBankSearch('');
+  };
+
+  const bankOptionsForDropdown: any[] = bankOptions.map((b) => ({
+    value: b.id || b._id || '',
+    displayText: b.bankName || b.accountNumber,
+    description: [
+      b.accountNumber && b.accountNumber !== (b.bankName || b.accountNumber)
+        ? b.accountNumber
+        : null,
+      b.country,
+    ]
+      .filter(Boolean)
+      .join(' • '),
+    original: b,
+  }));
+
+  const displayName =
+    selectedBank?.bankName || selectedBank?.accountNumber || 'Bank';
+
+  const bankDetailRows = [
+    { label: t('invoices.form.bankName'), value: selectedBank?.bankName },
+    {
+      label: t('invoices.form.beneficiaryName'),
+      value: selectedBank?.beneficiaryName,
+    },
+    {
+      label: t('invoices.form.accountNumber') || 'Account',
+      value: selectedBank?.accountNumber,
+    },
+    { label: t('invoices.form.country'), value: selectedBank?.country },
+    { label: t('invoices.form.swiftCode'), value: selectedBank?.swiftCode },
+    { label: 'IBAN', value: selectedBank?.iban },
+  ];
 
   return (
     <div className='space-y-2'>
@@ -105,145 +150,51 @@ export default function PaymentInfoSection({
         </div>
       </div>
 
-      {selectedBank && (
-        <div className='border border-gray-200 rounded-lg overflow-hidden'>
-          <div className='bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between'>
-            <span className='text-sm text-gray-700 font-medium'>
-              {t('invoices.form.selectPaymentDetails')}:
-            </span>
-            <div className='flex items-center gap-2'>
-              <span className='text-sm text-gray-700'>
-                {selectedBank.bankName || selectedBank.accountNumber || 'Bank'}
-              </span>
-              <button
-                type='button'
-                onClick={() => {
-                  setSelectedBank(null);
-                  formik.setFieldValue('bank_detail_id', '');
-                }}
-                className='text-gray-400 hover:text-gray-600'
-              >
-                <X className='h-4 w-4' />
-              </button>
-            </div>
-          </div>
-
-          <div className='p-4'>
-            <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>
-              {(() => {
-                const rows = [
-                  {
-                    label: t('invoices.form.bankName'),
-                    value: selectedBank.bankName || '-',
-                  },
-                  {
-                    label: t('invoices.form.beneficiaryName'),
-                    value: selectedBank.beneficiaryName || '-',
-                  },
-                  {
-                    label: t('invoices.form.accountNumber') || 'Account',
-                    value: selectedBank.accountNumber || '-',
-                  },
-                  {
-                    label: t('invoices.form.country'),
-                    value: selectedBank.country || '-',
-                  },
-                  {
-                    label: t('invoices.form.swiftCode'),
-                    value: selectedBank.swiftCode || '-',
-                  },
-                  { label: 'IBAN', value: selectedBank.iban || '-' },
-                ];
-
-                return (
-                  <div className='divide-y divide-gray-200'>
-                    {rows.map((r, i) => (
-                      <div
-                        key={i}
-                        className={`flex items-start px-4 py-3 ${
-                          i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                        }`}
-                      >
-                        <div className='w-1/3 text-gray-600 font-medium'>
-                          {r.label}:
-                        </div>
-                        <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
-                          {r.value}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!selectedBank && (
-        <div className='relative space-y-1'>
-          <Label
-            htmlFor='payment'
-            className='text-sm font-medium text-gray-500'
-          >
-            Payment Profile:<span className='text-red-500'>*</span>
-          </Label>
-          <Input
-            className='bg-blue-50 h-10 pr-10'
-            placeholder={t('invoices.form.searchBank')}
-            value={bankSearch}
-            onChange={(e) => setBankSearch(e.target.value)}
-            onFocus={() => setBankFocused(true)}
-            onBlur={() => setTimeout(() => setBankFocused(false), 200)}
-          />
-          <Search className='absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none' />
-
-          {bankFocused &&
-            (bankSearch
-              ? filteredBankOptions.length > 0
-              : bankOptions.length > 0) && (
-              <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto'>
-                {(bankSearch ? filteredBankOptions : bankOptions).map((b) => {
-                  const id = b.id || b._id || '';
-                  const primary = b.bankName || b.accountNumber || id;
-                  const secondary = [
-                    b.accountNumber && b.accountNumber !== primary
-                      ? b.accountNumber
-                      : null,
-                    b.country,
-                  ]
-                    .filter(Boolean)
-                    .join(' • ');
-
-                  return (
-                    <button
-                      key={id}
-                      type='button'
-                      onClick={() => {
-                        setSelectedBank(b);
-                        formik.setFieldValue('bank_detail_id', id);
-                        setBankSearch('');
-                        setBankFocused(false);
-                      }}
-                      className='w-full text-left px-4 py-2 hover:bg-blue-50 border-b last:border-b-0'
-                    >
-                      <div className='text-sm font-medium text-gray-800'>
-                        {primary}
-                      </div>
-                      {secondary && (
-                        <div className='text-xs text-gray-500'>{secondary}</div>
-                      )}
-                    </button>
-                  );
-                })}
+      {/* SearchableDropdown for bank selection */}
+      <SearchableDropdown
+        label={t('invoices.form.selectPaymentDetails') || 'Payment Profile'}
+        placeholder={t('invoices.form.searchBank') || 'Search bank...'}
+        value={formik.values.bank_detail_id || ''}
+        searchValue={bankSearch}
+        isOpen={bankFocused}
+        options={bankOptionsForDropdown}
+        onSearchChange={setBankSearch}
+        onFocus={() => setBankFocused(true)}
+        onBlur={() => setTimeout(() => setBankFocused(false), 150)}
+        onSelect={(option) => {
+          const originalBank = bankOptions.find(
+            (b) => (b.id || b._id) === option.value
+          );
+          if (originalBank) {
+            handleSelectBank(originalBank);
+          }
+        }}
+        onClear={handleClear}
+        error={String(formik.errors.bank_detail_id)}
+        touched={formik.touched.bank_detail_id}
+        isSelected={!!selectedBank}
+        selectedDisplayValue={displayName}
+        renderOption={(option) => (
+          <div>
+            <span className='font-bold'>{option.displayText}</span>
+            {option.description && (
+              <div className='text-gray-500 text-xs mt-0.5'>
+                {option.description}
               </div>
             )}
-          {bankFocused && bankSearch && filteredBankOptions.length === 0 && (
-            <div className='absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 px-4 py-2 text-sm text-gray-500'>
-              {t('invoices.form.noResultsFound')}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+      />
+
+      {/* Bank Details Display */}
+      {selectedBank && (
+        <DetailsDisplayCard
+          title={t('invoices.form.selectPaymentDetails')}
+          displayName={displayName}
+          onClear={handleClear}
+          detailRows={bankDetailRows}
+          showIdentification={false}
+        />
       )}
     </div>
   );

@@ -14,17 +14,8 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { X } from 'lucide-react';
+import { SearchableDropdown } from '@/components/page-component/SearchableDropdown';
 
 interface BusinessDetail {
   id?: string;
@@ -70,7 +61,6 @@ export default function BilledBySection({
   t,
 }: BilledBySectionProps) {
   const router = useRouter();
-  const [selectOpen, setSelectOpen] = useState(false);
   const [identificationType, setIdentificationType] = useState(
     selectedBusinessDetails?.identificationType || ''
   );
@@ -78,15 +68,14 @@ export default function BilledBySection({
     selectedBusinessDetails?.identificationNumber || ''
   );
 
-  const handleSelectChange = (value: string) => {
-    const selected = businessOptions.find((b) => (b.id || b._id) === value);
-    if (selected) {
-      formik.setFieldValue('business_detail_id', value);
-      setSelectedBusinessDetails(selected);
-      setIdentificationType(selected.identificationType || '');
-      setIdentificationNumber(selected.identificationNumber || '');
-    }
-    setSelectOpen(false);
+  const handleSelectBusiness = (business: BusinessDetail) => {
+    const id = business.id || business._id || '';
+    formik.setFieldValue('business_detail_id', id);
+    setSelectedBusinessDetails(business);
+    setIdentificationType(business.identificationType || '');
+    setIdentificationNumber(business.identificationNumber || '');
+    setBusinessSearch('');
+    setBusinessFocused(false);
   };
 
   const handleClear = () => {
@@ -94,6 +83,7 @@ export default function BilledBySection({
     formik.setFieldValue('business_detail_id', '');
     setIdentificationType('');
     setIdentificationNumber('');
+    setBusinessSearch('');
   };
 
   const displayName =
@@ -107,6 +97,13 @@ export default function BilledBySection({
   ]
     .filter(Boolean)
     .join(' | ');
+
+  const businessOptionsForDropdown: any[] = businessOptions.map((b) => ({
+    value: b.id || b._id || '',
+    displayText: b.companyName || b.displayName || b.name,
+    description: [b.email, b.phoneNumber].filter(Boolean).join(' • '),
+    original: b,
+  }));
 
   return (
     <div className='space-y-6'>
@@ -123,15 +120,16 @@ export default function BilledBySection({
             <Button
               variant='ghost'
               size='sm'
-              className='text-blue-600 hover:bg-blue-50'
+              className='mb-3 bg-transparent text-blue-600 hover:bg-transparent hover:text-blue-700'
             >
-              {t('invoices.form.add') || 'Add'}
+              Add
             </Button>
           </AlertDialogTrigger>
 
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Redirect</AlertDialogTitle>
+
               <AlertDialogDescription>
                 Are you sure you want to leave this page? You may lose any
                 unsaved changes.
@@ -139,9 +137,13 @@ export default function BilledBySection({
             </AlertDialogHeader>
 
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel className='text-blue-600'>
+                Cancel
+              </AlertDialogCancel>
+
               <AlertDialogAction
                 onClick={() => router.push('/your-target-route')}
+                className='bg-blue-600 hover:bg-blue-700 text-white'
               >
                 Yes, redirect me
               </AlertDialogAction>
@@ -150,112 +152,45 @@ export default function BilledBySection({
         </AlertDialog>
       </div>
 
-      {/* Business Details Section */}
-      <div className='space-y-3'>
-        <Label className='text-xs  text-gray-500'>
-          Business Details: <span className='text-red-500'>*</span>
-        </Label>
-
-        {!selectedBusinessDetails ? (
-          <div className='space-y-2'>
-            <Select
-              open={selectOpen}
-              onOpenChange={setSelectOpen}
-              value={formik.values.business_detail_id || ''}
-              onValueChange={handleSelectChange}
-            >
-              <SelectTrigger className='bg-blue-50'>
-                <SelectValue placeholder={t('invoices.form.searchBusiness')} />
-              </SelectTrigger>
-
-              <SelectContent>
-                {businessOptions.map((b) => {
-                  const id = b.id || b._id || '';
-                  const primary =
-                    b.companyName || b.displayName || b.name || id;
-                  const secondary = [b.email || b.phoneNumber]
-                    .filter(Boolean)
-                    .join(' • ');
-
-                  return (
-                    <SelectItem
-                      key={id}
-                      value={id}
-                    >
-                      <div className='flex flex-col'>
-                        <span className='text-sm font-medium'>{primary}</span>
-                        {secondary && (
-                          <span className='text-xs text-gray-500'>
-                            {secondary}
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-
-            {formik.touched.business_detail_id &&
-            formik.errors.business_detail_id ? (
-              <div className='text-sm text-red-500'>
-                {String(formik.errors.business_detail_id)}
+      {/* Business Details Section with SearchableDropdown */}
+      <SearchableDropdown
+        label={t('invoices.form.businessDetails') || 'Business Details'}
+        placeholder={t('invoices.form.searchBusiness') || 'Search business...'}
+        value={formik.values.business_detail_id || ''}
+        searchValue={businessSearch}
+        isOpen={businessFocused}
+        options={businessOptionsForDropdown}
+        onSearchChange={setBusinessSearch}
+        onFocus={() => setBusinessFocused(true)}
+        onBlur={() => setTimeout(() => setBusinessFocused(false), 150)}
+        onSelect={(option) => {
+          const originalBusiness = businessOptions.find(
+            (b) => (b.id || b._id) === option.value
+          );
+          if (originalBusiness) {
+            handleSelectBusiness(originalBusiness);
+          }
+        }}
+        onClear={handleClear}
+        error={String(formik.errors.business_detail_id)}
+        touched={formik.touched.business_detail_id}
+        isSelected={!!selectedBusinessDetails}
+        selectedDisplayValue={
+          displayName + (displaySecondary ? ` | ${displaySecondary}` : '')
+        }
+        renderOption={(option) => (
+          <div>
+            <span className='font-bold'>{option.displayText}</span>
+            {option.description && (
+              <div className='text-gray-500 text-xs mt-0.5'>
+                {option.description}
               </div>
-            ) : null}
-          </div>
-        ) : (
-          <div className='flex gap-2 items-center'>
-            <Badge
-              variant='secondary'
-              className='bg-blue-50 text-gray-700 text-xs font-medium py-2 px-3'
-            >
-              <span>{displayName}</span>
-              {displaySecondary && (
-                <span className='text-gray-500 ml-2'>| {displaySecondary}</span>
-              )}
-              <button
-                type='button'
-                onClick={handleClear}
-                className='ml-2 text-gray-400 hover:text-gray-600'
-              >
-                <X className='h-3 w-3' />
-              </button>
-            </Badge>
+            )}
           </div>
         )}
-      </div>
+      />
 
-      {/* Identification Section */}
-      {selectedBusinessDetails && (
-        <div className='space-y-3'>
-          <Label className='text-sm font-semibold text-gray-700'>
-            Identification:
-          </Label>
-
-          <div className='grid grid-cols-2 gap-3'>
-            <div>
-              <Input
-                className='bg-blue-50 h-10 border-gray-200 text-sm'
-                placeholder={t('invoices.form.identificationType') || 'Type'}
-                value={identificationType}
-                onChange={(e) => setIdentificationType(e.target.value)}
-              />
-            </div>
-            <div>
-              <Input
-                className='bg-blue-50 h-10 border-gray-200 text-sm'
-                placeholder={
-                  t('invoices.form.identificationNumber') || 'Number'
-                }
-                value={identificationNumber}
-                onChange={(e) => setIdentificationNumber(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Invoice Table */}
+      {/* Business Details Display Table */}
       {selectedBusinessDetails && (
         <div className='border border-gray-200 rounded-md overflow-hidden'>
           <div className='divide-y divide-gray-200'>
@@ -333,7 +268,7 @@ export default function BilledBySection({
                   <div className='w-1/3 text-gray-600 font-medium'>
                     {row.label}:
                   </div>
-                  <div className='w-2/3 text-gray-700 wrap-break-word'>
+                  <div className='w-2/3 text-gray-700 break-words'>
                     {row.value || '-'}
                   </div>
                 </div>

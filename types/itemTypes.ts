@@ -23,7 +23,7 @@ export interface ItemDetailsSectionProps {
   taxCodes: Array<{ value: string; displayText: string }>;
   updateItem: (idx: number, field: string, value: any) => void;
   removeItem: (idx: number) => void;
-  addItem: () => void;
+  addItemDetail: () => void;
   itemOptions: any[];
   itemSearch: string;
   setItemSearch: (search: string) => void;
