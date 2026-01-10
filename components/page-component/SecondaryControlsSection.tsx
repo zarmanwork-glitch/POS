@@ -1,20 +1,10 @@
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { FormikProps } from 'formik';
-
-interface SecondaryControlsSectionProps {
-  formik: FormikProps<any>;
-  t: (key: string) => string;
-}
+import { paymentMeans } from '@/enums/paymentMeans';
+import { Search } from 'lucide-react';
+import { SecondaryControlsSectionProps } from '@/types/paymentMeansTypes';
 
 export default function SecondaryControlsSection({
   formik,
@@ -41,28 +31,74 @@ export default function SecondaryControlsSection({
       </div>
 
       {/* Payment Means */}
-      <div>
+      <div className='relative'>
         <Label
           htmlFor='paymentMeans'
           className='text-sm text-gray-700'
         >
           Payment Means:
         </Label>
-        <Select
-          value={formik.values.paymentMeans}
-          onValueChange={(v) => formik.setFieldValue('paymentMeans', v)}
-        >
-          <SelectTrigger className='bg-blue-50 h-10 mt-2'>
-            <SelectValue placeholder='Select payment means' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='10'>10</SelectItem>
-            <SelectItem value='30'>30</SelectItem>
-            <SelectItem value='42'>42</SelectItem>
-            <SelectItem value='48'>48</SelectItem>
-            <SelectItem value='1'>1</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className='relative mt-2'>
+          <Search className='absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none' />
+          <Input
+            id='paymentMeans'
+            name='paymentMeans'
+            autoComplete='off'
+            className='bg-blue-50 h-10 w-full pl-8 pr-2 text-xs rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-200'
+            placeholder='Search by code'
+            value={formik.values.paymentMeansSearch || ''}
+            onChange={(e) => {
+              formik.setFieldValue('paymentMeansSearch', e.target.value);
+            }}
+            onFocus={(e) =>
+              formik.setFieldValue('paymentMeansDropdownOpen', true)
+            }
+            onBlur={(e) =>
+              setTimeout(
+                () => formik.setFieldValue('paymentMeansDropdownOpen', false),
+                150
+              )
+            }
+          />
+        </div>
+        {formik.values.paymentMeansDropdownOpen && (
+          <div className='absolute z-10 w-full max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg'>
+            {paymentMeans
+              .filter(
+                (pm) =>
+                  (formik.values.paymentMeansSearch || '') === '' ||
+                  pm.value
+                    .toLowerCase()
+                    .includes(
+                      (formik.values.paymentMeansSearch || '').toLowerCase()
+                    )
+              )
+              .map((pm) => (
+                <button
+                  type='button'
+                  key={pm.value}
+                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none'
+                  onMouseDown={() => {
+                    formik.setFieldValue('paymentMeans', pm.value);
+                    formik.setFieldValue('paymentMeansSearch', pm.value);
+                    formik.setFieldValue('paymentMeansDropdownOpen', false);
+                  }}
+                >
+                  <div>
+                    <span className='font-bold'>{pm.value}</span>
+                    {pm.displayText && (
+                      <div className=' text-gray-700 mt-0.5 mb-0.5'>
+                        {pm.displayText}
+                      </div>
+                    )}
+                    {pm.description && (
+                      <p className='text-gray-500 mt-0.5'>{pm.description}</p>
+                    )}
+                  </div>
+                </button>
+              ))}
+          </div>
+        )}
         {formik.touched.paymentMeans && formik.errors.paymentMeans ? (
           <div className='text-sm text-red-500 mt-1'>
             {String(formik.errors.paymentMeans)}
@@ -81,7 +117,7 @@ export default function SecondaryControlsSection({
           </Label>
           <Textarea
             id='specialTaxTreatment'
-            className='bg-blue-50 mt-2 h-20'
+            className='bg-blue-50 mt-2'
             placeholder={t('invoices.form.specialTaxTreatment')}
             name='specialTaxTreatment'
             value={formik.values.specialTaxTreatment}

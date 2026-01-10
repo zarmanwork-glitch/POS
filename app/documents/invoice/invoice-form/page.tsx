@@ -138,7 +138,7 @@ export default function InvoiceFormPage() {
             ? 'percentage'
             : item.discountType?.toLowerCase() === 'number'
             ? 'number'
-            : 'number'; // default to 'number' if not specified
+            : 'number';
 
         return {
           no: idx + 1,
@@ -203,7 +203,7 @@ export default function InvoiceFormPage() {
       dueDate: '',
       supplyDate: '',
       supplyEndDate: '',
-      incoterms: 'N/A',
+      incoterms: 'na',
       location: '',
       contractId: '',
       customerPoNumber: '',

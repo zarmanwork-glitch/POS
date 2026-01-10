@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { ToggleButton } from '@/components/base-components/ToggleButton';
 import * as Yup from 'yup';
 
 // Validation Schema using Yup
@@ -353,42 +354,15 @@ export default function NewItemPage() {
           {/* Right Column */}
           <div className='space-y-6'>
             {/* Item Status Toggle */}
-            <div className='p-6 bg-blue-50 rounded-lg'>
-              <div className='flex items-center justify-between'>
-                <label className='text-sm font-medium text-gray-700'>
-                  Item Status: <span className='text-red-500'>*</span>
-                </label>
-                <button
-                  type='button'
-                  onClick={() =>
-                    formik.setFieldValue(
-                      'itemStatus',
-                      formik.values.itemStatus === 'enabled'
-                        ? 'disabled'
-                        : 'enabled'
-                    )
-                  }
-                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                    formik.values.itemStatus === 'enabled'
-                      ? 'bg-blue-600'
-                      : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                      formik.values.itemStatus === 'enabled'
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-              <p className='text-sm text-gray-600 mt-2'>
-                {formik.values.itemStatus === 'enabled'
-                  ? 'Enabled'
-                  : 'Disabled'}
-              </p>
-            </div>
+            <ToggleButton
+              value={formik.values.itemStatus}
+              onChange={(val) => formik.setFieldValue('itemStatus', val)}
+              optionA={{ value: 'enabled', label: 'Enabled' }}
+              optionB={{ value: 'disabled', label: 'Disabled' }}
+              label='Item Status'
+              required
+              showStatusText
+            />
 
             {/* Buy Price */}
             <div>

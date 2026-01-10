@@ -18,8 +18,8 @@ export default function ClientShell({
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Determine initial language: prefer saved language, then i18n.language
   useEffect(() => {
-    // Determine initial language: prefer saved language, then i18n.language
     const saved =
       typeof window !== 'undefined' ? localStorage.getItem('language') : null;
     const lang = saved || i18n?.language || 'en';
@@ -53,7 +53,7 @@ export default function ClientShell({
       </header>
 
       {/* Main Grid: Sidebar + Content */}
-      <div className='grid grid-cols-[auto_1fr] overflow-hidden row-start-2 row-end-3'>
+      <div className='grid grid-cols-[auto_1fr] overflow-hidden row-start-2 row-end-3 '>
         {/* Sidebar */}
         <Sidebar
           collapsed={collapsed}

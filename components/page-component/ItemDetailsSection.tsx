@@ -1,7 +1,9 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { ToggleButton } from '@/components/base-components/ToggleButton';
 import { Input } from '@/components/ui/input';
+import { ExportType, exportTypeOptions } from '@/enums/exportType';
 import {
   Select,
   SelectContent,
@@ -17,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, ChevronDown } from 'lucide-react';
 import { formatNumber, parseNumber } from '@/lib/number';
 import { calculateItemRow } from '@/utils/itemCalculations';
 import {
@@ -26,6 +28,7 @@ import {
   ItemDetailsSectionProps,
 } from '@/types/itemTypes';
 import { useState } from 'react';
+import { Label } from '@/components/ui/label';
 
 export default function ItemDetailsSection({
   items,
@@ -38,7 +41,11 @@ export default function ItemDetailsSection({
   itemSearch,
   setItemSearch,
 }: ItemDetailsSectionProps) {
-  const [focusedItemIdx, setFocusedItemIdx] = useState<number | null>(null);
+  const [activeDescriptionIdx, setActiveDescriptionIdx] = useState<
+    number | null
+  >(null);
+  const [activeTaxCodeIdx, setActiveTaxCodeIdx] = useState<number | null>(null);
+  const [activeExportIdx, setActiveExportIdx] = useState<number | null>(null);
 
   // Filter items by description
   const filteredItems = Array.isArray(itemOptions)
@@ -71,26 +78,33 @@ export default function ItemDetailsSection({
 
   const handleTaxCodeChange = (taxCode: string, itemIndex: number) => {
     updateItem(itemIndex, 'taxCode', taxCode);
-    // Set based on tax code
-    const vatMap: { [key: string]: number } = {
-      S: 15,
-      Z: 0,
-      O: 0,
-      E: 0,
-    };
-    updateItem(itemIndex, 'taxRate', vatMap[taxCode] || 15);
+    if (taxCode === 'S') {
+      updateItem(itemIndex, 'taxRate', 15);
+      updateItem(itemIndex, 'vatSa32', undefined);
+    } else if (taxCode === 'Z') {
+      updateItem(itemIndex, 'taxRate', 0);
+      // Show VATAX-SA-32 dropdown
+    } else {
+      const vatMap: { [key: string]: number } = {
+        O: 0,
+        E: 0,
+      };
+      updateItem(itemIndex, 'taxRate', vatMap[taxCode] || 15);
+      updateItem(itemIndex, 'vatSa32', undefined);
+    }
   };
 
   return (
     <div className='space-y-3'>
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
-        <h3 className='text-xs font-semibold tracking-wide'>ITEM DETAILS</h3>
-
+        <Label className='text-xs font-semibold tracking-wide'>
+          ITEM DETAILS
+        </Label>
         <div className='flex items-center gap-2'>
-          <span className='text-xs text-gray-500'>
+          <Label className='text-xs text-gray-500'>
             Currency: <span className='text-red-500'>*</span>
-          </span>
+          </Label>
           <div className='w-44 h-9 bg-blue-50 border rounded-md px-3 flex items-center text-xs font-medium'>
             SAR – Saudi Riyal
           </div>
@@ -98,18 +112,44 @@ export default function ItemDetailsSection({
       </div>
 
       {/* Table */}
-      <div className='border rounded-lg overflow-x-auto'>
+      <div className='border rounded-lg'>
         <Table className='text-xs'>
           <TableHeader>
             <TableRow className='bg-gray-50'>
-              <TableHead>No.</TableHead>
-              <TableHead>Item / Service</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Unit Rate</TableHead>
-              <TableHead>Discount</TableHead>
-              <TableHead>VAT %</TableHead>
-              <TableHead>Tax Code</TableHead>
-              <TableHead>Total</TableHead>
+              <TableHead className='text-xs font-semibold text-gray-700'>
+                NO.
+              </TableHead>
+              <TableHead className='text-xs font-semibold text-gray-700'>
+                ITEM / SERVICE DESCRIPTION
+                <div className='text-[11px] text-gray-400 font-normal'>
+                  MATERIAL / SERVICE CODE
+                </div>
+              </TableHead>
+              <TableHead className='text-xs font-semibold text-gray-700'>
+                QUANTITY
+                <div className='text-[11px] text-gray-400 font-normal'>UOM</div>
+              </TableHead>
+              <TableHead className='text-xs font-semibold text-gray-700'>
+                UNIT RATE
+              </TableHead>
+              <TableHead className='text-xs font-semibold text-gray-700'>
+                DISCOUNT
+              </TableHead>
+              <TableHead className='text-xs font-semibold text-gray-700'>
+                TAX RATE
+                <div className='text-[11px] text-gray-400 font-normal'>
+                  VAT EXEMPTION REASON
+                </div>
+              </TableHead>
+              <TableHead className='text-xs font-semibold text-gray-700'>
+                TAX CODE
+              </TableHead>
+              <TableHead className='text-xs font-semibold text-gray-700'>
+                TOTAL
+                <div className='text-[11px] text-gray-400 font-normal'>
+                  VAT AMOUNT
+                </div>
+              </TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -124,93 +164,112 @@ export default function ItemDetailsSection({
                   key={idx}
                   className='align-top'
                 >
-                  <TableCell className='font-medium'>{idx + 1}</TableCell>
-                  {/* Description */}
+                  <TableCell className='font-medium bg-gray-50'>
+                    {idx + 1}
+                  </TableCell>
+                  {/* Description & Service Code & Reporting Tags */}
                   <TableCell>
-                    <div className='space-y-2'>
-                      <div className='relative'>
+                    <div className='flex flex-col gap-2 relative'>
+                      <div className='flex gap-2'>
                         <Input
-                          className='bg-blue-50 h-9 text-xs'
-                          placeholder='Search or type description'
+                          className='bg-blue-50 h-9 text-xs flex-1'
+                          placeholder='Description'
                           value={row.description}
                           onChange={(e) => {
                             updateItem(idx, 'description', e.target.value);
                             setItemSearch(e.target.value);
                           }}
-                          onFocus={() => {
-                            setFocusedItemIdx(idx);
-                          }}
+                          onFocus={() => setActiveDescriptionIdx(idx)}
                           onBlur={() => {
-                            setTimeout(() => setFocusedItemIdx(null), 200);
+                            setTimeout(
+                              () => setActiveDescriptionIdx(null),
+                              200
+                            );
                           }}
                         />
-                        {/* Item dropdown suggestions - show when focused */}
-                        {focusedItemIdx === idx && itemOptions.length > 0 && (
-                          <div className='absolute z-20  w-full mt-1 bg-white border rounded-md shadow-lg h-32 overflow-y-auto flex flex-col'>
-                            {(itemSearch ? filteredItems : itemOptions).map(
-                              (item) => (
-                                <button
-                                  key={item.id || item._id}
-                                  type='button'
-                                  className='w-full text-left px-3 py-2 text-xs hover:bg-blue-50 border-b last:border-b-0 whitespace-nowrap overflow-hidden text-ellipsis'
-                                  onClick={() => {
-                                    handleSelectItem(
-                                      item.id || item._id || '',
-                                      idx
-                                    );
-                                  }}
-                                >
-                                  {item.description}
-                                </button>
-                              )
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <div className='flex gap-2'>
+                        {activeDescriptionIdx === idx &&
+                          itemOptions.length > 0 && (
+                            <div className='z-50 w-full mt-1 bg-white border rounded-md shadow-lg h-32 overflow-y-auto flex flex-col'>
+                              {(itemSearch ? filteredItems : itemOptions).map(
+                                (item) => (
+                                  <Button
+                                    key={item.id || item._id}
+                                    type='button'
+                                    variant='ghost'
+                                    className='w-full text-left px-3 py-2 text-xs hover:bg-blue-50 border-b last:border-b-0 whitespace-nowrap overflow-hidden text-ellipsis justify-start'
+                                    onClick={() => {
+                                      handleSelectItem(
+                                        item.id || item._id || '',
+                                        idx
+                                      );
+                                    }}
+                                  >
+                                    {item.description}
+                                  </Button>
+                                )
+                              )}
+                            </div>
+                          )}
                         <Input
-                          className='bg-blue-50 h-9 text-xs'
+                          className='bg-blue-50 h-9 text-xs flex-1'
                           placeholder='Service Code'
                           value={row.serviceCode}
                           onChange={(e) =>
                             updateItem(idx, 'serviceCode', e.target.value)
                           }
                         />
-                        <Select
-                          value={row.unitOfMeasure}
-                          onValueChange={(v) =>
-                            updateItem(idx, 'unitOfMeasure', v)
-                          }
-                        >
-                          <SelectTrigger className='bg-blue-50 h-9 text-xs w-24'>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {unitOfMeasures.map((u) => (
-                              <SelectItem
-                                key={u.value}
-                                value={u.value}
-                              >
-                                {u.displayText}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      </div>
+                      <div className='flex gap-2'>
+                        <div className='flex-1'>
+                          <Label className='text-xs text-gray-500'>
+                            Reporting Tags : (Used for tracking purposes.)
+                          </Label>
+                          <Input
+                            className='bg-blue-50 h-9 text-xs mt-1 w-full'
+                            placeholder='Tag Name Here'
+                          />
+                        </div>
                       </div>
                     </div>
                   </TableCell>
                   {/* Quantity */}
                   <TableCell>
-                    <Input
-                      type='number'
-                      className='bg-blue-50 h-9 text-xs'
-                      value={row.quantity}
-                      onChange={(e) =>
-                        updateItem(idx, 'quantity', parseNumber(e.target.value))
-                      }
-                    />
+                    <div className='flex flex-col gap-1'>
+                      <Input
+                        type='number'
+                        className='bg-blue-50 h-9 text-xs'
+                        value={row.quantity}
+                        onChange={(e) =>
+                          updateItem(
+                            idx,
+                            'quantity',
+                            parseNumber(e.target.value)
+                          )
+                        }
+                      />
+                      <Select
+                        value={row.unitOfMeasure}
+                        onValueChange={(v) =>
+                          updateItem(idx, 'unitOfMeasure', v)
+                        }
+                      >
+                        <SelectTrigger className='bg-blue-50 h-9 text-xs w-full'>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {unitOfMeasures.map((u) => (
+                            <SelectItem
+                              key={u.value}
+                              value={u.value}
+                            >
+                              {u.displayText}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </TableCell>
-                  {/* Rate */}
+                  {/* Unit Rate */}
                   <TableCell>
                     <Input
                       type='number'
@@ -223,23 +282,24 @@ export default function ItemDetailsSection({
                   </TableCell>
                   {/* Discount */}
                   <TableCell>
-                    <div className='flex gap-2'>
-                      <Button
-                        variant='secondary'
-                        size='sm'
-                        onClick={() =>
-                          updateItem(
-                            idx,
-                            'discountType',
-                            row.discountType === 'PERC' ? 'NUMBER' : 'PERC'
-                          )
-                        }
-                      >
-                        {row.discountType === 'PERC' ? 'PERC %' : 'Number #'}
-                      </Button>
+                    <div className='flex flex-col gap-1'>
+                      <div className='flex items-center gap-2'>
+                        <ToggleButton
+                          value={row.discountType}
+                          onChange={(val) =>
+                            updateItem(idx, 'discountType', val)
+                          }
+                          optionA={{ value: 'PERC', label: '%' }}
+                          optionB={{ value: 'NUMBER', label: '#' }}
+                          className='w-12 bg-transparent p-0'
+                        />
+                        <span className='text-xs font-semibold'>
+                          {row.discountType === 'NUMBER' ? '%' : '#'}
+                        </span>
+                      </div>
                       <Input
                         type='number'
-                        className='bg-blue-50 h-9 text-xs w-20'
+                        className='bg-blue-50 h-9 text-xs w-full'
                         value={row.discount}
                         onChange={(e) =>
                           updateItem(idx, 'discount', e.target.value)
@@ -249,43 +309,125 @@ export default function ItemDetailsSection({
                   </TableCell>
                   {/* VAT */}
                   <TableCell>
-                    <Input
-                      type='number'
-                      className='bg-blue-50 h-9 text-xs'
-                      value={row.taxRate}
-                      readOnly
-                      disabled
-                    />
+                    <div className='relative'>
+                      <Input
+                        type='number'
+                        className='bg-blue-50 h-9 text-xs pr-7'
+                        value={row.taxRate}
+                        readOnly
+                        disabled
+                      />
+                      <span className='absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500'>
+                        %
+                      </span>
+                    </div>
                   </TableCell>
                   {/* Tax Code */}
                   <TableCell>
-                    <Select
-                      value={row.taxCode}
-                      onValueChange={(v) => handleTaxCodeChange(v, idx)}
-                    >
-                      <SelectTrigger className='bg-blue-50 h-9 text-xs'>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {taxCodes.map((tc) => (
-                          <SelectItem
-                            key={tc.value}
-                            value={tc.value}
-                            textValue={`${tc.value} ${tc.displayText}`}
-                            className='py-3'
+                    <div className='relative'>
+                      <Button
+                        type='button'
+                        variant='outline'
+                        size='sm'
+                        className='bg-blue-50 h-9 text-xs w-full flex justify-between items-center px-2'
+                        onClick={() =>
+                          setActiveTaxCodeIdx(
+                            activeTaxCodeIdx === idx ? null : idx
+                          )
+                        }
+                        tabIndex={0}
+                      >
+                        {row.taxCode ? (
+                          <span className='font-bold'>{row.taxCode}</span>
+                        ) : (
+                          <span className='text-gray-400'>Select tax code</span>
+                        )}
+                        <ChevronDown className='ml-2 w-4 h-4 text-gray-400' />
+                      </Button>
+                      {activeTaxCodeIdx === idx && (
+                        <div className=' absolute z-50 w-full flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg'>
+                          {taxCodes.map((tc) => (
+                            <button
+                              type='button'
+                              key={tc.value}
+                              className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none'
+                              onMouseDown={() => {
+                                handleTaxCodeChange(tc.value, idx);
+                                setActiveTaxCodeIdx(null);
+                              }}
+                            >
+                              <div>
+                                <span className='font-bold'>{tc.value}</span>
+                                {tc.displayText && (
+                                  <div className='text-gray-700 mt-0.5 mb-0.5'>
+                                    {tc.displayText}
+                                  </div>
+                                )}
+                                {tc.description && (
+                                  <p className='text-gray-500 mt-0.5'>
+                                    {tc.description}
+                                  </p>
+                                )}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {/* VATAX-SA-32 dropdown, only show if taxCode is 'Z' */}
+                    {row.taxCode === 'Z' && (
+                      <div className='mt-2'>
+                        <div className='relative'>
+                          <Input
+                            className='bg-blue-50 h-9 text-xs w-full pr-8 relative'
+                            value={
+                              exportTypeOptions.find(
+                                (opt) => opt.value === row.vatSa32
+                              )?.label || 'Export of goods'
+                            }
+                            readOnly
+                          />
+                          <Button
+                            type='button'
+                            variant='outline'
+                            size='sm'
+                            className='absolute right-0 top-0 h-9 text-xs flex justify-between items-center px-2 rounded-l-none'
+                            onClick={() =>
+                              setActiveExportIdx(
+                                activeExportIdx === idx ? null : idx
+                              )
+                            }
+                            tabIndex={0}
                           >
-                            <div className='flex flex-col gap-1'>
-                              <span className='font-medium leading-none'>
-                                {tc.value}
-                              </span>
-                              <span className='text-sm text-muted-foreground leading-snug'>
-                                {tc.displayText}
-                              </span>
+                            <ChevronDown className='ml-2 w-4 h-4 ' />
+                          </Button>
+                          {activeExportIdx === idx && (
+                            <div className='absolute z-50 w-full flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg'>
+                              {exportTypeOptions.map((opt) => (
+                                <button
+                                  type='button'
+                                  key={opt.value}
+                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none'
+                                  onMouseDown={() => {
+                                    updateItem(idx, 'vatSa32', opt.value);
+                                    setActiveExportIdx(null);
+                                  }}
+                                >
+                                  <div>
+                                    <span className='font-bold'>
+                                      {opt.value}
+                                    </span>
+                                    <div className='text-gray-700 mt-0.5 mb-0.5'>
+                                      {opt.label}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))}
                             </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </TableCell>
                   {/* Total */}
                   <TableCell>

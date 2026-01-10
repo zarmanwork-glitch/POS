@@ -1,9 +1,9 @@
 export const taxCodes = [
-  { value: 'S', displayText: 'Standard Rate' },
-  { value: 'Z', displayText: 'Zero Rated' },
+  { value: 'S', displayText: 'Standard rate' },
+  { value: 'Z', displayText: 'Zero rated goods' },
   {
     value: 'O',
-    displayText: 'Services Outside the scope of tax / Not subject to VAT',
+    displayText: 'Services outside scope of tax / Not subject to VAT',
   },
   {
     value: 'E',
