@@ -34,7 +34,7 @@ export default function ClientShell({
 
   if (isAuthPage) {
     return (
-      <div className='grid min-h-screen bg-background'>
+      <div className='min-h-screen bg-background'>
         {children}
         <Toaster
           position='top-right'
@@ -46,25 +46,34 @@ export default function ClientShell({
   }
 
   return (
-    <div className='grid min-h-screen grid-rows-[auto_1fr] bg-background'>
+    <div className='min-h-screen bg-background'>
       {/* Navbar */}
-      <header className='sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 row-start-1 row-end-2'>
+      <header className='fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60'>
         <Navbar onMenuClick={() => setMobileOpen(true)} />
       </header>
 
       {/* Main Grid: Sidebar + Content */}
-      <div className='grid grid-cols-[auto_1fr] overflow-hidden row-start-2 row-end-3 '>
-        {/* Sidebar */}
-        <Sidebar
-          collapsed={collapsed}
-          mobileOpen={mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          onToggle={() => setCollapsed((v) => !v)}
+      <div className='flex pt-16'>
+        {/* Sidebar - Fixed */}
+        <div className='fixed left-0 top-16 bottom-0 z-40'>
+          <Sidebar
+            collapsed={collapsed}
+            mobileOpen={mobileOpen}
+            onClose={() => setMobileOpen(false)}
+            onToggle={() => setCollapsed((v) => !v)}
+          />
+        </div>
+
+        {/* Spacer for sidebar */}
+        <div
+          className={`shrink-0 transition-all duration-300 ${
+            collapsed ? 'w-20' : 'w-64'
+          } hidden lg:block`}
         />
 
-        {/* Main Content */}
-        <main className='overflow-y-auto col-start-2 col-end-3'>
-          <div className='h-full px-[clamp(1rem,5vw,2.5rem)] py-[clamp(1rem,4vw,2.5rem)]'>
+        {/* Main Content - Scrollable */}
+        <main className='flex-1 overflow-y-auto'>
+          <div className='min-h-[calc(100vh-4rem)] px-[clamp(1rem,5vw,2.5rem)] py-[clamp(1rem,4vw,2.5rem)]'>
             {children}
           </div>
         </main>
