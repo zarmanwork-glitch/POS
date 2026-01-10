@@ -88,7 +88,7 @@ export default function Sidebar({
       {/* Sidebar with slide animation */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-70
+          fixed lg:static inset-y-0 left-0 z-30
           h-full bg-linear-to-b from-slate-900 to-slate-800 text-white
           transition-all duration-300 ease-in-out
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
