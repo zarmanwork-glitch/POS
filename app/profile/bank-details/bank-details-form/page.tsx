@@ -186,13 +186,18 @@ export default function AddBankDetailsPage() {
               className='bg-blue-600 hover:bg-blue-700'
               disabled={formik.isSubmitting}
             >
-              {formik.isSubmitting
-                ? id
-                  ? t('profile.updating', { defaultValue: 'Updating...' })
-                  : t('profile.saving', { defaultValue: 'Saving...' })
-                : id
-                ? t('profile.update', { defaultValue: 'Update' })
-                : t('profile.bankDetails.add')}
+              {formik.isSubmitting ? (
+                <>
+                  <Spinner className='mr-2 h-4 w-4 text-white' />
+                  {id
+                    ? t('profile.updating', { defaultValue: 'Updating...' })
+                    : t('profile.saving', { defaultValue: 'Saving...' })}
+                </>
+              ) : id ? (
+                t('profile.update', { defaultValue: 'Update' })
+              ) : (
+                t('profile.bankDetails.add')
+              )}
             </Button>
           </div>
         </div>

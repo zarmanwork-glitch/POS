@@ -57,6 +57,8 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { customerStatusFilters } from '@/enums/customerStatus';
 import { countries } from '@/enums/country';
+import { Customer } from '@/types/customerTypes';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function CustomerListPage() {
   const { t } = useTranslation();
@@ -65,7 +67,7 @@ export default function CustomerListPage() {
   const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('desc');
   const [searchBy, setSearchBy] = useState('Name');
   const [showFilters, setShowFilters] = useState(false);
-  const [customers, setCustomers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -470,9 +472,12 @@ export default function CustomerListPage() {
                     colSpan={7}
                     className='text-center py-8'
                   >
-                    <span className='text-gray-500'>
-                      {t('customers.loadingCustomers')}
-                    </span>
+                    <div className='flex flex-col items-center justify-center gap-2'>
+                      <Spinner className='h-8 w-8' />
+                      <span className='text-gray-500'>
+                        {t('customers.loadingCustomers')}
+                      </span>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : filteredCustomers.length === 0 ? (
@@ -638,7 +643,14 @@ export default function CustomerListPage() {
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? t('profile.deleting') : t('customers.delete')}
+              {isDeleting ? (
+                <>
+                  <Spinner className='mr-2 h-4 w-4 text-white' />
+                  {t('profile.deleting')}
+                </>
+              ) : (
+                t('customers.delete')
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
+import { Separator } from '@/components/ui/separator';
 import { units } from '@/json/units.json';
 import { unitOfMeasures } from '@/enums/unitOfMeasure';
 import { useFormik } from 'formik';
@@ -198,13 +199,18 @@ export default function NewItemPage() {
             onClick={() => formik.handleSubmit()}
             disabled={formik.isSubmitting}
           >
-            {formik.isSubmitting
-              ? id
-                ? t('profile.updating', { defaultValue: 'Updating...' })
-                : t('profile.saving', { defaultValue: 'Saving...' })
-              : id
-              ? t('profile.update', { defaultValue: 'Update' })
-              : t('profile.save')}
+            {formik.isSubmitting ? (
+              <>
+                <Spinner className='mr-2 h-4 w-4 text-white' />
+                {id
+                  ? t('profile.updating', { defaultValue: 'Updating...' })
+                  : t('profile.saving', { defaultValue: 'Saving...' })}
+              </>
+            ) : id ? (
+              t('profile.update', { defaultValue: 'Update' })
+            ) : (
+              t('profile.save')
+            )}
           </Button>
         </div>
       </div>
@@ -216,11 +222,11 @@ export default function NewItemPage() {
       >
         {/* Item Information Section */}
         <div className='relative flex items-center py-4'>
-          <div className='grow border-t-2 border-blue-100'></div>
+          <Separator className='flex-1 bg-blue-100 h-0.5' />
           <span className='mx-6 text-sm font-semibold text-blue-600'>
             {t('profile.itemInformation', { defaultValue: 'ITEM INFORMATION' })}
           </span>
-          <div className='grow border-t-2 border-blue-100'></div>
+          <Separator className='flex-1 bg-blue-100 h-0.5' />
         </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>

@@ -370,7 +370,13 @@
         "supplyEndDateInvalid": "يجب أن يكون تاريخ نهاية التوريد تاريخًا صالحًا",
         "supplyEndDateMin": "يجب أن يكون تاريخ نهاية التوريد في نفس يوم أو بعد تاريخ التوريد",
         "paymentMeansRequired": "حقل وسيلة الدفع مطلوب",
-        "paymentMeansInvalid": "يجب أن تكون وسيلة الدفع قيمة صحيحة"
+        "paymentMeansInvalid": "يجب أن تكون وسيلة الدفع قيمة صحيحة",
+        "businessDetailRequired": "تفاصيل العمل مطلوبة",
+        "customerRequired": "العميل مطلوب",
+        "bankDetailRequired": "تفاصيل البنك مطلوبة",
+        "currencyRequired": "العملة مطلوبة",
+        "itemsRequired": "يرجى إضافة عنصر واحد على الأقل",
+        "itemFieldsRequired": "يرجى ملء جميع الحقول المطلوبة للعنصر (الوصف، الكمية، السعر)"
       }
     }
   }

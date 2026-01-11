@@ -61,19 +61,11 @@ export default function BilledBySection({
   t,
 }: BilledBySectionProps) {
   const router = useRouter();
-  const [identificationType, setIdentificationType] = useState(
-    selectedBusinessDetails?.identificationType || ''
-  );
-  const [identificationNumber, setIdentificationNumber] = useState(
-    selectedBusinessDetails?.identificationNumber || ''
-  );
 
   const handleSelectBusiness = (business: BusinessDetail) => {
     const id = business.id || business._id || '';
     formik.setFieldValue('business_detail_id', id);
     setSelectedBusinessDetails(business);
-    setIdentificationType(business.identificationType || '');
-    setIdentificationNumber(business.identificationNumber || '');
     setBusinessSearch('');
     setBusinessFocused(false);
   };
@@ -81,8 +73,6 @@ export default function BilledBySection({
   const handleClear = () => {
     setSelectedBusinessDetails(null);
     formik.setFieldValue('business_detail_id', '');
-    setIdentificationType('');
-    setIdentificationNumber('');
     setBusinessSearch('');
   };
 
@@ -172,7 +162,11 @@ export default function BilledBySection({
           }
         }}
         onClear={handleClear}
-        error={String(formik.errors.business_detail_id)}
+        error={
+          formik.errors.business_detail_id
+            ? t(String(formik.errors.business_detail_id))
+            : undefined
+        }
         touched={formik.touched.business_detail_id}
         isSelected={!!selectedBusinessDetails}
         selectedDisplayValue={
@@ -196,18 +190,6 @@ export default function BilledBySection({
           <div className='divide-y divide-gray-200'>
             {(() => {
               const rows = [
-                {
-                  label:
-                    t('invoices.form.identificationType') ||
-                    'Identification Type',
-                  value: identificationType,
-                },
-                {
-                  label:
-                    t('invoices.form.identificationNumber') ||
-                    'Identification Number',
-                  value: identificationNumber,
-                },
                 {
                   label: t('invoices.form.name'),
                   value: selectedBusinessDetails.name,

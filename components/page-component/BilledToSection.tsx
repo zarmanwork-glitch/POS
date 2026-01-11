@@ -157,7 +157,11 @@ export default function BilledToSection({
           }
         }}
         onClear={handleClear}
-        error={String(formik.errors.customer_id)}
+        error={
+          formik.errors.customer_id
+            ? t(String(formik.errors.customer_id))
+            : undefined
+        }
         touched={formik.touched.customer_id}
         isSelected={!!selectedCustomer}
         selectedDisplayValue={displayName}
@@ -194,22 +198,6 @@ export default function BilledToSection({
           </div>
 
           <div className='p-4 space-y-3'>
-            <div>
-              <Label className='text-xs text-gray-600 font-medium mb-2'>
-                {t('invoices.form.identification')}
-              </Label>
-              <div className='grid grid-cols-2 gap-2'>
-                <Input
-                  placeholder={t('invoices.form.identificationType')}
-                  className='text-xs bg-blue-50'
-                />
-                <Input
-                  placeholder={t('invoices.form.identificationNumber')}
-                  className='text-xs bg-blue-50'
-                />
-              </div>
-            </div>
-
             <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>
               {(() => {
                 const rows = [

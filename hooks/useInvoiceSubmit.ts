@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { createInvoice } from '@/api/invoices/invoice.api';
 import { calculateItemRow } from '@/utils/itemCalculations';
 import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
@@ -9,6 +10,7 @@ import { InvoiceFormValues, Item } from '@/types/invoiceTypes';
 
 export function useInvoiceSubmit() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
   const submitInvoice = async (values: InvoiceFormValues, items: Item[]) => {
@@ -17,21 +19,21 @@ export function useInvoiceSubmit() {
 
       // Validate required selections
       if (!values.business_detail_id) {
-        toast.error('Please select a business detail');
+        toast.error(t('invoices.form.errors.businessDetailRequired'));
         return;
       }
       if (!values.customer_id) {
-        toast.error('Please select a customer');
+        toast.error(t('invoices.form.errors.customerRequired'));
         return;
       }
       if (!values.bank_detail_id) {
-        toast.error('Please select a bank detail');
+        toast.error(t('invoices.form.errors.bankDetailRequired'));
         return;
       }
 
       // Validate items
       if (items.length === 0) {
-        toast.error('Please add at least one item');
+        toast.error(t('invoices.form.errors.itemsRequired'));
         return;
       }
 
@@ -39,9 +41,7 @@ export function useInvoiceSubmit() {
         (item) => !item.description || !item.quantity || !item.unitRate
       );
       if (hasInvalidItems) {
-        toast.error(
-          'Please fill in all required item fields (description, quantity, rate)'
-        );
+        toast.error(t('invoices.form.errors.itemFieldsRequired'));
         return;
       }
 

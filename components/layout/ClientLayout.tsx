@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import i18n from '@/lib/i18n';
 import { Toaster } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export default function ClientShell({
   children,
@@ -14,6 +15,8 @@ export default function ClientShell({
 }) {
   const pathname = usePathname();
   const isAuthPage = pathname === '/sign-in' || pathname === '/sign-up';
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -55,12 +58,17 @@ export default function ClientShell({
       {/* Main Grid: Sidebar + Content */}
       <div className='flex pt-16'>
         {/* Sidebar - Fixed */}
-        <div className='fixed left-0 top-18 bottom-0 z-100'>
+        <div
+          className={`fixed ${
+            isRTL ? 'right-0' : 'left-0'
+          } top-18 bottom-0 z-100`}
+        >
           <Sidebar
             collapsed={collapsed}
             mobileOpen={mobileOpen}
             onClose={() => setMobileOpen(false)}
             onToggle={() => setCollapsed((v) => !v)}
+            isRTL={isRTL}
           />
         </div>
 

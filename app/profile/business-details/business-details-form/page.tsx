@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import countries from '@/json/countries.json';
 import { validationSchema } from '@/schema/businessDetailsFormValidation';
@@ -354,13 +355,18 @@ export default function BusinessDetailsFormPage() {
             onClick={() => formik.handleSubmit()}
             disabled={isLoading}
           >
-            {isLoading
-              ? id
-                ? t('profile.updating', { defaultValue: 'Updating...' })
-                : t('profile.saving', { defaultValue: 'Saving...' })
-              : id
-              ? t('profile.update', { defaultValue: 'Update' })
-              : t('profile.addBusinessDetails')}
+            {isLoading ? (
+              <>
+                <Spinner className='mr-2 h-4 w-4 text-white' />
+                {id
+                  ? t('profile.updating', { defaultValue: 'Updating...' })
+                  : t('profile.saving', { defaultValue: 'Saving...' })}
+              </>
+            ) : id ? (
+              t('profile.update', { defaultValue: 'Update' })
+            ) : (
+              t('profile.addBusinessDetails')
+            )}
           </Button>
         </div>
       </div>
@@ -565,11 +571,11 @@ export default function BusinessDetailsFormPage() {
 
         {/* Address Section */}
         <div className='relative flex items-center py-2'>
-          <div className='grow border-t-2 border-blue-100'></div>
+          <Separator className='flex-1 bg-blue-100 h-0.5' />
           <span className='mx-6 text-sm font-semibold text-blue-600'>
             {t('profile.address')}
           </span>
-          <div className='grow border-t-2 border-blue-100'></div>
+          <Separator className='flex-1 bg-blue-100 h-0.5' />
         </div>
 
         {/* Address Streets */}
@@ -797,7 +803,7 @@ export default function BusinessDetailsFormPage() {
         {/* VAT Registration Heading */}
         <div className='relative flex items-center py-2'>
           {/* The light blue line */}
-          <div className='grow border-t-2 border-blue-100'></div>
+          <Separator className='flex-1 bg-blue-100 h-0.5' />
 
           {/* The centered text */}
           <span className='mx-6 text-sm font-semibold text-blue-600'>
@@ -805,7 +811,7 @@ export default function BusinessDetailsFormPage() {
           </span>
 
           {/* The other side of the line */}
-          <div className='grow border-t-2 border-blue-100'></div>
+          <Separator className='flex-1 bg-blue-100 h-0.5' />
         </div>
 
         {/* VAT Registration */}
@@ -920,7 +926,7 @@ export default function BusinessDetailsFormPage() {
         <div className=' p-6 rounded-lg'>
           <div className='relative flex items-center py-2'>
             {/* The light blue line */}
-            <div className='grow border-t-2 border-blue-100'></div>
+            <Separator className='flex-1 bg-blue-100 h-0.5' />
 
             {/* The centered text */}
             <span className='mx-6 text-sm font-semibold text-blue-600'>
@@ -928,7 +934,7 @@ export default function BusinessDetailsFormPage() {
             </span>
 
             {/* The other side of the line */}
-            <div className='grow border-t-2 border-blue-100'></div>
+            <Separator className='flex-1 bg-blue-100 h-0.5' />
           </div>
           <p className='text-xs text-gray-600 mb-4'>
             {t('profile.nonKsaVatInfo')}
@@ -1033,14 +1039,14 @@ export default function BusinessDetailsFormPage() {
           >
             {/* Header */}
             <AccordionTrigger className='relative flex items-center py-2 hover:no-underline group'>
-              <div className='grow border-t-2 border-blue-100'></div>
+              <Separator className='flex-1 bg-blue-100 h-0.5' />
 
               <span className='mx-6 text-sm font-semibold text-blue-500 flex items-center gap-2'>
                 REFUND POLICY
                 <ChevronDown className='h-4 w-4 text-blue-400 transition-transform duration-300 group-data-[state=open]:rotate-180' />
               </span>
 
-              <div className='grow border-t-2 border-blue-100'></div>
+              <Separator className='flex-1 bg-blue-100 h-0.5' />
             </AccordionTrigger>
 
             {/* Content */}

@@ -1,23 +1,33 @@
 'use client';
 
+import { downloadInvoicePdf } from '@/api/invoices/invoice.api';
+import { InvoiceControlsBar } from '@/components/page-component/InvoiceControlsBar';
+import { InvoicePagination } from '@/components/page-component/InvoicePagination';
+import { InvoiceTable } from '@/components/page-component/InvoiceTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useInvoiceListData } from '@/hooks/useInvoiceListData';
+import { useInvoiceListFilters } from '@/hooks/useInvoiceListFilters';
+import { Spinner } from '@/components/ui/spinner';
+import Cookies from 'js-cookie';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Cookies from 'js-cookie';
 import { toast } from 'sonner';
-import { downloadInvoicePdf } from '@/api/invoices/invoice.api';
-import { useInvoiceListFilters } from '@/hooks/useInvoiceListFilters';
-import { useInvoiceListData } from '@/hooks/useInvoiceListData';
-import { InvoiceControlsBar } from '@/components/page-component/InvoiceControlsBar';
-import { InvoiceFilterPanel } from '@/components/page-component/InvoiceFilterPanel';
-import { InvoiceTable } from '@/components/page-component/InvoiceTable';
-import { InvoicePagination } from '@/components/page-component/InvoicePagination';
 
 export default function InvoiceListPage() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   // Use custom hooks for filters and data
   const filters = useInvoiceListFilters();
@@ -66,9 +76,42 @@ export default function InvoiceListPage() {
     }
   };
 
-  const handlePreview = (invoiceId: string) => {
-    console.log('Preview invoice:', invoiceId);
-    toast.info('Preview feature coming soon');
+  const handlePreview = async (invoiceId: string) => {
+    try {
+      setLoadingPreview(true);
+      const token = Cookies.get('authToken');
+      if (!token) {
+        toast.error('Authentication error');
+        return;
+      }
+
+      const response = await downloadInvoicePdf({
+        token,
+        invoiceId,
+      });
+
+      if (response?.data) {
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        setPreviewUrl(url);
+        setPreviewOpen(true);
+      } else {
+        toast.error('Failed to load invoice preview');
+      }
+    } catch (error) {
+      console.error('Error loading invoice preview:', error);
+      toast.error('Failed to load invoice preview');
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewOpen(false);
+    if (previewUrl) {
+      window.URL.revokeObjectURL(previewUrl);
+      setPreviewUrl('');
+    }
   };
 
   const handleViewDetails = (invoiceId: string) => {
@@ -112,6 +155,8 @@ export default function InvoiceListPage() {
           activeFilters={filters.getActiveFilters()}
           loading={loading}
           isRTL={isRTL}
+          startDate={filters.startDate}
+          endDate={filters.endDate}
           onSearchChange={filters.setSearch}
           onSearchByChange={(value) =>
             filters.setSearchBy(
@@ -134,40 +179,16 @@ export default function InvoiceListPage() {
           onDownload={() => {
             console.log('Download invoices');
           }}
+          onStartDateChange={(value) => {
+            filters.setStartDate(value);
+            filters.setPage(1);
+          }}
+          onEndDateChange={(value) => {
+            filters.setEndDate(value);
+            filters.setPage(1);
+          }}
           t={t}
         />
-
-        {/* Date Filters */}
-        <div className='flex gap-4 items-end'>
-          <div className='flex-1'>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              {t('invoices.startDate')}
-            </label>
-            <Input
-              type='date'
-              value={filters.startDate}
-              onChange={(e) => {
-                filters.setStartDate(e.target.value);
-                filters.setPage(1);
-              }}
-              className='h-10'
-            />
-          </div>
-          <div className='flex-1'>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              {t('invoices.endDate')}
-            </label>
-            <Input
-              type='date'
-              value={filters.endDate}
-              onChange={(e) => {
-                filters.setEndDate(e.target.value);
-                filters.setPage(1);
-              }}
-              className='h-10'
-            />
-          </div>
-        </div>
 
         {/* Filter Panel */}
       </div>
@@ -193,6 +214,38 @@ export default function InvoiceListPage() {
           onPageChange={filters.setPage}
         />
       )}
+
+      {/* PDF Preview Modal */}
+      <Dialog
+        open={previewOpen}
+        onOpenChange={handleClosePreview}
+      >
+        <DialogContent className='max-w-6xl h-[90vh]'>
+          <DialogHeader>
+            <DialogTitle className='text-xl font-semibold'>
+              {t('invoices.pdfPreview', { defaultValue: 'Invoice Preview' })}
+            </DialogTitle>
+          </DialogHeader>
+          <div className='flex-1 w-full h-[calc(90vh-80px)] overflow-hidden'>
+            {loadingPreview ? (
+              <div className='flex flex-col items-center justify-center h-full gap-4'>
+                <Spinner className='h-12 w-12' />
+                <p className='text-gray-600'>
+                  {t('invoices.loadingPreview', {
+                    defaultValue: 'Loading preview...',
+                  })}
+                </p>
+              </div>
+            ) : previewUrl ? (
+              <iframe
+                src={previewUrl}
+                className='w-full h-full border-0 rounded'
+                title='Invoice Preview'
+              />
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -60,6 +60,7 @@ import { unitOfMeasures } from '@/enums/unitOfMeasure';
 import { itemStatuses } from '@/enums/itemStatus';
 import { Spinner } from '@/components/ui/spinner';
 import { formatNumber } from '@/lib/number';
+import { ListItem } from '@/types/itemTypes';
 
 export default function ItemsListPage() {
   const [searchDescription, setSearchDescription] = useState('');
@@ -67,7 +68,7 @@ export default function ItemsListPage() {
   const [searchBy, setSearchBy] = useState('Description');
   const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('desc');
   const [showFilters, setShowFilters] = useState(false);
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<ListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
@@ -837,9 +838,14 @@ export default function ItemsListPage() {
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting
-                ? t('profile.deleting', { defaultValue: 'Deleting...' })
-                : t('profile.delete', { defaultValue: 'Delete' })}
+              {isDeleting ? (
+                <>
+                  <Spinner className='mr-2 h-4 w-4 text-white' />
+                  {t('profile.deleting', { defaultValue: 'Deleting...' })}
+                </>
+              ) : (
+                t('profile.delete', { defaultValue: 'Delete' })
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

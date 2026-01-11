@@ -371,7 +371,13 @@
         "supplyEndDateInvalid": "Supply end date must be a valid date",
         "supplyEndDateMin": "Supply end date must be on or after supply date",
         "paymentMeansRequired": "Payment means is required",
-        "paymentMeansInvalid": "Payment means must be a valid value"
+        "paymentMeansInvalid": "Payment means must be a valid value",
+        "businessDetailRequired": "Business details are required",
+        "customerRequired": "Customer is required",
+        "bankDetailRequired": "Bank details are required",
+        "currencyRequired": "Currency is required",
+        "itemsRequired": "Please add at least one item",
+        "itemFieldsRequired": "Please fill in all required item fields (description, quantity, rate)"
       }
     }
   }

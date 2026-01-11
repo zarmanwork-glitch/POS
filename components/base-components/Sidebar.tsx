@@ -54,11 +54,13 @@ export default function Sidebar({
   onClose,
   collapsed,
   onToggle,
+  isRTL = false,
 }: {
   mobileOpen: boolean;
   onClose: () => void;
   collapsed: boolean;
   onToggle: () => void;
+  isRTL?: boolean;
 }) {
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(() => {
@@ -88,10 +90,17 @@ export default function Sidebar({
       {/* Sidebar with slide animation */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-30
+          fixed lg:static inset-y-0 z-30
           h-full bg-linear-to-b from-slate-900 to-slate-800 text-white
           transition-all duration-300 ease-in-out
-          ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${isRTL ? 'right-0' : 'left-0'}
+          ${
+            mobileOpen
+              ? 'translate-x-0'
+              : isRTL
+              ? 'translate-x-full lg:translate-x-0'
+              : '-translate-x-full lg:translate-x-0'
+          }
           ${collapsed ? 'w-20' : 'w-64'}
         `}
       >
@@ -100,21 +109,27 @@ export default function Sidebar({
           onClick={onToggle}
           variant='ghost'
           size='icon'
-          className='
+          className={`
             hidden lg:flex
-            absolute -right-6 top-7 h-8 w-8
+            absolute ${isRTL ? '-left-6' : '-right-6'} top-7 h-8 w-8
             bg-blue-600 
             rounded-full
             hover:bg-blue-700 hover:text-white
             transition-all duration-200
             shadow-lg
-          '
+          `}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <ChevronLeft
             size={16}
             className={`transition-transform duration-300 ${
-              collapsed ? 'rotate-180' : ''
+              collapsed
+                ? isRTL
+                  ? ''
+                  : 'rotate-180'
+                : isRTL
+                ? 'rotate-180'
+                : ''
             }`}
           />
         </Button>

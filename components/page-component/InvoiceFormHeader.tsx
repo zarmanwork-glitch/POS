@@ -39,12 +39,19 @@ export function InvoiceFormHeader({
           {cancelLabel}
         </Button>
         <Button
-          type='submit'
+          type='button'
           className='bg-blue-600 hover:bg-blue-700'
           disabled={isLoading}
           onClick={onSubmit}
         >
-          {isLoading ? <Spinner className='h-4 w-4 text-white' /> : saveLabel}
+          {isLoading ? (
+            <div className='flex items-center gap-2'>
+              <Spinner className='h-4 w-4 text-white' />
+              <span>{saveLabel}</span>
+            </div>
+          ) : (
+            saveLabel
+          )}
         </Button>
       </div>
     </div>

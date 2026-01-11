@@ -58,7 +58,9 @@ export const ApiKeys = [
       invalid_customer_id: 'Customer with id does not exist',
     },
     invoices: {
-      create_invoice_success: 'Invoice Created Successfully',
+      add_invoice_success: 'Invoice Created Successfully',
+      get_invoice_success: 'Invoice Fetched Successfully',
+      get_invoices_list_success: 'Invoices Fetched Successfully',
       get_invoices_success: 'Invoices Fetched Successfully',
       invoice_unique_invoiceNo:
         'An invoice with the same invoice number already exists',

@@ -230,7 +230,10 @@ export default function SignInPage() {
               className='w-full bg-blue-700 text-white hover:bg-blue-800 py-2 transition disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isLoading ? (
-                <Spinner className='h-5 w-5 text-white' />
+                <>
+                  <Spinner className='mr-2 h-5 w-5 text-white' />
+                  {t('auth.signIn.signIn')}
+                </>
               ) : (
                 t('auth.signIn.signIn')
               )}

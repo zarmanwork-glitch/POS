@@ -173,7 +173,7 @@ export default function InvoiceFormPage() {
           taxCodes={taxCodes}
           updateItem={updateItem}
           removeItem={removeItem}
-          addItem={addItemDetail}
+          addItemDetail={addItemDetail}
           itemOptions={itemOptions}
           itemSearch={itemSearch}
           setItemSearch={setItemSearch}

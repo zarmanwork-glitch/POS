@@ -225,13 +225,16 @@ export default function CustomerFormPage() {
             onClick={() => formik.handleSubmit()}
             disabled={isLoading}
           >
-            {isLoading
-              ? id
-                ? t('profile.updating')
-                : t('profile.saving')
-              : id
-              ? t('profile.update')
-              : t('profile.save')}
+            {isLoading ? (
+              <>
+                <Spinner className='mr-2 h-4 w-4 text-white' />
+                {id ? t('profile.updating') : t('profile.saving')}
+              </>
+            ) : id ? (
+              t('profile.update')
+            ) : (
+              t('profile.save')
+            )}
           </Button>
         </div>
       </div>
@@ -456,11 +459,11 @@ export default function CustomerFormPage() {
         {/* Address Information */}
         <div>
           <div className='relative flex items-center py-2'>
-            <div className='grow border-t-2 border-blue-100'></div>
+            <Separator className='flex-1 bg-blue-100 h-0.5' />
             <span className='mx-6 text-sm font-semibold text-blue-600'>
               ADDRESS
             </span>
-            <div className='grow border-t-2 border-blue-100'></div>
+            <Separator className='flex-1 bg-blue-100 h-0.5' />
           </div>
 
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>

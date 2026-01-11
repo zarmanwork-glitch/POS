@@ -6,11 +6,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { incoTerms } from '@/enums/incoTerms';
 import { FormikProps } from 'formik';
 import { InvoiceFormValues } from '@/types/invoiceTypes';
 import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
+import { CalendarIcon, X } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface InvoiceDetailsGridProps {
   formik: FormikProps<InvoiceFormValues>;
@@ -44,14 +53,58 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
         >
           {t('invoices.form.invoiceDateLabel')}
         </Label>
-        <Input
-          className='bg-blue-50 h-10'
-          type='date'
-          name='invoiceDate'
-          value={formik.values.invoiceDate}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
+        <div className='relative'>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant='outline'
+                className='w-full justify-start text-left font-normal bg-blue-50 h-10'
+              >
+                <CalendarIcon className='mr-2 h-4 w-4' />
+                {formik.values.invoiceDate
+                  ? format(
+                      new Date(formik.values.invoiceDate + 'T00:00:00'),
+                      'PPP'
+                    )
+                  : t('invoices.form.chooseDate')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0'>
+              <Calendar
+                mode='single'
+                selected={
+                  formik.values.invoiceDate
+                    ? new Date(formik.values.invoiceDate + 'T00:00:00')
+                    : undefined
+                }
+                onSelect={(date) => {
+                  if (date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    formik.setFieldValue(
+                      'invoiceDate',
+                      `${year}-${month}-${day}`
+                    );
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {formik.values.invoiceDate && (
+            <button
+              type='button'
+              onClick={(e) => {
+                e.stopPropagation();
+                formik.setFieldValue('invoiceDate', '');
+              }}
+              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
+            >
+              <X className='h-4 w-4' />
+            </button>
+          )}
+        </div>
         {formik.touched.invoiceDate && formik.errors.invoiceDate ? (
           <div className='text-sm text-red-500'>
             {t(String(formik.errors.invoiceDate))}
@@ -70,14 +123,58 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
         >
           {t('invoices.form.supplyDateLabel')}
         </Label>
-        <Input
-          className='bg-blue-50 h-10'
-          type='date'
-          name='supplyDate'
-          value={formik.values.supplyDate}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
+        <div className='relative'>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant='outline'
+                className='w-full justify-start text-left font-normal bg-blue-50 h-10'
+              >
+                <CalendarIcon className='mr-2 h-4 w-4' />
+                {formik.values.supplyDate
+                  ? format(
+                      new Date(formik.values.supplyDate + 'T00:00:00'),
+                      'PPP'
+                    )
+                  : t('invoices.form.chooseDate')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0'>
+              <Calendar
+                mode='single'
+                selected={
+                  formik.values.supplyDate
+                    ? new Date(formik.values.supplyDate + 'T00:00:00')
+                    : undefined
+                }
+                onSelect={(date) => {
+                  if (date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    formik.setFieldValue(
+                      'supplyDate',
+                      `${year}-${month}-${day}`
+                    );
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {formik.values.supplyDate && (
+            <button
+              type='button'
+              onClick={(e) => {
+                e.stopPropagation();
+                formik.setFieldValue('supplyDate', '');
+              }}
+              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
+            >
+              <X className='h-4 w-4' />
+            </button>
+          )}
+        </div>
         {formik.touched.supplyDate && formik.errors.supplyDate ? (
           <div className='text-sm text-red-500'>
             {t(String(formik.errors.supplyDate))}
@@ -133,14 +230,52 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
         >
           {t('invoices.form.dueDate')}:
         </Label>
-        <Input
-          className='bg-blue-50 h-10'
-          type='date'
-          name='dueDate'
-          value={formik.values.dueDate}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
+        <div className='relative'>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant='outline'
+                className='w-full justify-start text-left font-normal bg-blue-50 h-10'
+              >
+                <CalendarIcon className='mr-2 h-4 w-4' />
+                {formik.values.dueDate
+                  ? format(new Date(formik.values.dueDate + 'T00:00:00'), 'PPP')
+                  : t('invoices.form.chooseDate')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0'>
+              <Calendar
+                mode='single'
+                selected={
+                  formik.values.dueDate
+                    ? new Date(formik.values.dueDate + 'T00:00:00')
+                    : undefined
+                }
+                onSelect={(date) => {
+                  if (date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    formik.setFieldValue('dueDate', `${year}-${month}-${day}`);
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {formik.values.dueDate && (
+            <button
+              type='button'
+              onClick={(e) => {
+                e.stopPropagation();
+                formik.setFieldValue('dueDate', '');
+              }}
+              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
+            >
+              <X className='h-4 w-4' />
+            </button>
+          )}
+        </div>
         {formik.touched.dueDate && formik.errors.dueDate ? (
           <div className='text-sm text-red-500'>
             {t(String(formik.errors.dueDate))}
@@ -159,13 +294,58 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
         >
           {t('invoices.form.supplyEndDate')}:
         </Label>
-        <Input
-          className='bg-blue-50 h-10'
-          type='date'
-          name='supplyEndDate'
-          value={formik.values.supplyEndDate}
-          onChange={formik.handleChange}
-        />
+        <div className='relative'>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant='outline'
+                className='w-full justify-start text-left font-normal bg-blue-50 h-10'
+              >
+                <CalendarIcon className='mr-2 h-4 w-4' />
+                {formik.values.supplyEndDate
+                  ? format(
+                      new Date(formik.values.supplyEndDate + 'T00:00:00'),
+                      'PPP'
+                    )
+                  : t('invoices.form.chooseDate')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0'>
+              <Calendar
+                mode='single'
+                selected={
+                  formik.values.supplyEndDate
+                    ? new Date(formik.values.supplyEndDate + 'T00:00:00')
+                    : undefined
+                }
+                onSelect={(date) => {
+                  if (date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    formik.setFieldValue(
+                      'supplyEndDate',
+                      `${year}-${month}-${day}`
+                    );
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {formik.values.supplyEndDate && (
+            <button
+              type='button'
+              onClick={(e) => {
+                e.stopPropagation();
+                formik.setFieldValue('supplyEndDate', '');
+              }}
+              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
+            >
+              <X className='h-4 w-4' />
+            </button>
+          )}
+        </div>
         {!formik.values.supplyEndDate && (
           <div className='text-xs text-gray-400 mt-1'>
             {t('invoices.form.chooseDate')}

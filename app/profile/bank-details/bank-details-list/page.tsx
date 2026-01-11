@@ -43,11 +43,13 @@ import {
 } from '@/api/bank-details/bank-details.api';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { BankDetail } from '@/types/bankDetailTypes';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function BankDetailsListPage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<BankDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
@@ -220,11 +222,14 @@ export default function BankDetailsListPage() {
                   colSpan={8}
                   className='text-center py-8'
                 >
-                  <span className='text-gray-500'>
-                    {t('profile.loading', {
-                      defaultValue: 'Loading bank details...',
-                    })}
-                  </span>
+                  <div className='flex flex-col items-center justify-center gap-2'>
+                    <Spinner className='h-8 w-8' />
+                    <span className='text-gray-500'>
+                      {t('profile.loading', {
+                        defaultValue: 'Loading bank details...',
+                      })}
+                    </span>
+                  </div>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -415,9 +420,14 @@ export default function BankDetailsListPage() {
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting
-                ? t('profile.deleting', { defaultValue: 'Deleting...' })
-                : t('profile.delete', { defaultValue: 'Delete' })}
+              {isDeleting ? (
+                <>
+                  <Spinner className='mr-2 h-4 w-4 text-white' />
+                  {t('profile.deleting', { defaultValue: 'Deleting...' })}
+                </>
+              ) : (
+                t('profile.delete', { defaultValue: 'Delete' })
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

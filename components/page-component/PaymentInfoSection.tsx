@@ -170,7 +170,11 @@ export default function PaymentInfoSection({
           }
         }}
         onClear={handleClear}
-        error={String(formik.errors.bank_detail_id)}
+        error={
+          formik.errors.bank_detail_id
+            ? t(String(formik.errors.bank_detail_id))
+            : undefined
+        }
         touched={formik.touched.bank_detail_id}
         isSelected={!!selectedBank}
         selectedDisplayValue={displayName}

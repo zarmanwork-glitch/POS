@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import React from 'react';
 
 interface DeleteBusinessDetailsDialogProps {
@@ -56,9 +57,14 @@ export const DeleteBusinessDetailsDialog: React.FC<
             onClick={confirmDelete}
             disabled={isDeleting}
           >
-            {isDeleting
-              ? t('profile.deleting', { defaultValue: 'Deleting...' })
-              : t('profile.delete', { defaultValue: 'Delete' })}
+            {isDeleting ? (
+              <>
+                <Spinner className='mr-2 h-4 w-4 text-white' />
+                {t('profile.deleting', { defaultValue: 'Deleting...' })}
+              </>
+            ) : (
+              t('profile.delete', { defaultValue: 'Delete' })
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

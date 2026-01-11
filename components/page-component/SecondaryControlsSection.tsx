@@ -101,7 +101,7 @@ export default function SecondaryControlsSection({
         )}
         {formik.touched.paymentMeans && formik.errors.paymentMeans ? (
           <div className='text-sm text-red-500 mt-1'>
-            {String(formik.errors.paymentMeans)}
+            {t(String(formik.errors.paymentMeans))}
           </div>
         ) : null}
       </div>

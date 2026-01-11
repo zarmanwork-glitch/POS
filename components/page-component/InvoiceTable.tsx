@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Spinner } from '@/components/ui/spinner';
 import { formatNumber } from '@/lib/number';
 import { InvoiceTableProps } from '@/types/invoiceTypes';
 import { Download, Eye, MoreHorizontal } from 'lucide-react';
@@ -48,7 +49,14 @@ export const InvoiceTable = ({
                 colSpan={6}
                 className='text-center py-8'
               >
-                {loading ? 'Loading…' : t('invoices.noInvoicesFound')}
+                {loading ? (
+                  <div className='flex items-center justify-center gap-2'>
+                    <Spinner className='h-5 w-5 text-blue-600' />
+                    <span className='text-gray-500'>Loading invoices...</span>
+                  </div>
+                ) : (
+                  t('invoices.noInvoicesFound')
+                )}
               </TableCell>
             </TableRow>
           ) : (

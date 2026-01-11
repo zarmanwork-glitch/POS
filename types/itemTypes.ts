@@ -8,6 +8,20 @@ export interface Item {
   discountType: 'PERC' | 'NUMBER';
   taxRate: number | string;
   taxCode: string;
+  vatSa32?: string;
+}
+
+export interface ListItem {
+  id: string;
+  description: string;
+  unitOfMeasure: string;
+  materialNo?: string;
+  buyPrice: number;
+  sellPrice: number;
+  itemStatus: string;
+  itemType?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface SelectableItem {

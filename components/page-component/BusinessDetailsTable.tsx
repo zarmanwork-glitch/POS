@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import React from 'react';
 
 interface BusinessDetail {
@@ -63,11 +64,16 @@ export const BusinessDetailsTable: React.FC<BusinessDetailsTableProps> = ({
             <TableRow>
               <TableCell
                 colSpan={6}
-                className='text-center py-10 text-gray-500'
+                className='text-center py-10'
               >
-                {t('profile.loading', {
-                  defaultValue: 'Loading business details...',
-                })}
+                <div className='flex flex-col items-center justify-center gap-2'>
+                  <Spinner className='h-8 w-8' />
+                  <span className='text-gray-500'>
+                    {t('profile.loading', {
+                      defaultValue: 'Loading business details...',
+                    })}
+                  </span>
+                </div>
               </TableCell>
             </TableRow>
           ) : data.length === 0 ? (

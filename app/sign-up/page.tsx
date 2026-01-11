@@ -26,7 +26,6 @@ export default function SignUpPage() {
     setIsLoading(true);
     try {
       // Replace with real sign-up API call
-      console.log({ email, password, confirmPassword });
       await new Promise((r) => setTimeout(r, 500));
     } finally {
       setIsLoading(false);
@@ -187,7 +186,10 @@ export default function SignUpPage() {
               className='w-full bg-blue-700 text-white hover:bg-blue-800 py-2'
             >
               {isLoading ? (
-                <Spinner className='h-5 w-5 text-white' />
+                <>
+                  <Spinner className='mr-2 h-5 w-5 text-white' />
+                  {t('auth.signUp.signUp')}
+                </>
               ) : (
                 t('auth.signUp.signUp')
               )}

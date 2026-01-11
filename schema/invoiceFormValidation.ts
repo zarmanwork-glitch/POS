@@ -8,7 +8,7 @@ export const invoiceValidationSchema = Yup.object().shape({
     .required('invoices.form.errors.invoiceDateRequired'),
   dueDate: Yup.date()
     .typeError('invoices.form.errors.dueDateInvalid')
-    .required('invoices.form.dueDateRequired'),
+    .required('invoices.form.errors.dueDateRequired'),
   supplyDate: Yup.date()
     .typeError('invoices.form.errors.supplyDateInvalid')
     .nullable()
@@ -34,9 +34,14 @@ export const invoiceValidationSchema = Yup.object().shape({
         : schema
     ),
   paymentMeans: Yup.string()
-    .typeError(i18next.t('invoices.form.errors.paymentMeansInvalid'))
-    .required(i18next.t('invoices.form.errors.paymentMeansRequired')),
-  business_detail_id: Yup.string().required('Business details required'),
-  customer_id: Yup.string().required('Customer required'),
-  currency: Yup.string().required('Currency required'),
+    .typeError('invoices.form.errors.paymentMeansInvalid')
+    .required('invoices.form.errors.paymentMeansRequired'),
+  business_detail_id: Yup.string().required(
+    'invoices.form.errors.businessDetailRequired'
+  ),
+  customer_id: Yup.string().required('invoices.form.errors.customerRequired'),
+  bank_detail_id: Yup.string().required(
+    'invoices.form.errors.bankDetailRequired'
+  ),
+  currency: Yup.string().required('invoices.form.errors.currencyRequired'),
 });
