@@ -10,8 +10,10 @@ interface InvoiceTotals {
   subTotal: number;
   totalDiscount: number;
   totalTaxableAmount: number;
+  totalTaxableAmount15: number;
   totalVATAmount: number;
   totalInvoiceAmount: number;
+  totalNonTaxableAmount: number;
 }
 
 interface ItemCalculation {
@@ -78,27 +80,42 @@ export const calculateInvoiceTotals = (items: InvoiceItem[]): InvoiceTotals => {
   let subTotal = 0;
   let totalDiscount = 0;
   let totalTaxableAmount = 0;
+  let totalTaxableAmount15 = 0;
   let totalVATAmount = 0;
   let totalInvoiceAmount = 0;
+  let totalNonTaxableAmount = 0;
 
   items.forEach((item) => {
     const calculation = calculateItemTotals(item);
 
     const quantity = parseFloat(item.quantity.toString()) || 0;
     const unitRate = parseFloat(item.unitRate.toString()) || 0;
+    const taxRate = parseFloat(item.taxRate.toString()) || 0;
 
     subTotal += quantity * unitRate;
     totalDiscount += calculation.discountAmount;
     totalTaxableAmount += calculation.taxableAmount;
     totalVATAmount += calculation.vatAmount;
     totalInvoiceAmount += calculation.totalAmount;
+
+    // Track 15% taxable items separately
+    if (taxRate === 15) {
+      totalTaxableAmount15 += calculation.taxableAmount;
+    }
+
+    // Add to non-taxable amount if tax rate is not 15% (have to check with ms)
+    if (taxRate !== 15) {
+      totalNonTaxableAmount += calculation.taxableAmount;
+    }
   });
 
   return {
     subTotal,
     totalDiscount,
     totalTaxableAmount,
+    totalTaxableAmount15,
     totalVATAmount,
     totalInvoiceAmount,
+    totalNonTaxableAmount,
   };
 };

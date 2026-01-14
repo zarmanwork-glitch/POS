@@ -132,7 +132,9 @@ export default function BilledBySection({
               </AlertDialogCancel>
 
               <AlertDialogAction
-                onClick={() => router.push('/your-target-route')}
+                onClick={() =>
+                  router.push('/profile/business-details/business-details-form')
+                }
                 className='bg-blue-600 hover:bg-blue-700 text-white'
               >
                 Yes, redirect me
@@ -144,7 +146,9 @@ export default function BilledBySection({
 
       {/* Business Details Section with SearchableDropdown */}
       <SearchableDropdown
-        label={t('invoices.form.businessDetails') || 'Business Details'}
+        label={t('invoices.form.businessDetails', {
+          defaultValue: 'Business Details',
+        })}
         placeholder={t('invoices.form.searchBusiness') || 'Search business...'}
         value={formik.values.business_detail_id || ''}
         searchValue={businessSearch}
@@ -186,48 +190,48 @@ export default function BilledBySection({
 
       {/* Business Details Display Table */}
       {selectedBusinessDetails && (
-        <div className='border border-gray-200 rounded-md overflow-hidden'>
-          <div className='divide-y divide-gray-200'>
+        <div className=' space-y-3'>
+          <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>
             {(() => {
               const rows = [
                 {
                   label: t('invoices.form.name'),
-                  value: selectedBusinessDetails.name,
+                  value: selectedBusinessDetails.name || '-',
                 },
                 {
                   label: t('invoices.form.companyName'),
-                  value: selectedBusinessDetails.companyName,
+                  value: selectedBusinessDetails.companyName || '-',
                 },
                 {
                   label: t('invoices.form.address'),
-                  value: selectedBusinessDetails.address,
+                  value: selectedBusinessDetails.address || '-',
                 },
                 {
                   label: t('invoices.form.country'),
-                  value: selectedBusinessDetails.country,
+                  value: selectedBusinessDetails.country || '-',
                 },
                 {
                   label: t('invoices.form.phone'),
-                  value: selectedBusinessDetails.phoneNumber,
+                  value: selectedBusinessDetails.phoneNumber || '-',
                 },
                 {
                   label: t('invoices.form.email'),
-                  value: selectedBusinessDetails.email,
+                  value: selectedBusinessDetails.email || '-',
                 },
                 {
                   label: t('invoices.form.cr'),
-                  value: selectedBusinessDetails.cr,
+                  value: selectedBusinessDetails.cr || '-',
                 },
                 {
                   label: t('invoices.form.vatNo'),
-                  value: selectedBusinessDetails.vatGstNumber,
+                  value: selectedBusinessDetails.vatGstNumber || '-',
                 },
               ];
 
               if (selectedBusinessDetails.momraLicense) {
                 rows.push({
                   label: t('invoices.form.momraLicense'),
-                  value: selectedBusinessDetails.momraLicense,
+                  value: selectedBusinessDetails.momraLicense || '-',
                 });
               }
 
@@ -240,21 +244,25 @@ export default function BilledBySection({
                 });
               }
 
-              return rows.map((row, index) => (
-                <div
-                  key={index}
-                  className={`flex items-start px-4 py-3 text-sm ${
-                    index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                  }`}
-                >
-                  <div className='w-1/3 text-gray-600 font-medium'>
-                    {row.label}:
-                  </div>
-                  <div className='w-2/3 text-gray-700 break-words'>
-                    {row.value || '-'}
-                  </div>
+              return (
+                <div className='divide-y divide-gray-200'>
+                  {rows.map((row, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-start px-4 py-3 ${
+                        index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                      }`}
+                    >
+                      <div className='w-1/3 text-gray-600 font-medium'>
+                        {row.label}:
+                      </div>
+                      <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                        {row.value}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ));
+              );
             })()}
           </div>
         </div>

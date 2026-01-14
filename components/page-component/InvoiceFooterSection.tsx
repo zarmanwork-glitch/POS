@@ -94,11 +94,11 @@ export default function InvoiceFooterSection({
       {/* Total Amount in Words */}
       <div>
         <Label className='text-sm font-semibold text-gray-700'>
-          Total Amount in Words:
+          {t('invoices.form.totalAmountInWords')}
         </Label>
         <Textarea
-          className='bg-blue-50 mt-2 min-h-20'
-          placeholder='Amount in words will appear here'
+          className='bg-blue-50 mt-2'
+          placeholder={t('invoices.form.amountInWordsPlaceholder')}
           value={
             cents > 0
               ? `SAR - ${totalInWords} and ${cents}`
@@ -107,8 +107,7 @@ export default function InvoiceFooterSection({
           readOnly
         />
         <p className='text-xs text-gray-500 mt-2'>
-          This is a system generated translation and may not be accurate. We
-          recommend you provide the translations yourself.
+          {t('invoices.form.amountInWordsDisclaimer')}
         </p>
       </div>
 
@@ -118,12 +117,12 @@ export default function InvoiceFooterSection({
           htmlFor='notes'
           className='text-sm font-semibold text-gray-700'
         >
-          Notes
+          {t('invoices.form.notesLabel')}
         </Label>
         <Textarea
           id='notes'
-          className='bg-blue-50 mt-2 min-h-32'
-          placeholder='Additional Notes'
+          className='bg-blue-50 mt-2 '
+          placeholder={t('invoices.form.additionalNotesPlaceholder')}
           name='notes'
           value={formik.values.notes || ''}
           onChange={formik.handleChange}
@@ -136,12 +135,12 @@ export default function InvoiceFooterSection({
           htmlFor='amountPaidToDate'
           className='text-sm font-semibold text-gray-700'
         >
-          Amount Paid to Date
+          {t('invoices.form.amountPaidToDate')}
         </Label>
         <Input
           id='amountPaidToDate'
           type='number'
-          className='bg-blue-50 mt-2 h-10'
+          className='bg-blue-50 mt-2 h-10 w-2/12'
           placeholder='0'
           name='amountPaidToDate'
           value={formik.values.amountPaidToDate || 0}

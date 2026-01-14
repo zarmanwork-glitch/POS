@@ -126,7 +126,7 @@ export default function BilledToSection({
                 </AlertDialogCancel>
 
                 <AlertDialogAction
-                  onClick={() => router.push('/your-target-route')}
+                  onClick={() => router.push('/customers/customer-form')}
                   className='bg-blue-600 hover:bg-blue-700 text-white'
                 >
                   Yes, redirect me
@@ -179,8 +179,8 @@ export default function BilledToSection({
 
       {/* Customer Details Display */}
       {selectedCustomer && (
-        <div className='border border-gray-200 rounded-lg overflow-hidden'>
-          <div className='bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between'>
+        <div className=' overflow-hidden'>
+          {/* <div className='bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between'>
             <span className='text-sm text-gray-700 font-medium'>
               {t('invoices.form.selectCustomer')}:{' '}
               <span className='text-red-500'>*</span>
@@ -195,7 +195,7 @@ export default function BilledToSection({
                 <X className='h-4 w-4' />
               </button>
             </div>
-          </div>
+          </div> */}
 
           <div className='p-4 space-y-3'>
             <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>

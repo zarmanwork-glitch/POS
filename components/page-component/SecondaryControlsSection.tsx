@@ -18,12 +18,12 @@ export default function SecondaryControlsSection({
           htmlFor='paymentTerms'
           className='text-sm text-gray-700'
         >
-          Payment Terms:
+          {t('invoices.form.paymentTermsLabel')}
         </Label>
         <Input
           id='paymentTerms'
           className='bg-blue-50 h-10 mt-2'
-          placeholder='Terms'
+          placeholder={t('invoices.form.termsPlaceholder')}
           name='paymentTerms'
           value={formik.values.paymentTerms}
           onChange={formik.handleChange}
@@ -36,7 +36,7 @@ export default function SecondaryControlsSection({
           htmlFor='paymentMeans'
           className='text-sm text-gray-700'
         >
-          Payment Means:
+          {t('invoices.form.paymentMeansLabel')}
         </Label>
         <div className='relative mt-2'>
           <Search className='absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none' />
@@ -45,7 +45,7 @@ export default function SecondaryControlsSection({
             name='paymentMeans'
             autoComplete='off'
             className='bg-blue-50 h-10 w-full pl-8 pr-2 text-xs rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-200'
-            placeholder='Search by code'
+            placeholder={t('invoices.form.searchByCode')}
             value={formik.values.paymentMeansSearch || ''}
             onChange={(e) => {
               formik.setFieldValue('paymentMeansSearch', e.target.value);

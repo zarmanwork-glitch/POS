@@ -1,31 +1,26 @@
 'use client';
 
+import { InvoiceDetailsGrid } from '@/components/page-component/InvoiceDetailsGrid';
+import InvoiceFooterSection from '@/components/page-component/InvoiceFooterSection';
+import { InvoiceFormHeader } from '@/components/page-component/InvoiceFormHeader';
+import { InvoiceFormSections } from '@/components/page-component/InvoiceFormSections';
+import { InvoiceTotalsSummary } from '@/components/page-component/InvoiceTotalsSummary';
+import ItemDetailsSection from '@/components/page-component/ItemDetailsSection';
+import { LogoUploadSection } from '@/components/page-component/LogoUploadSection';
+import SecondaryControlsSection from '@/components/page-component/SecondaryControlsSection';
+import { taxCodes } from '@/enums/taxCode';
+import { unitOfMeasures } from '@/enums/unitOfMeasure';
+import { useDropdownSearch } from '@/hooks/useDropdownSearch';
+import { useInvoiceDropdownData } from '@/hooks/useInvoiceDropdownData';
+import { useInvoiceForm } from '@/hooks/useInvoiceForm';
+import { useInvoiceSubmit } from '@/hooks/useInvoiceSubmit';
+import { invoiceValidationSchema } from '@/schema/invoiceFormValidation';
+import { BankDetail, BusinessDetail, Customer } from '@/types/invoiceTypes';
+import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
+import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFormik } from 'formik';
-import { unitOfMeasures } from '@/enums/unitOfMeasure';
-import { taxCodes } from '@/enums/taxCode';
-import {
-  InvoiceFormValues,
-  BusinessDetail,
-  Customer,
-  BankDetail,
-} from '@/types/invoiceTypes';
-import { useInvoiceForm } from '@/hooks/useInvoiceForm';
-import { useDropdownSearch } from '@/hooks/useDropdownSearch';
-import { useInvoiceDropdownData } from '@/hooks/useInvoiceDropdownData';
-import { useInvoiceSubmit } from '@/hooks/useInvoiceSubmit';
-import { invoiceValidationSchema } from '@/schema/invoiceFormValidation';
-import { InvoiceDetailsGrid } from '@/components/page-component/InvoiceDetailsGrid';
-import { LogoUploadSection } from '@/components/page-component/LogoUploadSection';
-import { InvoiceFormHeader } from '@/components/page-component/InvoiceFormHeader';
-import { InvoiceFormSections } from '@/components/page-component/InvoiceFormSections';
-import ItemDetailsSection from '@/components/page-component/ItemDetailsSection';
-import SecondaryControlsSection from '@/components/page-component/SecondaryControlsSection';
-import InvoiceFooterSection from '@/components/page-component/InvoiceFooterSection';
-import { InvoiceTotalsSummary } from '@/components/page-component/InvoiceTotalsSummary';
-import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
 
 export default function InvoiceFormPage() {
   const router = useRouter();
@@ -71,7 +66,6 @@ export default function InvoiceFormPage() {
   );
   const [selectedBank, setSelectedBank] = useState<BankDetail | null>(null);
 
-  const [itemSearch, setItemSearch] = useState('');
   const [businessFocused, setBusinessFocused] = useState(false);
   const [customerFocused, setCustomerFocused] = useState(false);
   const [bankFocused, setBankFocused] = useState(false);
@@ -122,16 +116,22 @@ export default function InvoiceFormPage() {
           createLabel={t('invoices.form.createInvoice')}
         />
 
-        <InvoiceDetailsGrid
-          formik={formik}
-          t={t}
-        />
+        <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
+          <div className='lg:col-span-3'>
+            <InvoiceDetailsGrid
+              formik={formik}
+              t={t}
+            />
+          </div>
 
-        <LogoUploadSection
-          logoPreview={logoPreview}
-          setLogoPreview={setLogoPreview}
-          t={t}
-        />
+          <div className='lg:col-span-1'>
+            <LogoUploadSection
+              logoPreview={logoPreview}
+              setLogoPreview={setLogoPreview}
+              t={t}
+            />
+          </div>
+        </div>
 
         <SecondaryControlsSection
           formik={formik}
@@ -175,8 +175,6 @@ export default function InvoiceFormPage() {
           removeItem={removeItem}
           addItemDetail={addItemDetail}
           itemOptions={itemOptions}
-          itemSearch={itemSearch}
-          setItemSearch={setItemSearch}
         />
 
         <InvoiceTotalsSummary items={items} />

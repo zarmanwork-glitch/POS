@@ -14,7 +14,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { SearchableDropdown } from '@/components/page-component/SearchableDropdown';
-import { DetailsDisplayCard } from '@/components/base-components/DetailsDisplayCard';
 
 interface BankDetail {
   id?: string;
@@ -92,12 +91,12 @@ export default function PaymentInfoSection({
       value: selectedBank?.beneficiaryName,
     },
     {
-      label: t('invoices.form.accountNumber') || 'Account',
+      label: t('invoices.form.accountNumber'),
       value: selectedBank?.accountNumber,
     },
     { label: t('invoices.form.country'), value: selectedBank?.country },
     { label: t('invoices.form.swiftCode'), value: selectedBank?.swiftCode },
-    { label: 'IBAN', value: selectedBank?.iban },
+    { label: t('invoices.form.iban'), value: selectedBank?.iban },
   ];
 
   return (
@@ -139,7 +138,9 @@ export default function PaymentInfoSection({
                 </AlertDialogCancel>
 
                 <AlertDialogAction
-                  onClick={() => router.push('/your-target-route')}
+                  onClick={() =>
+                    router.push('/profile/bank-details/bank-details-form')
+                  }
                   className='bg-blue-600 hover:bg-blue-700 text-white'
                 >
                   Yes, redirect me
@@ -192,13 +193,27 @@ export default function PaymentInfoSection({
 
       {/* Bank Details Display */}
       {selectedBank && (
-        <DetailsDisplayCard
-          title={t('invoices.form.selectPaymentDetails')}
-          displayName={displayName}
-          onClear={handleClear}
-          detailRows={bankDetailRows}
-          showIdentification={false}
-        />
+        <div className='p-4 space-y-3'>
+          <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>
+            <div className='divide-y divide-gray-200'>
+              {bankDetailRows.map((r, i) => (
+                <div
+                  key={i}
+                  className={`flex items-start px-4 py-3 ${
+                    i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                  }`}
+                >
+                  <div className='w-1/3 text-gray-600 font-medium'>
+                    {r.label}:
+                  </div>
+                  <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                    {r.value || '-'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

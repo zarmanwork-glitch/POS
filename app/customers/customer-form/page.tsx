@@ -21,6 +21,8 @@ import {
   getCustomerById,
 } from '@/api/customers/customer.api';
 import countries from '@/json/countries.json';
+import { customerIdentificationTypes } from '@/enums/customerIdentificationTypes';
+import { Separator } from '@/components/ui/separator';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -412,30 +414,17 @@ export default function CustomerFormPage() {
                 }
               >
                 <SelectTrigger className='bg-blue-50 h-10 py-2'>
-                  <SelectValue />
+                  <SelectValue placeholder='Identification Type' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='national_id'>National ID</SelectItem>
-                  <SelectItem value='tax_identification_no'>
-                    Tax Identification No
-                  </SelectItem>
-                  <SelectItem value='iqama_number'>Iqama Number</SelectItem>
-                  <SelectItem value='passport_id'>Passport ID</SelectItem>
-                  <SelectItem value='700_number'>700 Number</SelectItem>
-                  <SelectItem value='commercial_registration_number'>
-                    Commercial Registration
-                  </SelectItem>
-                  <SelectItem value='momra_license'>MOMRA License</SelectItem>
-                  <SelectItem value='mlsd_license'>MLSD License</SelectItem>
-                  <SelectItem value='sagia_license'>SAGIA License</SelectItem>
-                  <SelectItem value='gcc_id'>GCC ID</SelectItem>
-                  <SelectItem value='ministry_of_justice_license'>
-                    Ministry of Justice License
-                  </SelectItem>
-                  <SelectItem value='other_id'>Other ID</SelectItem>
-                  <SelectItem value='company_registration'>
-                    Company Registration
-                  </SelectItem>
+                  {customerIdentificationTypes.map((type) => (
+                    <SelectItem
+                      key={type.value}
+                      value={type.value}
+                    >
+                      {type.displayText}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

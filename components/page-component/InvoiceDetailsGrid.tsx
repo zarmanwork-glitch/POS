@@ -347,7 +347,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
           )}
         </div>
         {!formik.values.supplyEndDate && (
-          <div className='text-xs text-gray-400 mt-1'>
+          <div className='text-xs text-gray-400 mt-2'>
             {t('invoices.form.chooseDate')}
           </div>
         )}

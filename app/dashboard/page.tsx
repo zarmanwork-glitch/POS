@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+import InvoiceChart from '@/components/page-component/InvoiceChar';
 import { dateRanges } from '@/enums/dateRange';
 
 export default function DashboardPage() {
@@ -98,20 +99,9 @@ export default function DashboardPage() {
           {/* Tab Content */}
           <TabsContent
             value='business'
-            className='mt-8'
+            className='mt-8 space-y-6'
           >
-            <div className='text-center py-16'>
-              <p className='text-gray-500 text-lg'>{t('dashboard.noData')}</p>
-            </div>
-          </TabsContent>
-
-          <TabsContent
-            value='search'
-            className='mt-8'
-          >
-            <div className='text-center py-16'>
-              <p className='text-gray-500 text-lg'>{t('dashboard.noData')}</p>
-            </div>
+            <InvoiceChart />
           </TabsContent>
         </Tabs>
       </div>

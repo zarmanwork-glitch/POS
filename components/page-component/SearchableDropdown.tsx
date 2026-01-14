@@ -70,7 +70,7 @@ export function SearchableDropdown({
             <Search className='absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none' />
             <Input
               autoComplete='off'
-              className='bg-blue-50 h-9 w-full pl-8 pr-2 text-xs rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-200'
+              className='bg-blue-50 h-9 w-full pl-8 pr-2 py-1 text-xs rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-200'
               placeholder={placeholder}
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}

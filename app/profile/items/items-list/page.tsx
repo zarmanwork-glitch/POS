@@ -649,6 +649,7 @@ export default function ItemsListPage() {
                 <TableHead>{t('profile.materialServiceCode')}</TableHead>
                 <TableHead>Buy / Sell</TableHead>
                 <TableHead>{t('profile.status')}</TableHead>
+                <TableHead>ACtions</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>

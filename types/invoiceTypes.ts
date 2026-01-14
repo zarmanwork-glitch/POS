@@ -37,6 +37,9 @@ export type InvoiceItem = {
   discountType: 'PERC' | 'NUMBER';
   taxRate: number;
   taxCode: string;
+  vatSa32?: string;
+  outOfScope?: string;
+  exempt?: string;
 };
 
 export type InvoiceFormValues = {

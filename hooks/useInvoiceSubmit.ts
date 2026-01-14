@@ -58,23 +58,31 @@ export function useInvoiceSubmit() {
       const transformedItems = items.map((item, idx) => {
         const { vatAmount, totalAmount } = calculateItemRow(item);
 
+        // Normalize discount type: PERC -> percentage, NUMBER -> number
         const normalizedDiscountType =
+          item.discountType === 'PERC' ||
           item.discountType?.toLowerCase() === 'percentage'
             ? 'percentage'
-            : item.discountType?.toLowerCase() === 'number'
-            ? 'number'
             : 'number';
+
+        // Ensure discount is a number, default to 0 if empty
+        const discountValue =
+          item.discount === '' ||
+          item.discount === null ||
+          item.discount === undefined
+            ? 0
+            : Number(item.discount);
 
         return {
           no: idx + 1,
           description: item.description,
           serviceCode: item.serviceCode,
           unit: item.unitOfMeasure,
-          quantity: item.quantity,
-          unitRate: item.unitRate,
-          discount: item.discount,
+          quantity: Number(item.quantity) || 0,
+          unitRate: Number(item.unitRate) || 0,
+          discount: discountValue,
           discountType: normalizedDiscountType,
-          taxRate: item.taxRate,
+          taxRate: Number(item.taxRate) || 0,
           taxCode: item.taxCode,
           vatAmount: vatAmount,
           total: totalAmount,

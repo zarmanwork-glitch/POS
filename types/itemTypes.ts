@@ -9,6 +9,8 @@ export interface Item {
   taxRate: number | string;
   taxCode: string;
   vatSa32?: string;
+  outOfScope?: string;
+  exempt?: string;
 }
 
 export interface ListItem {
@@ -39,6 +41,4 @@ export interface ItemDetailsSectionProps {
   removeItem: (idx: number) => void;
   addItemDetail: () => void;
   itemOptions: any[];
-  itemSearch: string;
-  setItemSearch: (search: string) => void;
 }

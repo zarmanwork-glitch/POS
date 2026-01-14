@@ -4,17 +4,10 @@ import { downloadInvoicePdf } from '@/api/invoices/invoice.api';
 import { InvoiceControlsBar } from '@/components/page-component/InvoiceControlsBar';
 import { InvoicePagination } from '@/components/page-component/InvoicePagination';
 import { InvoiceTable } from '@/components/page-component/InvoiceTable';
+import PDFPreviewModal from '@/components/page-component/PdfPreviewModal';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { useInvoiceListData } from '@/hooks/useInvoiceListData';
 import { useInvoiceListFilters } from '@/hooks/useInvoiceListFilters';
-import { Spinner } from '@/components/ui/spinner';
 import Cookies from 'js-cookie';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -216,36 +209,12 @@ export default function InvoiceListPage() {
       )}
 
       {/* PDF Preview Modal */}
-      <Dialog
+      <PDFPreviewModal
         open={previewOpen}
         onOpenChange={handleClosePreview}
-      >
-        <DialogContent className='max-w-6xl h-[90vh]'>
-          <DialogHeader>
-            <DialogTitle className='text-xl font-semibold'>
-              {t('invoices.pdfPreview', { defaultValue: 'Invoice Preview' })}
-            </DialogTitle>
-          </DialogHeader>
-          <div className='flex-1 w-full h-[calc(90vh-80px)] overflow-hidden'>
-            {loadingPreview ? (
-              <div className='flex flex-col items-center justify-center h-full gap-4'>
-                <Spinner className='h-12 w-12' />
-                <p className='text-gray-600'>
-                  {t('invoices.loadingPreview', {
-                    defaultValue: 'Loading preview...',
-                  })}
-                </p>
-              </div>
-            ) : previewUrl ? (
-              <iframe
-                src={previewUrl}
-                className='w-full h-full border-0 rounded'
-                title='Invoice Preview'
-              />
-            ) : null}
-          </div>
-        </DialogContent>
-      </Dialog>
+        loadingPreview={loadingPreview}
+        previewUrl={previewUrl}
+      />
     </div>
   );
 }

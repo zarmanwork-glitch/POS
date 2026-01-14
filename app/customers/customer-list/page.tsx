@@ -462,6 +462,7 @@ export default function CustomerListPage() {
                 <TableHead>{t('profile.phoneNumber')}</TableHead>
                 <TableHead>{t('customers.table.address')}</TableHead>
                 <TableHead>{t('profile.country')}</TableHead>
+                <TableHead>Actions</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
