@@ -90,9 +90,9 @@ export const BusinessDetailsPagination: React.FC<
                 }
               }}
               className={
-                totalItems > 0
+                (totalItems > 0
                   ? page >= totalPages
-                  : !hasMore
+                  : !hasMore)
                   ? 'pointer-events-none opacity-50'
                   : ''
               }

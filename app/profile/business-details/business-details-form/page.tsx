@@ -24,7 +24,7 @@ import Cookies from 'js-cookie';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Accordion,
@@ -35,7 +35,7 @@ import {
 import { ChevronDown } from 'lucide-react';
 import { identificationTypes } from '@/enums/businessDetailsFormIdentification';
 
-export default function BusinessDetailsFormPage() {
+function BusinessDetailsFormPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
@@ -49,151 +49,31 @@ export default function BusinessDetailsFormPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isRefundPolicyOpen, setIsRefundPolicyOpen] = useState(true);
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      companyName: '',
-      email: '',
-      phoneNumber: '',
-      companyNameLocal: '',
-      isVatRegistered: 'yes',
-      country: '',
-      addressStreet: '',
-      addressStreetAdditional: '',
-      buildingNumber: '',
-      province: '',
-      city: '',
-      district: '',
-      postalCode: '',
-      additionalNumber: '',
-      addressLocal: '',
-      companyRegistrationNumber: '',
-      vatNumber: '',
-      groupVatNumber: '',
-      identificationType: '',
-      identificationNumber: '',
-      refundPolicy: '',
-      refundPolicyLocal: '',
-    },
-    validationSchema,
-    onSubmit: handleAddBusinessDetails,
-  });
-
-  // Fetch business details data using id
-  useEffect(() => {
-    if (id) {
-      const fetchBusinessDetails = async () => {
-        try {
-          setIsLoadingDetails(true);
-          const token = Cookies.get('authToken');
-          if (!token) {
-            console.error('No token found');
-            return;
-          }
-
-          const response = await getBusinessDetailsById({
-            token,
-            businessDetailsId: id,
-          });
-
-          if (response?.data?.data?.results?.businessDetails) {
-            const data = response.data.data.results.businessDetails;
-
-            // Populate form with fetched data
-            formik.setValues({
-              name: data.name || '',
-              companyName: data.companyName || '',
-              email: data.email || '',
-              phoneNumber: data.phoneNumber || '',
-              companyNameLocal: data.companyNameLocal || '',
-              isVatRegistered: data.isVatRegistered ? 'yes' : 'no',
-              country: data.country || '',
-              addressStreet: data.addressStreet || '',
-              addressStreetAdditional: data.addressStreetAdditional || '',
-              buildingNumber: data.buildingNumber || '',
-              province: data.province || '',
-              city: data.city || '',
-              district: data.district || '',
-              postalCode: data.postalCode || '',
-              additionalNumber: data.additionalNumber || '',
-              addressLocal: data.addressLocal || '',
-              companyRegistrationNumber: data.companyRegistrationNumber || '',
-              vatNumber: data.vatNumber || '',
-              groupVatNumber: data.groupVatNumber || '',
-              identificationType: data.identificationType || '',
-              identificationNumber: data.identificationNumber || '',
-            });
-
-            // Set existing logo URL if available
-            if (data.logoUrl) {
-              setExistingLogoUrl(data.logoUrl);
-              setLogoPreview(data.logoUrl);
-            }
-
-            // Set refund policy fields if available
-            if (data.refundPolicy) {
-              formik.setFieldValue('refundPolicy', data.refundPolicy);
-            }
-            if (data.refundPolicyLocal) {
-              formik.setFieldValue('refundPolicyLocal', data.refundPolicyLocal);
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching business details:', error);
-        } finally {
-          setIsLoadingDetails(false);
-        }
-      };
-
-      fetchBusinessDetails();
-    }
-  }, [id]);
-
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setLogo(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      // Clear the native file input value so selecting the same file again will trigger onChange
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type.startsWith('image/')) {
-        setLogo(file);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setLogoPreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  };
-
-  const handleCancel = () => {
-    formik.resetForm();
-    setLogo(null);
-    setLogoPreview('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    router.push('/profile/business-details/business-details-list');
-  };
-
-  async function handleAddBusinessDetails(values: typeof formik.values) {
+  async function handleAddBusinessDetails(values: {
+    name: string;
+    companyName: string;
+    email: string;
+    phoneNumber: string;
+    companyNameLocal: string;
+    isVatRegistered: string;
+    country: string;
+    addressStreet: string;
+    addressStreetAdditional: string;
+    buildingNumber: string;
+    province: string;
+    city: string;
+    district: string;
+    postalCode: string;
+    additionalNumber: string;
+    addressLocal: string;
+    companyRegistrationNumber: string;
+    vatNumber: string;
+    groupVatNumber: string;
+    identificationType: string;
+    identificationNumber: string;
+    refundPolicy: string;
+    refundPolicyLocal: string;
+  }) {
     try {
       setIsLoading(true);
       const token = Cookies.get('authToken');
@@ -267,7 +147,9 @@ export default function BusinessDetailsFormPage() {
           },
           successCallbackFunction: () => {
             // Reset form after successful submission
-            handleCancel();
+            setLogo(null);
+            setLogoPreview('');
+            if (fileInputRef.current) fileInputRef.current.value = '';
             // Navigate back to business details list
             router.push('/profile/business-details/business-details-list');
           },
@@ -285,7 +167,9 @@ export default function BusinessDetailsFormPage() {
           },
           successCallbackFunction: () => {
             // Reset form after successful submission
-            handleCancel();
+            setLogo(null);
+            setLogoPreview('');
+            if (fileInputRef.current) fileInputRef.current.value = '';
             // Navigate back to business details list
             router.push('/profile/business-details/business-details-list');
           },
@@ -298,6 +182,144 @@ export default function BusinessDetailsFormPage() {
       setUploadProgress(0);
     }
   }
+
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      companyName: '',
+      email: '',
+      phoneNumber: '',
+      companyNameLocal: '',
+      isVatRegistered: 'yes',
+      country: '',
+      addressStreet: '',
+      addressStreetAdditional: '',
+      buildingNumber: '',
+      province: '',
+      city: '',
+      district: '',
+      postalCode: '',
+      additionalNumber: '',
+      addressLocal: '',
+      companyRegistrationNumber: '',
+      vatNumber: '',
+      groupVatNumber: '',
+      identificationType: '',
+      identificationNumber: '',
+      refundPolicy: '',
+      refundPolicyLocal: '',
+    },
+    validationSchema,
+    onSubmit: handleAddBusinessDetails,
+  });
+
+  const handleCancel = () => {
+    formik.resetForm();
+    setLogo(null);
+    setLogoPreview('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    router.push('/profile/business-details/business-details-list');
+  };
+
+  // Fetch business details data using id
+  useEffect(() => {
+    if (id) {
+      const fetchBusinessDetails = async () => {
+        try {
+          setIsLoadingDetails(true);
+          const token = Cookies.get('authToken');
+          if (!token) {
+            console.error('No token found');
+            return;
+          }
+
+          const response = await getBusinessDetailsById({
+            token,
+            businessDetailsId: id,
+          });
+
+          if (response?.data?.data?.results?.businessDetails) {
+            const data = response.data.data.results.businessDetails;
+
+            // Populate form with fetched data
+            formik.setValues({
+              name: data.name || '',
+              companyName: data.companyName || '',
+              email: data.email || '',
+              phoneNumber: data.phoneNumber || '',
+              companyNameLocal: data.companyNameLocal || '',
+              isVatRegistered: data.isVatRegistered ? 'yes' : 'no',
+              country: data.country || '',
+              addressStreet: data.addressStreet || '',
+              addressStreetAdditional: data.addressStreetAdditional || '',
+              buildingNumber: data.buildingNumber || '',
+              province: data.province || '',
+              city: data.city || '',
+              district: data.district || '',
+              postalCode: data.postalCode || '',
+              additionalNumber: data.additionalNumber || '',
+              addressLocal: data.addressLocal || '',
+              companyRegistrationNumber: data.companyRegistrationNumber || '',
+              vatNumber: data.vatNumber || '',
+              groupVatNumber: data.groupVatNumber || '',
+              identificationType: data.identificationType || '',
+              identificationNumber: data.identificationNumber || '',
+              refundPolicy: data.refundPolicy || '',
+              refundPolicyLocal: data.refundPolicyLocal || '',
+            });
+
+            // Set existing logo URL if available
+            if (data.logoUrl) {
+              setExistingLogoUrl(data.logoUrl);
+              setLogoPreview(data.logoUrl);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching business details:', error);
+        } finally {
+          setIsLoadingDetails(false);
+        }
+      };
+
+      fetchBusinessDetails();
+    }
+  }, [id]);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogo(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      // Clear the native file input value so selecting the same file again will trigger onChange
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        setLogo(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setLogoPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
 
   // Helper function to display error messages
   const getErrorMessage = (fieldName: keyof typeof formik.errors) => {
@@ -1112,5 +1134,20 @@ export default function BusinessDetailsFormPage() {
         </Accordion>
       </form>
     </div>
+  );
+}
+
+export default function BusinessDetailsFormPage() {
+  return (
+    <Suspense fallback={
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='space-y-4 text-center'>
+          <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
+          <p className='text-gray-600 font-medium'>Loading...</p>
+        </div>
+      </div>
+    }>
+      <BusinessDetailsFormPageContent />
+    </Suspense>
   );
 }

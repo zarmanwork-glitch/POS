@@ -15,10 +15,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const iconMap: Record<string, JSX.Element> = {
+const iconMap: Record<string, ReactElement> = {
   LayoutGrid: <LayoutGrid size={18} />,
   User: <User size={18} />,
   FileText: <FileText size={18} />,

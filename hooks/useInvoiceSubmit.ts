@@ -6,14 +6,14 @@ import { useTranslation } from 'react-i18next';
 import { createInvoice } from '@/api/invoices/invoice.api';
 import { calculateItemRow } from '@/utils/itemCalculations';
 import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
-import { InvoiceFormValues, Item } from '@/types/invoiceTypes';
+import { InvoiceFormValues, InvoiceItem } from '@/types/invoiceTypes';
 
 export function useInvoiceSubmit() {
   const router = useRouter();
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
-  const submitInvoice = async (values: InvoiceFormValues, items: Item[]) => {
+  const submitInvoice = async (values: InvoiceFormValues, items: InvoiceItem[]) => {
     try {
       setIsLoading(true);
 

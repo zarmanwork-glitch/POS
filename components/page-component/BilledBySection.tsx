@@ -146,9 +146,7 @@ export default function BilledBySection({
 
       {/* Business Details Section with SearchableDropdown */}
       <SearchableDropdown
-        label={t('invoices.form.businessDetails', {
-          defaultValue: 'Business Details',
-        })}
+        label={t('invoices.form.businessDetails') || 'Business Details'}
         placeholder={t('invoices.form.searchBusiness') || 'Search business...'}
         value={formik.values.business_detail_id || ''}
         searchValue={businessSearch}

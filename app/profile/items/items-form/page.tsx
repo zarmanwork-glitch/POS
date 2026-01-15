@@ -16,7 +16,7 @@ import { unitOfMeasures } from '@/enums/unitOfMeasure';
 import { useFormik } from 'formik';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ToggleButton } from '@/components/base-components/ToggleButton';
@@ -54,13 +54,61 @@ const validationSchema = Yup.object({
     .nullable(),
 });
 
-export default function NewItemPage() {
+function NewItemPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
   const { t } = useTranslation();
+
+  async function handleAddItem(values: {
+    itemType: string;
+    itemStatus: string;
+    description: string;
+    materialNo: string;
+    unitOfMeasure: string;
+    buyPrice: string;
+    sellPrice: string;
+    discountPercentage: string;
+  }) {
+    try {
+      setIsLoading(true);
+      const token = Cookies.get('authToken');
+
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      const payload: any = values;
+
+      // If id exists, update otherwise create new
+      if (id) {
+        payload.id = id;
+        await updateItem({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            router.push('/profile/items/items-list');
+          },
+        });
+      } else {
+        await addITEM({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            router.push('/profile/items/items-list');
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error adding item:', error);
+      toast.error(id ? 'Error updating item' : 'Error creating item');
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const formik = useFormik({
     initialValues: {
@@ -114,45 +162,6 @@ export default function NewItemPage() {
       fetchItem();
     }
   }, [id]);
-
-  async function handleAddItem(values: typeof formik.values) {
-    try {
-      setIsLoading(true);
-      const token = Cookies.get('authToken');
-
-      if (!token) {
-        console.error('No token found');
-        return;
-      }
-
-      const payload = values;
-
-      // If id exists, update otherwise create new
-      if (id) {
-        payload.id = id;
-        await updateItem({
-          token,
-          payload,
-          successCallbackFunction: () => {
-            router.push('/profile/items/items-list');
-          },
-        });
-      } else {
-        await addITEM({
-          token,
-          payload,
-          successCallbackFunction: () => {
-            router.push('/profile/items/items-list');
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Error adding item:', error);
-      toast.error(id ? 'Error updating item' : 'Error creating item');
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   const hasError = (field: keyof typeof formik.errors) =>
     !!(formik.touched[field] && formik.errors[field]);
@@ -447,5 +456,20 @@ export default function NewItemPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewItemPage() {
+  return (
+    <Suspense fallback={
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='space-y-4 text-center'>
+          <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
+          <p className='text-gray-600 font-medium'>Loading...</p>
+        </div>
+      </div>
+    }>
+      <NewItemPageContent />
+    </Suspense>
   );
 }
