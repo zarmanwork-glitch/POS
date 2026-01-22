@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 // Public routes that don't require authentication
 const publicRoutes = ['/sign-in', '/sign-up'];
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if the route is public
   const isPublicRoute = publicRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   // Get the auth token from cookies
