@@ -16,7 +16,7 @@ import { unitOfMeasures } from '@/enums/unitOfMeasure';
 import { useFormik } from 'formik';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ToggleButton } from '@/components/base-components/ToggleButton';
@@ -46,7 +46,7 @@ const validationSchema = Yup.object({
         return (
           value !== undefined && buyPrice !== undefined && value >= buyPrice
         );
-      }
+      },
     ),
   discountPercentage: Yup.number()
     .min(0, 'Discount cannot be negative')
@@ -54,7 +54,18 @@ const validationSchema = Yup.object({
     .nullable(),
 });
 
-export default function NewItemPage() {
+interface ItemFormValues {
+  itemType: string;
+  itemStatus: string;
+  description: string;
+  materialNo: string;
+  unitOfMeasure: string;
+  buyPrice: string | number;
+  sellPrice: string | number;
+  discountPercentage: string | number;
+}
+
+function ItemsFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
@@ -62,7 +73,7 @@ export default function NewItemPage() {
   const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
   const { t } = useTranslation();
 
-  const formik = useFormik({
+  const formik = useFormik<ItemFormValues>({
     initialValues: {
       itemType: '',
       itemStatus: 'enabled',
@@ -115,7 +126,7 @@ export default function NewItemPage() {
     }
   }, [id]);
 
-  async function handleAddItem(values: typeof formik.values) {
+  async function handleAddItem(values: ItemFormValues) {
     try {
       setIsLoading(true);
       const token = Cookies.get('authToken');
@@ -129,7 +140,7 @@ export default function NewItemPage() {
 
       // If id exists, update otherwise create new
       if (id) {
-        payload.id = id;
+        (payload as any).id = id;
         await updateItem({
           token,
           payload,
@@ -447,5 +458,19 @@ export default function NewItemPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewItemPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex items-center justify-center min-h-screen'>
+          <Spinner className='h-12 w-12 text-blue-600' />
+        </div>
+      }
+    >
+      <ItemsFormContent />
+    </Suspense>
   );
 }

@@ -18,14 +18,23 @@ import { useFormik } from 'formik';
 import Cookies from 'js-cookie';
 import { X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { validationSchema } from '@/schema/bankDetailsValidation';
 import countries from '@/json/countries.json';
 import { Spinner } from '@/components/ui/spinner';
 
-export default function AddBankDetailsPage() {
+interface BankDetailsFormValues {
+  country: string;
+  accountNumber: string;
+  iban: string;
+  bankName: string;
+  swiftCode: string;
+  beneficiaryName: string;
+}
+
+function BankDetailsFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
@@ -35,7 +44,46 @@ export default function AddBankDetailsPage() {
 
   const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
 
-  const formik = useFormik({
+  async function handleAddBankDetails(values: BankDetailsFormValues) {
+    try {
+      setIsLoading(true);
+      const token = Cookies.get('authToken');
+
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      const payload = values;
+
+      // If id exists, update otherwise create new
+      if (id) {
+        (payload as any).id = id;
+        await updateBankDetails({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            router.push('/profile/bank-details/bank-details-list');
+          },
+        });
+      } else {
+        await addBankDetails({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            router.push('/profile/bank-details/bank-details-list');
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error adding item:', error);
+      toast.error(id ? 'Error updating item' : 'Error creating item');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const formik = useFormik<BankDetailsFormValues>({
     initialValues: {
       country: '',
       accountNumber: '',
@@ -91,45 +139,6 @@ export default function AddBankDetailsPage() {
       setIsLoadingDetails(false);
     }
   }, [id]);
-
-  async function handleAddBankDetails(values: typeof formik.values) {
-    try {
-      setIsLoading(true);
-      const token = Cookies.get('authToken');
-
-      if (!token) {
-        console.error('No token found');
-        return;
-      }
-
-      const payload = values;
-
-      // If id exists, update otherwise create new
-      if (id) {
-        payload.id = id;
-        await updateBankDetails({
-          token,
-          payload,
-          successCallbackFunction: () => {
-            router.push('/profile/bank-details/bank-details-list');
-          },
-        });
-      } else {
-        await addBankDetails({
-          token,
-          payload,
-          successCallbackFunction: () => {
-            router.push('/profile/bank-details/bank-details-list');
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Error adding item:', error);
-      toast.error(id ? 'Error updating item' : 'Error creating item');
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   const hasError = (field: keyof typeof formik.errors) =>
     !!(formik.touched[field] && formik.errors[field]);
@@ -366,5 +375,19 @@ export default function AddBankDetailsPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function AddBankDetailsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex items-center justify-center min-h-screen'>
+          <Spinner className='h-12 w-12 text-blue-600' />
+        </div>
+      }
+    >
+      <BankDetailsFormContent />
+    </Suspense>
   );
 }

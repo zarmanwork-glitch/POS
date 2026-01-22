@@ -32,30 +32,35 @@ const invoices = [
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-20',
     amount: 1496096.09,
+    currency: 'SAR',
   },
   {
     id: 'INV-00534',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-20',
     amount: 852313.17,
+    currency: 'SAR',
   },
   {
     id: 'INV-00533',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-19',
     amount: 25968.15,
+    currency: 'SAR',
   },
   {
     id: 'INV-00532',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-19',
     amount: 1080.6,
+    currency: 'SAR',
   },
   {
     id: 'INV-00531',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-18',
     amount: 8224.8,
+    currency: 'SAR',
   },
 
   {
@@ -63,30 +68,35 @@ const invoices = [
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-18',
     amount: 45210.75,
+    currency: 'SAR',
   },
   {
     id: 'INV-00529',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-17',
     amount: 234500.0,
+    currency: 'SAR',
   },
   {
     id: 'INV-00528',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-17',
     amount: 17890.4,
+    currency: 'SAR',
   },
   {
     id: 'INV-00527',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-16',
     amount: 9120.0,
+    currency: 'SAR',
   },
   {
     id: 'INV-00526',
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-16',
     amount: 60250.99,
+    currency: 'SAR',
   },
 
   {
@@ -254,7 +264,7 @@ export default function InvoicePage() {
   const filteredInvoices = invoices.filter(
     (inv) =>
       inv.id.includes(search) ||
-      inv.customer.toLowerCase().includes(search.toLowerCase())
+      inv.customer.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (

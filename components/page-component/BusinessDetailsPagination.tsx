@@ -73,7 +73,7 @@ export const BusinessDetailsPagination: React.FC<
                     {p}
                   </PaginationLink>
                 </PaginationItem>
-              )
+              ),
             )
           ) : (
             <PaginationItem>
@@ -90,9 +90,7 @@ export const BusinessDetailsPagination: React.FC<
                 }
               }}
               className={
-                totalItems > 0
-                  ? page >= totalPages
-                  : !hasMore
+                (totalItems > 0 ? page >= totalPages : !hasMore)
                   ? 'pointer-events-none opacity-50'
                   : ''
               }

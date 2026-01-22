@@ -17,8 +17,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ReactElement } from 'react';
 
-const iconMap: Record<string, JSX.Element> = {
+const iconMap: Record<string, ReactElement> = {
   LayoutGrid: <LayoutGrid size={18} />,
   User: <User size={18} />,
   FileText: <FileText size={18} />,
@@ -65,7 +66,7 @@ export default function Sidebar({
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(() => {
     const activeParent = sidebarItems.find((item) =>
-      item.children?.some((child) => pathname === child.href)
+      item.children?.some((child) => pathname === child.href),
     );
     return activeParent?.label || null;
   });
@@ -98,8 +99,8 @@ export default function Sidebar({
             mobileOpen
               ? 'translate-x-0'
               : isRTL
-              ? 'translate-x-full lg:translate-x-0'
-              : '-translate-x-full lg:translate-x-0'
+                ? 'translate-x-full lg:translate-x-0'
+                : '-translate-x-full lg:translate-x-0'
           }
           ${collapsed ? 'w-20' : 'w-64'}
         `}
@@ -128,8 +129,8 @@ export default function Sidebar({
                   ? ''
                   : 'rotate-180'
                 : isRTL
-                ? 'rotate-180'
-                : ''
+                  ? 'rotate-180'
+                  : ''
             }`}
           />
         </Button>
@@ -165,7 +166,7 @@ export default function Sidebar({
                 else if (child.href) {
                   const childDir = child.href.substring(
                     0,
-                    child.href.lastIndexOf('/')
+                    child.href.lastIndexOf('/'),
                   );
                   const formPath = childDir + '/items-form'; // adjust if needed per section
                   // Better: generalize by checking if pathname shares the same directory

@@ -113,13 +113,18 @@ export const api_client = async ({
 
     if (isDisplayResponsePopUp) {
       // Helper to resolve API message keys to user-friendly messages
-      const resolveMessage = (key: string | null | undefined): string | undefined => {
+      const resolveMessage = (
+        key: string | null | undefined,
+      ): string | undefined => {
         if (!key) return undefined;
         try {
           for (const group of ApiKeys) {
             for (const sectionKey in group) {
               const section: any = (group as any)[sectionKey];
-              if (section && Object.prototype.hasOwnProperty.call(section, key)) {
+              if (
+                section &&
+                Object.prototype.hasOwnProperty.call(section, key)
+              ) {
                 return section[key];
               }
             }
@@ -131,10 +136,10 @@ export const api_client = async ({
       };
 
       let messageToDisplay: string;
-      
+
       // First try to resolve the backend message key
       const resolvedMessage = resolveMessage(backendMessageKey);
-      
+
       if (resolvedMessage) {
         messageToDisplay = resolvedMessage;
       } else if (typeof errorMessage === 'string') {
@@ -144,7 +149,8 @@ export const api_client = async ({
       } else if (backendMessageKey) {
         messageToDisplay = backendMessageKey;
       } else {
-        messageToDisplay = 'An unexpected error occurred. Please try again later.';
+        messageToDisplay =
+          'An unexpected error occurred. Please try again later.';
       }
 
       toast.error(messageToDisplay);

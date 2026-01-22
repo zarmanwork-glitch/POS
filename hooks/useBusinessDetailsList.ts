@@ -76,7 +76,7 @@ export function useBusinessDetailsList() {
           setTotalItems(0);
         }
         setHasMore(
-          Array.isArray(detailsList) ? detailsList.length >= limit : false
+          Array.isArray(detailsList) ? detailsList.length >= limit : false,
         );
       } catch (error: any) {
         console.error('Error fetching business details:', error);
@@ -106,12 +106,9 @@ export function useBusinessDetailsList() {
         token,
         businessDetailsId: deleteItemId,
       });
-      if (
-        response?.data?.status === 'success' ||
-        response?.status === 'success'
-      ) {
+      if (response?.data?.status === 'success' || response?.status === 200) {
         toast.success(
-          `Business detail "${deleteItemName}" deleted successfully`
+          `Business detail "${deleteItemName}" deleted successfully`,
         );
         setData(data.filter((item) => item.id !== deleteItemId));
         setDeleteModalOpen(false);

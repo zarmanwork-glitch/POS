@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Spinner } from '@/components/ui/spinner';
@@ -25,6 +25,31 @@ import { customerIdentificationTypes } from '@/enums/customerIdentificationTypes
 import { Separator } from '@/components/ui/separator';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+
+// Define the customer form values type
+interface CustomerFormValues {
+  name: string;
+  companyName: string;
+  customerNumber: string;
+  email: string;
+  phoneNumber: string;
+  companyNameLocal: string;
+  country: string;
+  addressStreet: string;
+  addressStreetAdditional: string;
+  buildingNumber: string;
+  province: string;
+  city: string;
+  district: string;
+  postalCode: string;
+  neighborhood: string;
+  addressLocal: string;
+  companyRegistrationNumber: string;
+  vatNumber: string;
+  groupVatNumber: string;
+  identificationType: string;
+  identificationNumber: string;
+}
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
@@ -53,41 +78,13 @@ const validationSchema = Yup.object({
   identificationNumber: Yup.string(),
 });
 
-export default function CustomerFormPage() {
+function CustomerFormContent() {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
-
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      companyName: '',
-      customerNumber: '',
-      email: '',
-      phoneNumber: '',
-      companyNameLocal: '',
-      country: '',
-      addressStreet: '',
-      addressStreetAdditional: '',
-      buildingNumber: '',
-      province: '',
-      city: '',
-      district: '',
-      postalCode: '',
-      neighborhood: '',
-      addressLocal: '',
-      companyRegistrationNumber: '',
-      vatNumber: '',
-      groupVatNumber: '',
-      identificationType: '',
-      identificationNumber: '',
-    },
-    validationSchema,
-    onSubmit: handleAddCustomer,
-  });
 
   // Fetch customer data using id
   useEffect(() => {
@@ -141,7 +138,7 @@ export default function CustomerFormPage() {
     }
   }, [id]);
 
-  async function handleAddCustomer(values: typeof formik.values) {
+  async function handleAddCustomer(values: CustomerFormValues) {
     try {
       setIsLoading(true);
       const token = Cookies.get('authToken');
@@ -155,7 +152,7 @@ export default function CustomerFormPage() {
 
       // If id exists, update otherwise create new
       if (id) {
-        payload.id = id;
+        (payload as any).id = id;
         await updateCustomer({
           token,
           payload,
@@ -173,12 +170,40 @@ export default function CustomerFormPage() {
         });
       }
     } catch (error) {
-      console.error('Error adding customer:', error);
-      toast.error(id ? 'Error updating customer' : 'Error creating customer');
+      console.error('Error:', error);
+      toast.error(id ? 'Failed to update customer' : 'Failed to add customer');
     } finally {
       setIsLoading(false);
     }
   }
+
+  const formik = useFormik<CustomerFormValues>({
+    initialValues: {
+      name: '',
+      companyName: '',
+      customerNumber: '',
+      email: '',
+      phoneNumber: '',
+      companyNameLocal: '',
+      country: '',
+      addressStreet: '',
+      addressStreetAdditional: '',
+      buildingNumber: '',
+      province: '',
+      city: '',
+      district: '',
+      postalCode: '',
+      neighborhood: '',
+      addressLocal: '',
+      companyRegistrationNumber: '',
+      vatNumber: '',
+      groupVatNumber: '',
+      identificationType: '',
+      identificationNumber: '',
+    },
+    validationSchema,
+    onSubmit: handleAddCustomer,
+  });
 
   const hasError = (field: keyof typeof formik.errors) =>
     !!(formik.touched[field] && formik.errors[field]);
@@ -487,7 +512,7 @@ export default function CustomerFormPage() {
                   >
                     <SelectValue
                       placeholder={t(
-                        'customers.form.placeholders.selectCountry'
+                        'customers.form.placeholders.selectCountry',
                       )}
                     />
                   </SelectTrigger>
@@ -614,7 +639,7 @@ export default function CustomerFormPage() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 placeholder={t(
-                  'customers.form.placeholders.enterBuildingNumber'
+                  'customers.form.placeholders.enterBuildingNumber',
                 )}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('buildingNumber') ? 'border-red-500 border' : ''
@@ -680,5 +705,19 @@ export default function CustomerFormPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CustomerFormPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex items-center justify-center min-h-screen'>
+          <Spinner className='h-12 w-12 text-blue-600' />
+        </div>
+      }
+    >
+      <CustomerFormContent />
+    </Suspense>
   );
 }

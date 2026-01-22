@@ -24,7 +24,7 @@ import Cookies from 'js-cookie';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Accordion,
@@ -35,7 +35,33 @@ import {
 import { ChevronDown } from 'lucide-react';
 import { identificationTypes } from '@/enums/businessDetailsFormIdentification';
 
-export default function BusinessDetailsFormPage() {
+interface BusinessDetailsFormValues {
+  name: string;
+  companyName: string;
+  email: string;
+  phoneNumber: string;
+  companyNameLocal: string;
+  isVatRegistered: string;
+  country: string;
+  addressStreet: string;
+  addressStreetAdditional: string;
+  buildingNumber: string;
+  province: string;
+  city: string;
+  district: string;
+  postalCode: string;
+  additionalNumber: string;
+  addressLocal: string;
+  companyRegistrationNumber: string;
+  vatNumber: string;
+  groupVatNumber: string;
+  identificationType: string;
+  identificationNumber: string;
+  refundPolicy: string;
+  refundPolicyLocal: string;
+}
+
+function BusinessDetailsFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
@@ -49,7 +75,7 @@ export default function BusinessDetailsFormPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isRefundPolicyOpen, setIsRefundPolicyOpen] = useState(true);
 
-  const formik = useFormik({
+  const formik = useFormik<BusinessDetailsFormValues>({
     initialValues: {
       name: '',
       companyName: '',
@@ -122,6 +148,8 @@ export default function BusinessDetailsFormPage() {
               groupVatNumber: data.groupVatNumber || '',
               identificationType: data.identificationType || '',
               identificationNumber: data.identificationNumber || '',
+              refundPolicy: data.refundPolicy || '',
+              refundPolicyLocal: data.refundPolicyLocal || '',
             });
 
             // Set existing logo URL if available
@@ -193,7 +221,7 @@ export default function BusinessDetailsFormPage() {
     router.push('/profile/business-details/business-details-list');
   };
 
-  async function handleAddBusinessDetails(values: typeof formik.values) {
+  async function handleAddBusinessDetails(values: BusinessDetailsFormValues) {
     try {
       setIsLoading(true);
       const token = Cookies.get('authToken');
@@ -261,7 +289,7 @@ export default function BusinessDetailsFormPage() {
           file: logo || undefined,
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
+              (progressEvent.loaded * 100) / progressEvent.total,
             );
             setUploadProgress(percentCompleted);
           },
@@ -279,7 +307,7 @@ export default function BusinessDetailsFormPage() {
           file: logo || undefined,
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
+              (progressEvent.loaded * 100) / progressEvent.total,
             );
             setUploadProgress(percentCompleted);
           },
@@ -1112,5 +1140,19 @@ export default function BusinessDetailsFormPage() {
         </Accordion>
       </form>
     </div>
+  );
+}
+
+export default function BusinessDetailsFormPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex items-center justify-center min-h-screen'>
+          <Spinner className='h-12 w-12 text-blue-600' />
+        </div>
+      }
+    >
+      <BusinessDetailsFormContent />
+    </Suspense>
   );
 }

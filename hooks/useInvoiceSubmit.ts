@@ -7,6 +7,7 @@ import { createInvoice } from '@/api/invoices/invoice.api';
 import { calculateItemRow } from '@/utils/itemCalculations';
 import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
 import { InvoiceFormValues } from '@/types/invoiceTypes';
+import { Item } from '@/types/itemTypes';
 
 export function useInvoiceSubmit() {
   const router = useRouter();
