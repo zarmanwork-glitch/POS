@@ -223,12 +223,6 @@ export default function SignInPage() {
             </div>
 
             {/* reCAPTCHA Notice */}
-            <div className='flex items-center space-x-2'>
-              <Checkbox id='recaptcha' />
-              <span className='text-sm text-gray-600'>
-                {t('auth.signIn.robot')}
-              </span>
-            </div>
 
             {/* Sign In Button */}
             <Button

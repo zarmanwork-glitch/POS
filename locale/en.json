@@ -245,6 +245,7 @@
       "emailLabel": "Email",
       "emailPlaceholder": "you@example.com",
       "passwordLabel": "Password",
+      "passwordPlaceholder": "Create a strong password",
       "confirmPasswordLabel": "Confirm Password",
       "showPassword": "Show password",
       "robot": "I'm not a robot",

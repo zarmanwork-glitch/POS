@@ -245,6 +245,7 @@
       "emailLabel": "البريد الإلكتروني",
       "emailPlaceholder": "you@example.com",
       "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أنشئ كلمة مرور قوية",
       "confirmPasswordLabel": "تأكيد كلمة المرور",
       "showPassword": "عرض كلمة المرور",
       "robot": "أنا لست برنامجًا آليًا",

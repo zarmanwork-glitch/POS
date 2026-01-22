@@ -158,24 +158,6 @@ export default function SignUpPage() {
             </div>
 
             {/* Checkboxes */}
-            <div className='space-y-3'>
-              <div className='flex items-center space-x-2'>
-                <Checkbox id='show-password' />
-                <label
-                  htmlFor='show-password'
-                  className='text-sm text-gray-600'
-                >
-                  {t('auth.signUp.showPassword')}
-                </label>
-              </div>
-
-              <div className='flex items-center space-x-2'>
-                <Checkbox id='robot' />
-                <span className='text-sm text-gray-600'>
-                  {t('auth.signUp.robot')}
-                </span>
-              </div>
-            </div>
 
             {/* Submit */}
             <div className='flex items-center gap-3'>
