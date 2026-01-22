@@ -6,14 +6,14 @@ import { useTranslation } from 'react-i18next';
 import { createInvoice } from '@/api/invoices/invoice.api';
 import { calculateItemRow } from '@/utils/itemCalculations';
 import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
-import { InvoiceFormValues, InvoiceItem } from '@/types/invoiceTypes';
+import { InvoiceFormValues } from '@/types/invoiceTypes';
 
 export function useInvoiceSubmit() {
   const router = useRouter();
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
-  const submitInvoice = async (values: InvoiceFormValues, items: InvoiceItem[]) => {
+  const submitInvoice = async (values: InvoiceFormValues, items: Item[]) => {
     try {
       setIsLoading(true);
 
@@ -38,7 +38,7 @@ export function useInvoiceSubmit() {
       }
 
       const hasInvalidItems = items.some(
-        (item) => !item.description || !item.quantity || !item.unitRate
+        (item) => !item.description || !item.quantity || !item.unitRate,
       );
       if (hasInvalidItems) {
         toast.error(t('invoices.form.errors.itemFieldsRequired'));

@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { X } from 'lucide-react';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Spinner } from '@/components/ui/spinner';
@@ -53,74 +53,13 @@ const validationSchema = Yup.object({
   identificationNumber: Yup.string(),
 });
 
-function CustomerFormPageContent() {
+export default function CustomerFormPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(!!id);
-
-  async function handleAddCustomer(values: {
-    name: string;
-    companyName: string;
-    customerNumber: string;
-    email: string;
-    phoneNumber: string;
-    companyNameLocal: string;
-    country: string;
-    addressStreet: string;
-    addressStreetAdditional: string;
-    buildingNumber: string;
-    province: string;
-    city: string;
-    district: string;
-    postalCode: string;
-    neighborhood: string;
-    addressLocal: string;
-    companyRegistrationNumber: string;
-    vatNumber: string;
-    groupVatNumber: string;
-    identificationType: string;
-    identificationNumber: string;
-  }) {
-    try {
-      setIsLoading(true);
-      const token = Cookies.get('authToken');
-
-      if (!token) {
-        console.error('No token found');
-        return;
-      }
-
-      const payload: any = values;
-
-      // If id exists, update otherwise create new
-      if (id) {
-        payload.id = id;
-        await updateCustomer({
-          token,
-          payload,
-          successCallbackFunction: () => {
-            router.push('/customers/customer-list');
-          },
-        });
-      } else {
-        await createCustomer({
-          token,
-          payload,
-          successCallbackFunction: () => {
-            router.push('/customers/customer-list');
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Error adding customer:', error);
-      toast.error(id ? 'Error updating customer' : 'Error creating customer');
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   const formik = useFormik({
     initialValues: {
@@ -201,6 +140,45 @@ function CustomerFormPageContent() {
       fetchCustomer();
     }
   }, [id]);
+
+  async function handleAddCustomer(values: typeof formik.values) {
+    try {
+      setIsLoading(true);
+      const token = Cookies.get('authToken');
+
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      const payload = values;
+
+      // If id exists, update otherwise create new
+      if (id) {
+        payload.id = id;
+        await updateCustomer({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            router.push('/customers/customer-list');
+          },
+        });
+      } else {
+        await createCustomer({
+          token,
+          payload,
+          successCallbackFunction: () => {
+            router.push('/customers/customer-list');
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      toast.error(id ? 'Error updating customer' : 'Error creating customer');
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const hasError = (field: keyof typeof formik.errors) =>
     !!(formik.touched[field] && formik.errors[field]);
@@ -702,20 +680,5 @@ function CustomerFormPageContent() {
         </div>
       </form>
     </div>
-  );
-}
-
-export default function CustomerFormPage() {
-  return (
-    <Suspense fallback={
-      <div className='flex items-center justify-center min-h-screen'>
-        <div className='space-y-4 text-center'>
-          <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
-          <p className='text-gray-600 font-medium'>Loading...</p>
-        </div>
-      </div>
-    }>
-      <CustomerFormPageContent />
-    </Suspense>
   );
 }

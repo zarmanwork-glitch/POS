@@ -6,16 +6,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import loginBackground from '@/public/login_bg.svg';
+
 import { useFormik } from 'formik';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import LanguageSwitch from '@/components/base-components/LanguageSwitch';
 import { toast } from 'sonner';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitch from '@/components/base-components/LanguageSwitch';
 import { Spinner } from '@/components/ui/spinner';
 import { Separator } from '@/components/ui/separator';
 
@@ -128,11 +129,17 @@ export default function SignInPage() {
           </div>
 
           {/* Logo/Brand */}
-          <div className='text-center space-y-2'>
-            <h1 className='text-3xl font-bold text-gray-900'>
-              {t('auth.signIn.brand')}
-            </h1>
-            <p className='text-sm text-gray-600'>{t('auth.signIn.subtitle')}</p>
+          <div className='text-center space-y-4'>
+            <div className='flex justify-center'>
+              <span className='text-3xl sm:text-4xl lg:text-5xl font-bold text-blue-600'>
+                POS
+              </span>
+            </div>
+            <div className='space-y-2'>
+              <p className='text-sm text-gray-600'>
+                {t('auth.signIn.subtitle')}
+              </p>
+            </div>
           </div>
 
           {/* Form */}

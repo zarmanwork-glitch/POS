@@ -158,7 +158,7 @@ export default function InvoiceListPage() {
                 | 'customerPoNumber'
                 | 'name'
                 | 'companyName'
-                | 'customerNumber'
+                | 'customerNumber',
             )
           }
           onSortByChange={filters.setSortBy}

@@ -32,35 +32,30 @@ const invoices = [
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-20',
     amount: 1496096.09,
-    currency: 'SAR',
   },
   {
     id: 'INV-00534',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-20',
     amount: 852313.17,
-    currency: 'SAR',
   },
   {
     id: 'INV-00533',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-19',
     amount: 25968.15,
-    currency: 'SAR',
   },
   {
     id: 'INV-00532',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-19',
     amount: 1080.6,
-    currency: 'SAR',
   },
   {
     id: 'INV-00531',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-18',
     amount: 8224.8,
-    currency: 'SAR',
   },
 
   {
@@ -68,35 +63,30 @@ const invoices = [
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-18',
     amount: 45210.75,
-    currency: 'SAR',
   },
   {
     id: 'INV-00529',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-17',
     amount: 234500.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00528',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-17',
     amount: 17890.4,
-    currency: 'SAR',
   },
   {
     id: 'INV-00527',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-16',
     amount: 9120.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00526',
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-16',
     amount: 60250.99,
-    currency: 'SAR',
   },
 
   {
@@ -104,35 +94,30 @@ const invoices = [
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-15',
     amount: 450000.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00524',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-15',
     amount: 7340.65,
-    currency: 'SAR',
   },
   {
     id: 'INV-00523',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-14',
     amount: 18990.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00522',
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-14',
     amount: 32110.25,
-    currency: 'SAR',
   },
   {
     id: 'INV-00521',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-13',
     amount: 980000.0,
-    currency: 'SAR',
   },
 
   {
@@ -140,35 +125,30 @@ const invoices = [
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-13',
     amount: 6450.5,
-    currency: 'SAR',
   },
   {
     id: 'INV-00519',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-12',
     amount: 13450.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00518',
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-12',
     amount: 28760.8,
-    currency: 'SAR',
   },
   {
     id: 'INV-00517',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-11',
     amount: 1496096.09,
-    currency: 'SAR',
   },
   {
     id: 'INV-00516',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-11',
     amount: 852313.17,
-    currency: 'SAR',
   },
 
   {
@@ -176,35 +156,30 @@ const invoices = [
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-10',
     amount: 25968.15,
-    currency: 'SAR',
   },
   {
     id: 'INV-00514',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-10',
     amount: 1080.6,
-    currency: 'SAR',
   },
   {
     id: 'INV-00513',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-09',
     amount: 8224.8,
-    currency: 'SAR',
   },
   {
     id: 'INV-00512',
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-09',
     amount: 41200.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00511',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-08',
     amount: 675000.0,
-    currency: 'SAR',
   },
 
   {
@@ -212,28 +187,24 @@ const invoices = [
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-08',
     amount: 9980.3,
-    currency: 'SAR',
   },
   {
     id: 'INV-00509',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-07',
     amount: 14560.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00508',
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-07',
     amount: 38990.45,
-    currency: 'SAR',
   },
   {
     id: 'INV-00507',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-06',
     amount: 520000.0,
-    currency: 'SAR',
   },
 
   {
@@ -241,35 +212,30 @@ const invoices = [
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-06',
     amount: 7210.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00505',
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-05',
     amount: 16230.75,
-    currency: 'SAR',
   },
   {
     id: 'INV-00504',
     customer: 'Company D - Saudi Arabia',
     date: '2025-12-05',
     amount: 47000.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00503',
     customer: 'Company A - Saudi Arabia',
     date: '2025-12-04',
     amount: 810000.0,
-    currency: 'SAR',
   },
   {
     id: 'INV-00502',
     customer: 'Company B - Saudi Arabia',
     date: '2025-12-04',
     amount: 5600.9,
-    currency: 'SAR',
   },
 
   {
@@ -277,7 +243,6 @@ const invoices = [
     customer: 'Company C - Saudi Arabia',
     date: '2025-12-03',
     amount: 19340.0,
-    currency: 'SAR',
   },
 ];
 

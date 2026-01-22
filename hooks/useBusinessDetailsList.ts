@@ -108,7 +108,7 @@ export function useBusinessDetailsList() {
       });
       if (
         response?.data?.status === 'success' ||
-        response?.status === 200
+        response?.status === 'success'
       ) {
         toast.success(
           `Business detail "${deleteItemName}" deleted successfully`

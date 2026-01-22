@@ -59,11 +59,17 @@ export default function SignUpPage() {
           </div>
 
           {/* Header */}
-          <div className='text-center space-y-2'>
-            <h1 className='text-3xl font-bold text-gray-900'>
-              {t('auth.signUp.brand')}
-            </h1>
-            <p className='text-sm text-gray-600'>{t('auth.signUp.subtitle')}</p>
+          <div className='text-center space-y-4'>
+            <div className='flex justify-center'>
+              <span className='text-3xl sm:text-4xl lg:text-5xl font-bold text-blue-600'>
+                POS
+              </span>
+            </div>
+            <div className='space-y-2'>
+              <p className='text-sm text-gray-600'>
+                {t('auth.signUp.subtitle')}
+              </p>
+            </div>
           </div>
 
           {/* Form */}

@@ -45,13 +45,11 @@ function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
         >
           <Menu className='h-5 w-5' />
         </Button>
-
-        <Image
-          src='/logo.png'
-          alt='logo'
-          width={100}
-          height={40}
-        />
+        <div className='flex items-center gap-2'>
+          <span className='text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600'>
+            POS
+          </span>
+        </div>
       </div>
 
       {/* Right */}
