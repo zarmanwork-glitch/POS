@@ -259,6 +259,11 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
                     formik.setFieldValue('dueDate', `${year}-${month}-${day}`);
                   }
                 }}
+                disabled={(date) =>
+                  formik.values.invoiceDate
+                    ? date < new Date(formik.values.invoiceDate + 'T00:00:00')
+                    : false
+                }
                 initialFocus
               />
             </PopoverContent>
@@ -329,6 +334,11 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
                     );
                   }
                 }}
+                disabled={(date) =>
+                  formik.values.invoiceDate
+                    ? date < new Date(formik.values.invoiceDate + 'T00:00:00')
+                    : false
+                }
                 initialFocus
               />
             </PopoverContent>

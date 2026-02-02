@@ -432,7 +432,7 @@ export default function ItemsListPage() {
                   });
                 if (filters.unitOfMeasure) {
                   const u = unitOfMeasures.find(
-                    (uu) => uu.value === filters.unitOfMeasure
+                    (uu) => uu.value === filters.unitOfMeasure,
                   );
                   active.push({
                     key: 'unitOfMeasure',
@@ -649,7 +649,7 @@ export default function ItemsListPage() {
                 <TableHead>{t('profile.materialServiceCode')}</TableHead>
                 <TableHead>Buy / Sell</TableHead>
                 <TableHead>{t('profile.status')}</TableHead>
-                <TableHead>ACtions</TableHead>
+                <TableHead>Actions</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -783,7 +783,7 @@ export default function ItemsListPage() {
                         {p}
                       </PaginationLink>
                     </PaginationItem>
-                  )
+                  ),
                 );
               })()}
 
