@@ -14,9 +14,16 @@ type ApiInvoice = {
   dueDate?: string;
   type: InvoiceTypeType;
   customer?:
-    | { name?: string; companyName?: string; location?: string }
+    | {
+        name?: string;
+        companyName?: string;
+        location?: string;
+        country?: string;
+        city?: string;
+      }
     | string;
   totalAmount?: number;
+  invoiceNetTotal?: number;
   AmountPaidToDate?: number;
   currency?: string;
   status: InvoiceStatusType;
@@ -29,6 +36,9 @@ export type Invoice = {
   dueDate: string;
   invoiceType: InvoiceTypeType;
   customer: string;
+  customerCompanyName: string;
+  customerCountry: string;
+  customerCity: string;
   customerLocation: string;
   total: number;
   currency: string;
@@ -119,8 +129,8 @@ export const useInvoiceListData = (filters: UseInvoiceListDataProps) => {
             (typeof inv.invoiceDate === 'string'
               ? inv.invoiceDate
               : typeof inv.createdAt === 'string'
-              ? inv.createdAt
-              : ''
+                ? inv.createdAt
+                : ''
             )?.slice(0, 10) || '',
           dueDate: inv.dueDate?.slice(0, 10) || '',
           invoiceType: inv.type,
@@ -128,11 +138,24 @@ export const useInvoiceListData = (filters: UseInvoiceListDataProps) => {
             (typeof inv.customer === 'object'
               ? inv.customer?.name || inv.customer?.companyName || ''
               : inv.customer) || '',
+          customerCompanyName:
+            (typeof inv.customer === 'object'
+              ? inv.customer?.companyName || ''
+              : '') || '',
+          customerCountry:
+            (typeof inv.customer === 'object'
+              ? inv.customer?.country || ''
+              : '') || '',
+          customerCity:
+            (typeof inv.customer === 'object'
+              ? inv.customer?.city || ''
+              : '') || '',
           customerLocation:
             (typeof inv.customer === 'object'
               ? inv.customer?.location || ''
               : '') || '',
-          total: inv.totalAmount ?? inv.AmountPaidToDate ?? 0,
+          total:
+            inv.invoiceNetTotal ?? inv.totalAmount ?? inv.AmountPaidToDate ?? 0,
           currency: inv.currency || '',
           status: inv.status,
         }));

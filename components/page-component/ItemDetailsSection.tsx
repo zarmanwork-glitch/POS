@@ -47,7 +47,7 @@ export default function ItemDetailsSection({
   const [activeTaxCodeIdx, setActiveTaxCodeIdx] = useState<number | null>(null);
   const [activeExportIdx, setActiveExportIdx] = useState<number | null>(null);
   const [activeOutOfScopeIdx, setActiveOutOfScopeIdx] = useState<number | null>(
-    null
+    null,
   );
   const [activeExemptIdx, setActiveExemptIdx] = useState<number | null>(null);
 
@@ -292,7 +292,7 @@ export default function ItemDetailsSection({
                                 onClick={() => {
                                   handleSelectItem(
                                     item.id || item._id || '',
-                                    idx
+                                    idx,
                                   );
                                 }}
                               >
@@ -331,7 +331,7 @@ export default function ItemDetailsSection({
                           updateItem(
                             idx,
                             'quantity',
-                            parseNumber(e.target.value)
+                            parseNumber(e.target.value),
                           )
                         }
                       />
@@ -425,7 +425,7 @@ export default function ItemDetailsSection({
                         className='bg-blue-50 h-9 text-xs w-full flex justify-between items-center px-2 min-w-30 hover:bg-blue-50'
                         onClick={() =>
                           setActiveTaxCodeIdx(
-                            activeTaxCodeIdx === idx ? null : idx
+                            activeTaxCodeIdx === idx ? null : idx,
                           )
                         }
                         tabIndex={0}
@@ -479,7 +479,7 @@ export default function ItemDetailsSection({
                             className='bg-blue-50 h-9 text-xs w-full pr-8 relative'
                             value={
                               exportTypeOptions.find(
-                                (opt) => opt.value === row.vatSa32
+                                (opt) => opt.value === row.vatSa32,
                               )?.displayText || 'Export of goods'
                             }
                             readOnly
@@ -491,7 +491,7 @@ export default function ItemDetailsSection({
                             className='absolute right-0 top-0 h-9 text-xs flex justify-between items-center px-2 rounded-l-none bg-blue-50 border border-l-0 border-gray-200 hover:bg-blue-50'
                             onClick={() =>
                               setActiveExportIdx(
-                                activeExportIdx === idx ? null : idx
+                                activeExportIdx === idx ? null : idx,
                               )
                             }
                             tabIndex={0}
@@ -540,7 +540,7 @@ export default function ItemDetailsSection({
                             className='bg-blue-50 h-9 text-xs w-full pr-8 relative'
                             value={
                               outOfScopeOptions.find(
-                                (opt) => opt.value === row.outOfScope
+                                (opt) => opt.value === row.outOfScope,
                               )?.displayText || 'Not subject to VAT'
                             }
                             readOnly
@@ -552,7 +552,7 @@ export default function ItemDetailsSection({
                             className='absolute right-0 top-0 h-9 text-xs flex justify-between items-center px-2 rounded-l-none bg-blue-50 border border-l-0 border-gray-200 hover:bg-blue-50'
                             onClick={() =>
                               setActiveOutOfScopeIdx(
-                                activeOutOfScopeIdx === idx ? null : idx
+                                activeOutOfScopeIdx === idx ? null : idx,
                               )
                             }
                             tabIndex={0}
@@ -601,7 +601,7 @@ export default function ItemDetailsSection({
                             className='bg-blue-50 h-9 text-xs w-full pr-8 relative'
                             value={
                               exemptOptions.find(
-                                (opt) => opt.value === row.exempt
+                                (opt) => opt.value === row.exempt,
                               )?.displayText ||
                               'Financial services mentioned in Article 29 of the VAT Regulations'
                             }
@@ -614,7 +614,7 @@ export default function ItemDetailsSection({
                             className='absolute right-0 top-0 h-9 text-xs flex justify-between items-center px-2 rounded-l-none bg-blue-50 border border-l-0 border-gray-200 hover:bg-blue-50'
                             onClick={() =>
                               setActiveExemptIdx(
-                                activeExemptIdx === idx ? null : idx
+                                activeExemptIdx === idx ? null : idx,
                               )
                             }
                             tabIndex={0}

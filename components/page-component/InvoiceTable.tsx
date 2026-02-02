@@ -78,9 +78,11 @@ export const InvoiceTable = ({
                 </TableCell>
                 <TableCell>
                   <div className='space-y-1'>
-                    <div className='font-medium'>{inv.customer}</div>
+                    <div className='font-medium'>{inv.customerCompanyName}</div>
                     <div className='text-xs text-gray-500'>
-                      {inv.customerLocation}
+                      {[inv.customerCountry, inv.customerCity]
+                        .filter(Boolean)
+                        .join(', ')}
                     </div>
                   </div>
                 </TableCell>

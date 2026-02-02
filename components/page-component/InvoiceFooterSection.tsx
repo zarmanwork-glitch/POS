@@ -96,19 +96,30 @@ export default function InvoiceFooterSection({
         <Label className='text-sm font-semibold text-gray-700'>
           {t('invoices.form.totalAmountInWords')}
         </Label>
-        <Textarea
-          className='bg-blue-50 mt-2'
-          placeholder={t('invoices.form.amountInWordsPlaceholder')}
-          value={
-            cents > 0
-              ? `SAR - ${totalInWords} and ${cents}`
-              : `SAR - ${totalInWords}`
-          }
-          readOnly
-        />
-        <p className='text-xs text-gray-500 mt-2'>
-          {t('invoices.form.amountInWordsDisclaimer')}
-        </p>
+        <div className='mt-2 space-y-2'>
+          <div
+            className='text-right text-sm text-gray-600'
+            dir='rtl'
+          >
+            المجموع في الكلمات
+          </div>
+          <Textarea
+            className='bg-blue-50'
+            placeholder={t('invoices.form.amountInWordsPlaceholder')}
+            name='totalAmountInWords'
+            value={
+              formik.values.totalAmountInWords ||
+              (cents > 0
+                ? `SAR - ${totalInWords} and ${numberToWords(cents)}`
+                : `SAR - ${totalInWords}`)
+            }
+            onChange={formik.handleChange}
+          />
+          <p className='text-xs text-gray-500'>
+            This is a system generated translation and may not be accurate. We
+            recommend you provide the translations yourself.
+          </p>
+        </div>
       </div>
 
       {/* Notes */}
@@ -143,7 +154,7 @@ export default function InvoiceFooterSection({
           className='bg-blue-50 mt-2 h-10 w-2/12'
           placeholder='0'
           name='amountPaidToDate'
-          value={formik.values.amountPaidToDate || 0}
+          value={formik.values.amountPaidToDate || ''}
           onChange={formik.handleChange}
         />
       </div>

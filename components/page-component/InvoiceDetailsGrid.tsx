@@ -64,7 +64,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
                 {formik.values.invoiceDate
                   ? format(
                       new Date(formik.values.invoiceDate + 'T00:00:00'),
-                      'PPP'
+                      'PPP',
                     )
                   : t('invoices.form.chooseDate')}
               </Button>
@@ -84,7 +84,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
                     const day = String(date.getDate()).padStart(2, '0');
                     formik.setFieldValue(
                       'invoiceDate',
-                      `${year}-${month}-${day}`
+                      `${year}-${month}-${day}`,
                     );
                   }
                 }}
@@ -134,7 +134,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
                 {formik.values.supplyDate
                   ? format(
                       new Date(formik.values.supplyDate + 'T00:00:00'),
-                      'PPP'
+                      'PPP',
                     )
                   : t('invoices.form.chooseDate')}
               </Button>
@@ -154,7 +154,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
                     const day = String(date.getDate()).padStart(2, '0');
                     formik.setFieldValue(
                       'supplyDate',
-                      `${year}-${month}-${day}`
+                      `${year}-${month}-${day}`,
                     );
                   }
                 }}
@@ -226,7 +226,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
 
         <Label
           htmlFor='dueDate'
-          className='block text-sm text-gray-700 mt-4 mb-1'
+          className='block text-sm text-gray-700 mt-8 mb-1'
         >
           {t('invoices.form.dueDate')}:
         </Label>
@@ -305,7 +305,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
                 {formik.values.supplyEndDate
                   ? format(
                       new Date(formik.values.supplyEndDate + 'T00:00:00'),
-                      'PPP'
+                      'PPP',
                     )
                   : t('invoices.form.chooseDate')}
               </Button>
@@ -325,7 +325,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
                     const day = String(date.getDate()).padStart(2, '0');
                     formik.setFieldValue(
                       'supplyEndDate',
-                      `${year}-${month}-${day}`
+                      `${year}-${month}-${day}`,
                     );
                   }
                 }}
@@ -370,7 +370,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
 
         <Label
           htmlFor='customerPoNumber'
-          className='block text-sm text-gray-700 mt-4 mb-1'
+          className='block text-sm text-gray-700 mt-8 mb-1'
         >
           {t('invoices.customerPoNumber')}:
         </Label>

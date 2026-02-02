@@ -166,7 +166,7 @@ export default function CustomerListPage() {
         .includes(searchCustomer.toLowerCase()) ||
       (customer.email || '')
         .toLowerCase()
-        .includes(searchCustomer.toLowerCase())
+        .includes(searchCustomer.toLowerCase()),
   );
 
   const handleEdit = (customerId: string) => {
@@ -199,7 +199,7 @@ export default function CustomerListPage() {
         duration: 2000,
       });
       setCustomers(
-        customers.filter((customer) => customer.id !== deleteCustomerId)
+        customers.filter((customer) => customer.id !== deleteCustomerId),
       );
       setDeleteModalOpen(false);
       setDeleteCustomerId(null);
@@ -249,7 +249,6 @@ export default function CustomerListPage() {
               <Settings2 className='h-4 w-4 text-gray-600' />
             </button>
 
-            {/* FILTER PANEL */}
             {showFilters && (
               <>
                 {/* Overlay */}
@@ -411,9 +410,9 @@ export default function CustomerListPage() {
                 <DropdownMenuItem onClick={() => setSortBy('Company Name')}>
                   {t('customers.sortOptions.companyName')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('Email')}>
+                {/* <DropdownMenuItem onClick={() => setSortBy('Email')}>
                   {t('customers.sortOptions.email')}
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
               </DropdownMenuContent>
             </DropdownMenu>
             <button
@@ -596,7 +595,7 @@ export default function CustomerListPage() {
                         {p}
                       </PaginationLink>
                     </PaginationItem>
-                  )
+                  ),
                 );
               })()}
 

@@ -62,7 +62,7 @@ export default function InvoiceFormPage() {
   const [selectedBusinessDetails, setSelectedBusinessDetails] =
     useState<BusinessDetail | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null
+    null,
   );
   const [selectedBank, setSelectedBank] = useState<BankDetail | null>(null);
 

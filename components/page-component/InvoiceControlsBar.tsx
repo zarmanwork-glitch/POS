@@ -89,7 +89,7 @@ export const InvoiceControlsBar = ({
                   variant='outline'
                   className={cn(
                     'h-10 w-full justify-start text-left font-normal',
-                    !startDate && 'text-muted-foreground'
+                    !startDate && 'text-muted-foreground',
                   )}
                 >
                   <CalendarIcon className='mr-2 h-4 w-4' />
@@ -114,7 +114,7 @@ export const InvoiceControlsBar = ({
                       const year = date.getFullYear();
                       const month = String(date.getMonth() + 1).padStart(
                         2,
-                        '0'
+                        '0',
                       );
                       const day = String(date.getDate()).padStart(2, '0');
                       onStartDateChange(`${year}-${month}-${day}`);
@@ -135,7 +135,7 @@ export const InvoiceControlsBar = ({
                   variant='outline'
                   className={cn(
                     'h-10 w-full justify-start text-left font-normal',
-                    !endDate && 'text-muted-foreground'
+                    !endDate && 'text-muted-foreground',
                   )}
                 >
                   <CalendarIcon className='mr-2 h-4 w-4' />
@@ -160,7 +160,7 @@ export const InvoiceControlsBar = ({
                       const year = date.getFullYear();
                       const month = String(date.getMonth() + 1).padStart(
                         2,
-                        '0'
+                        '0',
                       );
                       const day = String(date.getDate()).padStart(2, '0');
                       onEndDateChange(`${year}-${month}-${day}`);

@@ -11,7 +11,7 @@ export const useInvoiceForm = () => {
       unitOfMeasure: 'unit',
       discount: '',
       discountType: 'PERC',
-      taxRate: 0,
+      taxRate: 15,
       taxCode: 'S',
     },
   ]);
@@ -29,7 +29,7 @@ export const useInvoiceForm = () => {
         unitOfMeasure: '',
         discount: '',
         discountType: 'PERC',
-        taxRate: 0,
+        taxRate: 15,
         taxCode: 'S',
       },
     ]);
@@ -38,10 +38,10 @@ export const useInvoiceForm = () => {
   const updateItem = (
     index: number,
     key: string,
-    value: string | number | boolean
+    value: string | number | boolean,
   ) => {
     setItems((it) =>
-      it.map((r, i) => (i === index ? { ...r, [key]: value } : r))
+      it.map((r, i) => (i === index ? { ...r, [key]: value } : r)),
     );
   };
 

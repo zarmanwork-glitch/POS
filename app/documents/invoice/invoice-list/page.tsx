@@ -24,6 +24,7 @@ export default function InvoiceListPage() {
 
   // Use custom hooks for filters and data
   const filters = useInvoiceListFilters();
+
   const { items, loading, totalCount, totalPages, limit } = useInvoiceListData({
     page: filters.page,
     sortBy: filters.sortBy,
