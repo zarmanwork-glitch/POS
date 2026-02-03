@@ -26,11 +26,20 @@ interface Customer {
   name?: string;
   customerNumber?: string;
   address?: string;
+  addressStreet?: string;
+  addressStreetAdditional?: string;
+  buildingNumber?: string;
+  district?: string;
+  city?: string;
+  postalCode?: string;
   country?: string;
   phoneNumber?: string;
   email?: string;
-  cin?: string;
+  companyRegistrationNumber?: string;
+  vatNumber?: string;
   vatGstNumber?: string;
+  identificationType?: string;
+  identificationNumber?: string;
 }
 
 interface BilledToSectionProps {
@@ -150,7 +159,7 @@ export default function BilledToSection({
         onBlur={() => setTimeout(() => setCustomerFocused(false), 150)}
         onSelect={(option) => {
           const originalCustomer = customerOptions.find(
-            (c) => (c.id || c._id) === option.value
+            (c) => (c.id || c._id) === option.value,
           );
           if (originalCustomer) {
             handleSelectCustomer(originalCustomer);
@@ -210,8 +219,28 @@ export default function BilledToSection({
                     value: selectedCustomer.companyName || '-',
                   },
                   {
-                    label: t('invoices.form.address'),
-                    value: selectedCustomer.address || '-',
+                    label: t('invoices.form.addressStreet'),
+                    value: selectedCustomer.addressStreet || '-',
+                  },
+                  {
+                    label: t('invoices.form.addressStreetAdditional'),
+                    value: selectedCustomer.addressStreetAdditional || '-',
+                  },
+                  {
+                    label: t('invoices.form.buildingNumber'),
+                    value: selectedCustomer.buildingNumber || '-',
+                  },
+                  {
+                    label: t('invoices.form.district'),
+                    value: selectedCustomer.district || '-',
+                  },
+                  {
+                    label: t('invoices.form.city'),
+                    value: selectedCustomer.city || '-',
+                  },
+                  {
+                    label: t('invoices.form.postalCode'),
+                    value: selectedCustomer.postalCode || '-',
                   },
                   {
                     label: t('invoices.form.country'),
@@ -226,12 +255,19 @@ export default function BilledToSection({
                     value: selectedCustomer.email || '-',
                   },
                   {
-                    label: t('invoices.form.cr'),
-                    value: selectedCustomer.cin || '-',
+                    label: 'CIN',
+                    value: selectedCustomer.companyRegistrationNumber || '-',
                   },
                   {
                     label: t('invoices.form.vatNo'),
-                    value: selectedCustomer.vatGstNumber || '-',
+                    value:
+                      selectedCustomer.vatNumber ||
+                      selectedCustomer.vatGstNumber ||
+                      '-',
+                  },
+                  {
+                    label: t('invoices.form.identification'),
+                    value: selectedCustomer.identificationNumber || '-',
                   },
                 ];
 

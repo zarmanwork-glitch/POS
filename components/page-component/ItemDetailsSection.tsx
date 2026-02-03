@@ -2,6 +2,14 @@
 
 import { ToggleButton } from '@/components/base-components/ToggleButton';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -50,9 +58,27 @@ export default function ItemDetailsSection({
     null,
   );
   const [activeExemptIdx, setActiveExemptIdx] = useState<number | null>(null);
+  const [showNegativeAmountDialog, setShowNegativeAmountDialog] =
+    useState(false);
+  const hasShownNegativeWarning = useRef(false);
 
   // Per-row search state for description dropdowns
   const [itemSearches, setItemSearches] = useState<Record<number, string>>({});
+
+  // Check for negative amounts
+  useEffect(() => {
+    const hasNegative = items.some((row) => {
+      const { vatAmount, totalAmount } = calculateItemRow(row);
+      return totalAmount < 0 || vatAmount < 0;
+    });
+
+    if (hasNegative && !hasShownNegativeWarning.current) {
+      setShowNegativeAmountDialog(true);
+      hasShownNegativeWarning.current = true;
+    } else if (!hasNegative) {
+      hasShownNegativeWarning.current = false;
+    }
+  }, [items]);
 
   const taxCodeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const exportRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -696,6 +722,32 @@ export default function ItemDetailsSection({
         <Plus className='h-4 w-4 mr-2' />
         {t('invoices.form.addItemButton')}
       </Button>
+
+      {/* Negative Amount Dialog */}
+      <Dialog
+        open={showNegativeAmountDialog}
+        onOpenChange={setShowNegativeAmountDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className='text-red-600'>
+              {t('invoices.form.negativeAmountTitle') || 'Invalid Total Amount'}
+            </DialogTitle>
+            <DialogDescription>
+              {t('invoices.form.negativeAmountMessage') ||
+                'Total cannot be less than 0. Please adjust your deductions.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setShowNegativeAmountDialog(false)}
+              className='bg-blue-600 hover:bg-blue-700'
+            >
+              {t('invoices.form.ok') || 'OK'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

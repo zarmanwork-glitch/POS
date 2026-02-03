@@ -26,10 +26,17 @@ interface BusinessDetail {
   identificationType?: string;
   identificationNumber?: string;
   address?: string;
+  addressStreet?: string;
+  addressStreetAdditional?: string;
+  buildingNumber?: string;
+  district?: string;
+  city?: string;
+  postalCode?: string;
   country?: string;
   phoneNumber?: string;
   email?: string;
-  cr?: string;
+  companyRegistrationNumber?: string;
+  vatNumber?: string;
   vatGstNumber?: string;
   momraLicense?: string;
   isSaudiVatRegistered?: boolean;
@@ -201,8 +208,28 @@ export default function BilledBySection({
                   value: selectedBusinessDetails.companyName || '-',
                 },
                 {
-                  label: t('invoices.form.address'),
-                  value: selectedBusinessDetails.address || '-',
+                  label: t('invoices.form.addressStreet'),
+                  value: selectedBusinessDetails.addressStreet || '-',
+                },
+                {
+                  label: t('invoices.form.addressStreetAdditional'),
+                  value: selectedBusinessDetails.addressStreetAdditional || '-',
+                },
+                {
+                  label: t('invoices.form.buildingNumber'),
+                  value: selectedBusinessDetails.buildingNumber || '-',
+                },
+                {
+                  label: t('invoices.form.district'),
+                  value: selectedBusinessDetails.district || '-',
+                },
+                {
+                  label: t('invoices.form.city'),
+                  value: selectedBusinessDetails.city || '-',
+                },
+                {
+                  label: t('invoices.form.postalCode'),
+                  value: selectedBusinessDetails.postalCode || '-',
                 },
                 {
                   label: t('invoices.form.country'),
@@ -217,12 +244,20 @@ export default function BilledBySection({
                   value: selectedBusinessDetails.email || '-',
                 },
                 {
-                  label: t('invoices.form.cr'),
-                  value: selectedBusinessDetails.cr || '-',
+                  label: 'CIN',
+                  value:
+                    selectedBusinessDetails.companyRegistrationNumber || '-',
                 },
                 {
                   label: t('invoices.form.vatNo'),
-                  value: selectedBusinessDetails.vatGstNumber || '-',
+                  value:
+                    selectedBusinessDetails.vatNumber ||
+                    selectedBusinessDetails.vatGstNumber ||
+                    '-',
+                },
+                {
+                  label: t('invoices.form.identification'),
+                  value: selectedBusinessDetails.identificationNumber || '-',
                 },
               ];
 

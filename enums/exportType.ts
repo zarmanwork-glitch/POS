@@ -57,7 +57,7 @@ export const exemptOptions = [
       'Financial services mentioned in Article 29 of the VAT Regulations',
   },
   {
-    Value: 'VATEX-SA-29-7',
+    value: 'VATEX-SA-29-7',
     displayText:
       'Life insurance services mentioned in Article 29 of the VAT Regulations',
   },
