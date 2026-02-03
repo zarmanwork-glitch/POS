@@ -29,6 +29,8 @@ export default function InvoiceFormPage() {
 
   const {
     items,
+    logo,
+    setLogo,
     logoPreview,
     setLogoPreview,
     addItemDetail,
@@ -93,7 +95,7 @@ export default function InvoiceFormPage() {
       currency: 'SAR - Saudi Riyal',
     },
     validationSchema: invoiceValidationSchema,
-    onSubmit: (values) => submitInvoice(values, items),
+    onSubmit: (values) => submitInvoice(values, items, logo),
   });
 
   return (
@@ -126,6 +128,8 @@ export default function InvoiceFormPage() {
 
           <div className='lg:col-span-1'>
             <LogoUploadSection
+              logo={logo}
+              setLogo={setLogo}
               logoPreview={logoPreview}
               setLogoPreview={setLogoPreview}
               t={t}

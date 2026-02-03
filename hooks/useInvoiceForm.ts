@@ -16,6 +16,7 @@ export const useInvoiceForm = () => {
     },
   ]);
 
+  const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
 
   const addItemDetail = () => {
@@ -52,6 +53,8 @@ export const useInvoiceForm = () => {
   return {
     items,
     setItems,
+    logo,
+    setLogo,
     logoPreview,
     setLogoPreview,
     addItemDetail,

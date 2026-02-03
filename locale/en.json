@@ -222,6 +222,18 @@
       "last30": "Last 30 Days",
       "last90": "Last 90 Days",
       "allTime": "All Time"
+    },
+    "stats": {
+      "totalInvoices": "Total Invoices",
+      "totalRevenue": "Total Revenue",
+      "pendingPayments": "Pending Payments",
+      "overdueInvoices": "Overdue Invoices"
+    },
+    "charts": {
+      "invoiceOverview": "Invoice Overview",
+      "revenueOverview": "Revenue Overview",
+      "invoiceCount": "Number of Invoices",
+      "revenue": "Revenue"
     }
   },
   "auth": {

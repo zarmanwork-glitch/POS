@@ -11,9 +11,10 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
-import { Search } from 'lucide-react';
+import { Search, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import InvoiceChart from '@/components/page-component/InvoiceChar';
+import DashboardStats from '@/components/page-component/DashboardStats';
 import { dateRanges } from '@/enums/dateRange';
 
 export default function DashboardPage() {
@@ -30,20 +31,95 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-8 p-6'>
       {/* Header */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold'>{t('dashboard.title')}</h1>
+        <div>
+          <h1 className='text-4xl font-bold text-blue-600'>
+            {t('dashboard.title')}
+          </h1>
+          <p className='text-muted-foreground mt-2'>
+            Welcome back! Here's what's happening with your invoices.
+          </p>
+        </div>
+        <div className='hidden md:flex items-center gap-2 text-sm'>
+          <TrendingUp className='h-5 w-5 text-green-600' />
+          <span className='text-muted-foreground'>
+            {t('dashboard.duration')}:
+          </span>
+          <Select
+            value={duration}
+            onValueChange={setDuration}
+          >
+            <SelectTrigger className='w-[160px] border-none shadow-sm'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {dateRanges.map((range) => (
+                <SelectItem
+                  key={range.value}
+                  value={range.value}
+                >
+                  {t(
+                    dateRangeKeyMap[range.value] ??
+                      'dashboard.dateRanges.allTime',
+                  )}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Tabs and Controls */}
+      {/* Duration selector for mobile */}
+      <div className='md:hidden flex items-center gap-2'>
+        <span className='text-sm text-muted-foreground'>
+          {t('dashboard.duration')}:
+        </span>
+        <Select
+          value={duration}
+          onValueChange={setDuration}
+        >
+          <SelectTrigger className='flex-1'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {dateRanges.map((range) => (
+              <SelectItem
+                key={range.value}
+                value={range.value}
+              >
+                {t(
+                  dateRangeKeyMap[range.value] ??
+                    'dashboard.dateRanges.allTime',
+                )}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Stats Cards */}
+      <DashboardStats duration={duration} />
+
+      {/* Charts Section */}
+      <div className='space-y-4'>
+        <div className='flex items-center justify-between'>
+          <h2 className='text-2xl font-semibold'>
+            {t('dashboard.charts.invoiceOverview')}
+          </h2>
+        </div>
+        <InvoiceChart duration={duration} />
+      </div>
+
+      {/* Optional Tabs Section - can be expanded later */}
       <div className='space-y-4'>
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
           className='w-full'
         >
-          <TabsList className='grid w-full grid-cols-2 max-w-xs'>
+          <TabsList className='grid w-full grid-cols-2 max-w-md'>
             <TabsTrigger value='business'>
               {t('dashboard.tabs.businessProfile')}
             </TabsTrigger>
@@ -52,56 +128,37 @@ export default function DashboardPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Controls Row */}
-          <div className='flex flex-col sm:flex-row gap-4 items-start sm:items-end mt-6'>
-            {/* Search */}
-            <div className='flex-1 max-w-md'>
-              <div className='relative'>
+          <TabsContent
+            value='business'
+            className='mt-6'
+          >
+            <div className='rounded-lg border bg-card p-8 text-center'>
+              <p className='text-muted-foreground'>
+                Business profile analytics coming soon...
+              </p>
+            </div>
+          </TabsContent>
+
+          <TabsContent
+            value='search'
+            className='mt-6'
+          >
+            <div className='space-y-4'>
+              <div className='relative max-w-md'>
                 <Input
                   placeholder={t('dashboard.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className='pl-10 h-10'
+                  className='pl-10'
                 />
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
               </div>
+              <div className='rounded-lg border bg-card p-8 text-center'>
+                <p className='text-muted-foreground'>
+                  Search functionality coming soon...
+                </p>
+              </div>
             </div>
-
-            {/* Duration */}
-            <div className='flex items-center gap-2'>
-              <span className='text-sm text-gray-600'>
-                {t('dashboard.duration')}
-              </span>
-              <Select
-                value={duration}
-                onValueChange={setDuration}
-              >
-                <SelectTrigger className='w-40 h-10'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {dateRanges.map((range) => (
-                    <SelectItem
-                      key={range.value}
-                      value={range.value}
-                    >
-                      {t(
-                        dateRangeKeyMap[range.value] ??
-                          'dashboard.dateRanges.allTime'
-                      )}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          <TabsContent
-            value='business'
-            className='mt-8 space-y-6'
-          >
-            <InvoiceChart />
           </TabsContent>
         </Tabs>
       </div>

@@ -56,6 +56,16 @@ export const useCustomerListData = ({
         if (country && country !== 'All')
           Object.assign(payloadToSend, { country });
 
+        // Debug: Check if filters are being sent in payload
+        console.log('🔍 Customer List Payload:', payloadToSend);
+        console.log('📊 Search - searchBy:', searchBy, '| search:', search);
+        console.log(
+          '📊 Filter Values - Status:',
+          status,
+          '| Country:',
+          country,
+        );
+
         const response = await getCustomersList(payloadToSend);
 
         const fetchedCustomers =

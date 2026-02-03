@@ -139,17 +139,20 @@ export default function CustomerListPage() {
           setOrderBy={setOrderBy}
           setPage={setPage}
           onShowFilters={() => setShowFilters(true)}
+          showFilters={showFilters}
+          filters={filters}
+          setFilters={setFilters}
           t={t}
         />
 
         {/* Filters Panel */}
-        <CustomerFiltersPanel
+        {/* <CustomerFiltersPanel
           showFilters={showFilters}
           filters={filters}
           setFilters={setFilters}
           onClose={() => setShowFilters(false)}
           t={t}
-        />
+        /> */}
 
         {/* Table */}
         <CustomerTable

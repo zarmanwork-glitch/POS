@@ -5,12 +5,16 @@ import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface LogoUploadSectionProps {
+  logo: File | null;
+  setLogo: (file: File | null) => void;
   logoPreview: string;
   setLogoPreview: (preview: string) => void;
   t: ReturnType<typeof useTranslation>[0];
 }
 
 export const LogoUploadSection = ({
+  logo,
+  setLogo,
   logoPreview,
   setLogoPreview,
   t,
@@ -20,6 +24,7 @@ export const LogoUploadSection = ({
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setLogo(file); // Store the actual file
       const reader = new FileReader();
       reader.onloadend = () => setLogoPreview(reader.result as string);
       reader.readAsDataURL(file);
@@ -39,11 +44,19 @@ export const LogoUploadSection = ({
     if (files.length > 0) {
       const file = files[0];
       if (file.type.startsWith('image/')) {
+        setLogo(file); // Store the actual file
         const reader = new FileReader();
         reader.onloadend = () => setLogoPreview(reader.result as string);
         reader.readAsDataURL(file);
       }
     }
+  };
+
+  const handleRemoveLogo = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLogo(null);
+    setLogoPreview('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -65,11 +78,7 @@ export const LogoUploadSection = ({
             <button
               type='button'
               className='text-xs text-blue-600 hover:text-blue-800 mt-2'
-              onClick={(e) => {
-                e.preventDefault();
-                setLogoPreview('');
-                if (fileInputRef.current) fileInputRef.current.value = '';
-              }}
+              onClick={handleRemoveLogo}
             >
               {t('invoices.form.removeLogo')}
             </button>

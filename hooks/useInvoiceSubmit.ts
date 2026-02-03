@@ -14,7 +14,11 @@ export function useInvoiceSubmit() {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
-  const submitInvoice = async (values: InvoiceFormValues, items: Item[]) => {
+  const submitInvoice = async (
+    values: InvoiceFormValues,
+    items: Item[],
+    logoFile?: File | null,
+  ) => {
     try {
       setIsLoading(true);
 
@@ -120,6 +124,7 @@ export function useInvoiceSubmit() {
       await createInvoice({
         token: token || '',
         payload,
+        file: logoFile || undefined,
         successCallbackFunction: () =>
           router.push('/documents/invoice/invoice-list'),
       });

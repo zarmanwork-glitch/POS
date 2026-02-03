@@ -19,6 +19,12 @@ interface CustomerListControlsProps {
   setOrderBy: (value: 'asc' | 'desc') => void;
   setPage: (value: number) => void;
   onShowFilters: () => void;
+  showFilters: boolean;
+  filters: {
+    status: string;
+    country: string;
+  };
+  setFilters: (filters: { status: string; country: string }) => void;
   t: (key: string) => string;
 }
 
@@ -33,8 +39,42 @@ export const CustomerListControls = ({
   setOrderBy,
   setPage,
   onShowFilters,
+  showFilters,
+  filters,
+  setFilters,
   t,
 }: CustomerListControlsProps) => {
+  // Map backend field names to display labels
+  const getSortByLabel = (value: string) => {
+    switch (value) {
+      case 'createdAt':
+        return t('customers.sortOptions.chronological');
+      case 'name':
+        return t('customers.sortOptions.name');
+      case 'companyName':
+        return t('customers.sortOptions.companyName');
+      default:
+        return value;
+    }
+  };
+
+  const getSearchByLabel = (value: string) => {
+    switch (value) {
+      case 'name':
+        return t('customers.searchOptions.name');
+      case 'email':
+        return t('customers.searchOptions.email');
+      case 'phoneNumber':
+        return t('customers.searchOptions.phone');
+      case 'companyName':
+        return t('customers.searchOptions.companyName');
+      case 'customerNumber':
+        return t('customers.searchOptions.customerNumber');
+      default:
+        return value;
+    }
+  };
+
   return (
     <div className='flex flex-wrap items-center justify-end gap-4'>
       {/* Filters button */}
@@ -45,6 +85,82 @@ export const CustomerListControls = ({
         >
           <Settings2 className='h-4 w-4 text-gray-600' />
         </button>
+
+        {/* Active filters preview (below the filter icon) */}
+        {!showFilters &&
+          (() => {
+            const initialFilters = { status: 'Both', country: 'All' };
+            const active: Array<{ key: string; label: string }> = [];
+
+            if (filters.status && filters.status !== initialFilters.status)
+              active.push({
+                key: 'status',
+                label: `${t('profile.status')}: ${filters.status}`,
+              });
+
+            if (filters.country && filters.country !== initialFilters.country)
+              active.push({
+                key: 'country',
+                label: `${t('profile.country')}: ${filters.country}`,
+              });
+
+            if (searchCustomer)
+              active.push({
+                key: 'search',
+                label: `${getSearchByLabel(searchBy)}: ${searchCustomer}`,
+              });
+
+            if (sortBy && (sortBy !== 'name' || orderBy !== 'desc'))
+              active.push({
+                key: 'sort',
+                label: `${t('customers.sortBy')}: ${getSortByLabel(sortBy)} ${orderBy}`,
+              });
+
+            if (active.length === 0) return null;
+
+            const clearFilter = (key: string) => {
+              switch (key) {
+                case 'status':
+                  setFilters({ ...filters, status: initialFilters.status });
+                  break;
+                case 'country':
+                  setFilters({ ...filters, country: initialFilters.country });
+                  break;
+                case 'search':
+                  setSearchCustomer('');
+                  break;
+                case 'sort':
+                  setSortBy('name');
+                  setOrderBy('desc');
+                  break;
+                default:
+                  break;
+              }
+              setPage(1);
+            };
+
+            return (
+              <div className='mt-2 w-72 p-2'>
+                <div className='flex flex-wrap gap-2'>
+                  {active.map((a) => (
+                    <span
+                      key={a.key}
+                      className='flex items-center gap-2 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full'
+                    >
+                      <span>{a.label}</span>
+                      <button
+                        onClick={() => clearFilter(a.key)}
+                        aria-label={`Clear ${a.key}`}
+                        className='ml-1 text-blue-700 hover:text-blue-900'
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
       </div>
 
       {/* Search By */}
@@ -53,7 +169,7 @@ export const CustomerListControls = ({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className='flex items-center gap-1 text-sm font-medium'>
-              {searchBy}
+              {getSearchByLabel(searchBy)}
               <ChevronDown className='h-4 w-4' />
             </button>
           </DropdownMenuTrigger>
@@ -83,7 +199,7 @@ export const CustomerListControls = ({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className='flex items-center gap-1 text-sm font-medium'>
-              {sortBy}
+              {getSortByLabel(sortBy)}
               <ChevronDown className='h-4 w-4' />
             </button>
           </DropdownMenuTrigger>
