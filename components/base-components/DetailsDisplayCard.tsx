@@ -3,22 +3,9 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
+import { DetailRow, DetailsDisplayCardProps } from '@/types/componentTypes';
 
-export interface DetailRow {
-  label: string;
-  value: string | undefined;
-}
-
-interface DetailsDisplayCardProps {
-  title: string;
-  displayName: string | undefined;
-  onClear: () => void;
-  detailRows: DetailRow[];
-  showIdentification?: boolean;
-  identificationLabel?: string;
-  identificationTypePlaceholder?: string;
-  identificationNumberPlaceholder?: string;
-}
+export type { DetailRow };
 
 export function DetailsDisplayCard({
   title,

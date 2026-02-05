@@ -25,15 +25,7 @@ import { toast } from 'sonner';
 import { validationSchema } from '@/schema/bankDetailsValidation';
 import countries from '@/json/countries.json';
 import { Spinner } from '@/components/ui/spinner';
-
-interface BankDetailsFormValues {
-  country: string;
-  accountNumber: string;
-  iban: string;
-  bankName: string;
-  swiftCode: string;
-  beneficiaryName: string;
-}
+import { BankDetailsFormValues } from '@/types/formTypes';
 
 function BankDetailsFormContent() {
   const router = useRouter();
@@ -170,11 +162,11 @@ function BankDetailsFormContent() {
         className='space-y-6'
       >
         {/* Header */}
-        <div className='flex items-center justify-between'>
-          <h2 className='text-3xl font-bold'>
+        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+          <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
             <span className='text-blue-600'>{t('profile.title')}</span>
             <span className='text-gray-800'>
-              |{' '}
+              {' | '}
               {id
                 ? t('profile.editBankDetails', {
                     defaultValue: 'Edit Bank Details',
@@ -182,18 +174,19 @@ function BankDetailsFormContent() {
                 : t('profile.addBankDetails')}
             </span>
           </h2>
-          <div className='flex gap-3'>
+          <div className='flex gap-3 w-full sm:w-auto'>
             <Button
               type='button'
               variant='outline'
               onClick={handleCancel}
               disabled={formik.isSubmitting}
+              className='flex-1 sm:flex-initial'
             >
               {t('profile.cancel')}
             </Button>
             <Button
               type='submit'
-              className='bg-blue-600 hover:bg-blue-700'
+              className='bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-initial'
               disabled={formik.isSubmitting}
             >
               {formik.isSubmitting ? (

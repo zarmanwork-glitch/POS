@@ -4,32 +4,10 @@ import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-
-interface DropdownOption {
-  value: string;
-  displayText?: string;
-  description?: string;
-  [key: string]: any;
-}
-
-interface SearchableDropdownProps {
-  label: string;
-  placeholder: string;
-  value: string;
-  searchValue: string;
-  isOpen: boolean;
-  options: DropdownOption[];
-  onSearchChange: (value: string) => void;
-  onFocus: () => void;
-  onBlur: () => void;
-  onSelect: (option: DropdownOption) => void;
-  onClear: () => void;
-  error?: string;
-  touched?: boolean;
-  renderOption?: (option: DropdownOption) => React.ReactNode;
-  isSelected?: boolean;
-  selectedDisplayValue?: string;
-}
+import {
+  DropdownOption,
+  SearchableDropdownProps,
+} from '@/types/componentTypes';
 
 export function SearchableDropdown({
   label,
@@ -54,7 +32,7 @@ export function SearchableDropdown({
       searchValue === '' ||
       option.value.toLowerCase().includes(searchValue.toLowerCase()) ||
       (option.displayText &&
-        option.displayText.toLowerCase().includes(searchValue.toLowerCase()))
+        option.displayText.toLowerCase().includes(searchValue.toLowerCase())),
   );
 
   return (

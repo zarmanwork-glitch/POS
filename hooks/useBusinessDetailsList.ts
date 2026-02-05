@@ -6,18 +6,10 @@ import {
   getBusinessDetailsList,
   deleteBusinessDetails,
 } from '@/api/business-details/business-details.api';
+import { BusinessDetail } from '@/types/businessDetailTypes';
 
-export interface BusinessDetail {
-  id: string;
-  name: string;
-  companyName: string;
-  email: string;
-  phoneNumber: string;
-  vatNumber?: string;
-  companyRegistrationNumber?: string;
-  identificationNumber?: string;
-  country: string;
-}
+// Re-export for backward compatibility
+export type { BusinessDetail };
 
 export function useBusinessDetailsList() {
   const router = useRouter();

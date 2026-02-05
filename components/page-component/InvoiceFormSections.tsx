@@ -10,38 +10,7 @@ import {
   Customer,
   BankDetail,
 } from '@/types/invoiceTypes';
-
-interface InvoiceFormSectionsProps {
-  selectedBusinessDetails: BusinessDetail | null;
-  setSelectedBusinessDetails: (detail: BusinessDetail | null) => void;
-  businessSearch: string;
-  setBusinessSearch: (search: string) => void;
-  businessFocused: boolean;
-  setBusinessFocused: (focused: boolean) => void;
-  businessOptions: any[];
-  filteredBusinessOptions: any[];
-
-  selectedCustomer: Customer | null;
-  setSelectedCustomer: (customer: Customer | null) => void;
-  customerSearch: string;
-  setCustomerSearch: (search: string) => void;
-  customerFocused: boolean;
-  setCustomerFocused: (focused: boolean) => void;
-  customerOptions: any[];
-  filteredCustomerOptions: any[];
-
-  selectedBank: BankDetail | null;
-  setSelectedBank: (bank: BankDetail | null) => void;
-  bankSearch: string;
-  setBankSearch: (search: string) => void;
-  bankFocused: boolean;
-  setBankFocused: (focused: boolean) => void;
-  bankOptions: any[];
-  filteredBankOptions: any[];
-
-  formik: FormikProps<InvoiceFormValues>;
-  t: (key: string) => string;
-}
+import { InvoiceFormSectionsProps } from '@/types/componentTypes';
 
 export function InvoiceFormSections({
   selectedBusinessDetails,

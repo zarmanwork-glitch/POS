@@ -107,15 +107,15 @@ export default function CustomerListPage() {
   return (
     <div className='space-y-6'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
+      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
-          <h2 className='text-3xl font-bold'>
+          <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
             <span className='text-blue-600'>{t('sidebar.customers')}</span>{' '}
             <span className='text-gray-800'>| {t('customers.listTitle')}</span>
           </h2>
         </div>
-        <Link href='/customers/customer-form'>
-          <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
+        <Link href='/customers/customer-form' className='w-full sm:w-auto'>
+          <Button className='bg-blue-600 hover:bg-blue-700 gap-2 w-full sm:w-auto'>
             <Plus className='h-4 w-4' />
             {t('customers.addCustomer')}
           </Button>

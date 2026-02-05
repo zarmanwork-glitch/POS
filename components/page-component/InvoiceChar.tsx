@@ -17,20 +17,11 @@ import { useTranslation } from 'react-i18next';
 import Cookies from 'js-cookie';
 import { getInvoicesList } from '@/api/invoices/invoice.api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-type InvoiceData = {
-  date: string;
-  count: number;
-  revenue: number;
-};
-
-interface InvoiceChartProps {
-  duration: string;
-}
+import { InvoiceChartData, InvoiceChartProps } from '@/types/dashboardTypes';
 
 export default function InvoiceChart({ duration }: InvoiceChartProps) {
   const { t } = useTranslation();
-  const [data, setData] = useState<InvoiceData[]>([]);
+  const [data, setData] = useState<InvoiceChartData[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -47,7 +38,7 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
         // Calculate date range based on duration
         const endDate = new Date();
         const startDate = new Date();
-        
+
         switch (duration) {
           case 'Last 7 Days':
             startDate.setDate(endDate.getDate() - 7);
@@ -72,13 +63,14 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
         console.log('Invoice API response:', response);
 
         // Try different response structures
-        const invoices = response?.data?.data?.results?.invoices || 
-                        response?.data?.results?.invoices || 
-                        response?.data?.invoices || 
-                        [];
-        
+        const invoices =
+          response?.data?.data?.results?.invoices ||
+          response?.data?.results?.invoices ||
+          response?.data?.invoices ||
+          [];
+
         console.log('Extracted invoices:', invoices.length);
-        
+
         if (invoices && invoices.length > 0) {
           // Filter by date range
           const filteredInvoices = invoices.filter((invoice: any) => {
@@ -87,22 +79,30 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
             const invoiceDate = new Date(date);
             return invoiceDate >= startDate && invoiceDate <= endDate;
           });
-          
+
           console.log('Filtered invoices:', filteredInvoices.length);
-          
+
           // Group invoices by date
-          const invoiceMap = new Map<string, { count: number; revenue: number }>();
-          
+          const invoiceMap = new Map<
+            string,
+            { count: number; revenue: number }
+          >();
+
           filteredInvoices.forEach((invoice: any) => {
             const date = invoice.invoiceDate || invoice.createdAt;
             if (!date) return;
-            
+
             const dateKey = new Date(date).toISOString().split('T')[0];
-            const existing = invoiceMap.get(dateKey) || { count: 0, revenue: 0 };
-            
+            const existing = invoiceMap.get(dateKey) || {
+              count: 0,
+              revenue: 0,
+            };
+
             invoiceMap.set(dateKey, {
               count: existing.count + 1,
-              revenue: existing.revenue + (invoice.totalAmount || invoice.invoiceNetTotal || 0),
+              revenue:
+                existing.revenue +
+                (invoice.totalAmount || invoice.invoiceNetTotal || 0),
             });
           });
 
@@ -181,9 +181,15 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
           <CardTitle>{t('dashboard.charts.invoiceCount')}</CardTitle>
         </CardHeader>
         <CardContent className='h-[350px]'>
-          <ResponsiveContainer width='100%' height='100%'>
+          <ResponsiveContainer
+            width='100%'
+            height='100%'
+          >
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray='3 3' stroke='#e5e7eb' />
+              <CartesianGrid
+                strokeDasharray='3 3'
+                stroke='#e5e7eb'
+              />
               <XAxis
                 dataKey='date'
                 tick={{ fontSize: 12 }}
@@ -192,7 +198,10 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
                   return `${date.getMonth() + 1}/${date.getDate()}`;
                 }}
               />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 12 }}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: 'white',
@@ -204,7 +213,11 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
                   return date.toLocaleDateString();
                 }}
               />
-              <Bar dataKey='count' fill='#3b82f6' radius={[8, 8, 0, 0]} />
+              <Bar
+                dataKey='count'
+                fill='#3b82f6'
+                radius={[8, 8, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -216,9 +229,15 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
           <CardTitle>{t('dashboard.charts.revenue')}</CardTitle>
         </CardHeader>
         <CardContent className='h-[350px]'>
-          <ResponsiveContainer width='100%' height='100%'>
+          <ResponsiveContainer
+            width='100%'
+            height='100%'
+          >
             <LineChart data={data}>
-              <CartesianGrid strokeDasharray='3 3' stroke='#e5e7eb' />
+              <CartesianGrid
+                strokeDasharray='3 3'
+                stroke='#e5e7eb'
+              />
               <XAxis
                 dataKey='date'
                 tick={{ fontSize: 12 }}

@@ -7,11 +7,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { incoTerms } from '@/enums/incoTerms';
-
-interface InvoiceDatesIncoTermsProps {
-  formik: any;
-  t: any;
-}
+import { InvoiceDatesIncoTermsProps } from '@/types/componentTypes';
 
 export const InvoiceDatesIncoTerms = ({
   formik,

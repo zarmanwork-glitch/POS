@@ -53,17 +53,7 @@ const validationSchema = Yup.object({
     .max(100, 'Discount cannot exceed 100%')
     .nullable(),
 });
-
-interface ItemFormValues {
-  itemType: string;
-  itemStatus: string;
-  description: string;
-  materialNo: string;
-  unitOfMeasure: string;
-  buyPrice: string | number;
-  sellPrice: string | number;
-  discountPercentage: string | number;
-}
+import { ItemFormValues } from '@/types/formTypes';
 
 function ItemsFormContent() {
   const router = useRouter();
@@ -187,26 +177,27 @@ function ItemsFormContent() {
   return (
     <div className='space-y-6'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
-        <h2 className='text-3xl font-bold'>
+      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+        <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
           <span className='text-blue-600'>{t('profile.title')}</span>
           <span className='text-gray-800'>
-            |{' '}
+            {' | '}
             {id
               ? t('profile.editItem', { defaultValue: 'Edit Item' })
               : t('profile.addItem')}
           </span>
         </h2>
-        <div className='flex gap-3'>
+        <div className='flex gap-3 w-full sm:w-auto'>
           <Button
             variant='outline'
             onClick={() => router.push('/profile/items/items-list')}
             disabled={formik.isSubmitting}
+            className='flex-1 sm:flex-initial'
           >
             {t('profile.cancel')}
           </Button>
           <Button
-            className='bg-blue-600 hover:bg-blue-700'
+            className='bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-initial'
             onClick={() => formik.handleSubmit()}
             disabled={formik.isSubmitting}
           >

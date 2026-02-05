@@ -3,14 +3,7 @@ import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-
-interface LogoUploadSectionProps {
-  logo: File | null;
-  setLogo: (file: File | null) => void;
-  logoPreview: string;
-  setLogoPreview: (preview: string) => void;
-  t: ReturnType<typeof useTranslation>[0];
-}
+import { LogoUploadSectionProps } from '@/types/componentTypes';
 
 export const LogoUploadSection = ({
   logo,

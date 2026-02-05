@@ -1,12 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { useTranslation } from 'react-i18next';
-
-interface InvoiceFilterPanelProps {
-  onReset: () => void;
-  onApply: () => void;
-  isRTL: boolean;
-  t: ReturnType<typeof useTranslation>[0];
-}
+import { InvoiceFilterPanelProps } from '@/types/componentTypes';
 
 export const InvoiceFilterPanel = ({
   onReset,

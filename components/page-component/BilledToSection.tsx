@@ -17,43 +17,7 @@ import { Label } from '@/components/ui/label';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SearchableDropdown } from '@/components/page-component/SearchableDropdown';
-
-interface Customer {
-  id?: string;
-  _id?: string;
-  companyName?: string;
-  displayName?: string;
-  name?: string;
-  customerNumber?: string;
-  address?: string;
-  addressStreet?: string;
-  addressStreetAdditional?: string;
-  buildingNumber?: string;
-  district?: string;
-  city?: string;
-  postalCode?: string;
-  country?: string;
-  phoneNumber?: string;
-  email?: string;
-  companyRegistrationNumber?: string;
-  vatNumber?: string;
-  vatGstNumber?: string;
-  identificationType?: string;
-  identificationNumber?: string;
-}
-
-interface BilledToSectionProps {
-  selectedCustomer: Customer | null;
-  setSelectedCustomer: (customer: Customer | null) => void;
-  customerSearch: string;
-  setCustomerSearch: (search: string) => void;
-  customerFocused: boolean;
-  setCustomerFocused: (focused: boolean) => void;
-  customerOptions: Customer[];
-  filteredCustomerOptions: Customer[];
-  formik: any;
-  t: (key: string) => string;
-}
+import { CustomerExtended, BilledToSectionProps } from '@/types/componentTypes';
 
 export default function BilledToSection({
   selectedCustomer,
@@ -69,7 +33,7 @@ export default function BilledToSection({
 }: BilledToSectionProps) {
   const router = useRouter();
 
-  const handleSelectCustomer = (customer: Customer) => {
+  const handleSelectCustomer = (customer: CustomerExtended) => {
     const id = customer.id || customer._id || '';
     formik.setFieldValue('customer_id', id);
     setSelectedCustomer(customer);

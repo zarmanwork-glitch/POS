@@ -5,39 +5,45 @@ import { getBusinessDetailsForSelection } from '@/api/business-details/business-
 import { getCustomersForSelection } from '@/api/customers/customer.api';
 import { getBankDetailsForSelection } from '@/api/bank-details/bank-details.api';
 import { getItemsForSelection } from '@/api/items/item.api';
-import { BusinessDetail, Customer, BankDetail } from '@/types/invoiceTypes';
+import { BusinessDetailExtended } from '@/types/businessDetailTypes';
+import { CustomerExtended } from '@/types/customerTypes';
+import { BankDetailExtended } from '@/types/bankDetailTypes';
 
 interface ApiResponse {
   data?: {
     data?: {
       results?: {
-        businessDetails?: BusinessDetail[];
-        customers?: Customer[];
-        bankDetails?: BankDetail[];
+        businessDetails?: BusinessDetailExtended[];
+        customers?: CustomerExtended[];
+        bankDetails?: BankDetailExtended[];
         items?: Record<string, unknown>[];
       };
     };
     results?: {
-      businessDetails?: BusinessDetail[];
-      customers?: Customer[];
-      bankDetails?: BankDetail[];
+      businessDetails?: BusinessDetailExtended[];
+      customers?: CustomerExtended[];
+      bankDetails?: BankDetailExtended[];
       items?: Record<string, unknown>[];
     };
   };
 }
 
 interface DropdownData {
-  businessOptions: BusinessDetail[];
-  customerOptions: Customer[];
-  bankOptions: BankDetail[];
+  businessOptions: BusinessDetailExtended[];
+  customerOptions: CustomerExtended[];
+  bankOptions: BankDetailExtended[];
   itemOptions: Record<string, unknown>[];
   isLoading: boolean;
 }
 
 export const useInvoiceDropdownData = (): DropdownData => {
-  const [businessOptions, setBusinessOptions] = useState<BusinessDetail[]>([]);
-  const [customerOptions, setCustomerOptions] = useState<Customer[]>([]);
-  const [bankOptions, setBankOptions] = useState<BankDetail[]>([]);
+  const [businessOptions, setBusinessOptions] = useState<
+    BusinessDetailExtended[]
+  >([]);
+  const [customerOptions, setCustomerOptions] = useState<CustomerExtended[]>(
+    [],
+  );
+  const [bankOptions, setBankOptions] = useState<BankDetailExtended[]>([]);
   const [itemOptions, setItemOptions] = useState<Record<string, unknown>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -71,7 +77,7 @@ export const useInvoiceDropdownData = (): DropdownData => {
         []
       );
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -94,9 +100,9 @@ export const useInvoiceDropdownData = (): DropdownData => {
 
         if (!isMounted) return;
 
-        setBusinessOptions(extractData(bResp) as BusinessDetail[]);
-        setCustomerOptions(extractData(cResp) as Customer[]);
-        setBankOptions(extractData(bkResp) as BankDetail[]);
+        setBusinessOptions(extractData(bResp) as BusinessDetailExtended[]);
+        setCustomerOptions(extractData(cResp) as CustomerExtended[]);
+        setBankOptions(extractData(bkResp) as BankDetailExtended[]);
 
         const itemsArray = extractData(itemResp);
         setItemOptions(Array.isArray(itemsArray) ? itemsArray : []);

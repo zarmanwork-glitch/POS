@@ -8,15 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
-
-interface DeleteCustomerDialogProps {
-  open: boolean;
-  customerName: string;
-  isDeleting: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  t: (key: string, params?: any) => string;
-}
+import { DeleteCustomerDialogProps } from '@/types/componentTypes';
 
 export const DeleteCustomerDialog = ({
   open,

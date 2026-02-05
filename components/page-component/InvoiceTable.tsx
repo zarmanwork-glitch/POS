@@ -28,8 +28,8 @@ export const InvoiceTable = ({
   t,
 }: InvoiceTableProps) => {
   return (
-    <div className='border rounded-lg overflow-hidden'>
-      <Table>
+    <div className='border rounded-lg overflow-x-auto'>
+      <Table className='min-w-175'>
         <TableHeader className='bg-blue-50'>
           <TableRow>
             <TableHead className='w-12'>{t('invoices.table.no')}</TableHead>

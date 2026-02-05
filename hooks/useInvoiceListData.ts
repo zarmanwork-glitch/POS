@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { getInvoicesList } from '@/api/invoices/invoice.api';
 import { InvoiceStatusType } from '@/enums/invoiceStatus';
 import { InvoiceTypeType } from '@/enums/invoiceType';
+import { Invoice } from '@/types/invoiceTypes';
 
 type ApiInvoice = {
   id?: string;
@@ -29,21 +30,8 @@ type ApiInvoice = {
   status: InvoiceStatusType;
 };
 
-export type Invoice = {
-  id: string;
-  invoiceNumber: string;
-  invoiceDate: string;
-  dueDate: string;
-  invoiceType: InvoiceTypeType;
-  customer: string;
-  customerCompanyName: string;
-  customerCountry: string;
-  customerCity: string;
-  customerLocation: string;
-  total: number;
-  currency: string;
-  status: InvoiceStatusType;
-};
+// Re-export Invoice type for backward compatibility
+export type { Invoice };
 
 interface UseInvoiceListDataProps {
   page: number;

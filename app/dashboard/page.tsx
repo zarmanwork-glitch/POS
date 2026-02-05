@@ -31,14 +31,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className='space-y-8 p-6'>
+    <div className='space-y-6 sm:space-y-8 p-4 sm:p-6'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
+      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <div>
-          <h1 className='text-4xl font-bold text-blue-600'>
+          <h1 className='text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600'>
             {t('dashboard.title')}
           </h1>
-          <p className='text-muted-foreground mt-2'>
+          <p className='text-muted-foreground mt-2 text-sm sm:text-base'>
             Welcome back! Here's what's happening with your invoices.
           </p>
         </div>
@@ -105,7 +105,7 @@ export default function DashboardPage() {
       {/* Charts Section */}
       <div className='space-y-4'>
         <div className='flex items-center justify-between'>
-          <h2 className='text-2xl font-semibold'>
+          <h2 className='text-lg sm:text-xl lg:text-2xl font-semibold'>
             {t('dashboard.charts.invoiceOverview')}
           </h2>
         </div>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
           onValueChange={setActiveTab}
           className='w-full'
         >
-          <TabsList className='grid w-full grid-cols-2 max-w-md'>
+          <TabsList className='grid w-full grid-cols-2 max-w-full sm:max-w-md'>
             <TabsTrigger value='business'>
               {t('dashboard.tabs.businessProfile')}
             </TabsTrigger>

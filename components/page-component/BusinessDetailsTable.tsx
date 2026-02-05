@@ -16,26 +16,8 @@ import {
 import { MoreHorizontal } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import React from 'react';
-
-interface BusinessDetail {
-  id: string;
-  name: string;
-  companyName: string;
-  email: string;
-  phoneNumber: string;
-  vatNumber?: string;
-  companyRegistrationNumber?: string;
-  identificationNumber?: string;
-  country: string;
-}
-
-interface BusinessDetailsTableProps {
-  data: BusinessDetail[];
-  isLoading: boolean;
-  handleEdit: (id: string) => void;
-  handleDeleteClick: (id: string, companyName: string) => void;
-  t: any;
-}
+import { BusinessDetail } from '@/types/businessDetailTypes';
+import { BusinessDetailsTableProps } from '@/types/componentTypes';
 
 export const BusinessDetailsTable: React.FC<BusinessDetailsTableProps> = ({
   data,
@@ -45,8 +27,8 @@ export const BusinessDetailsTable: React.FC<BusinessDetailsTableProps> = ({
   t,
 }) => {
   return (
-    <div className='border rounded-lg overflow-hidden'>
-      <Table>
+    <div className='border rounded-lg overflow-x-auto'>
+      <Table className='min-w-175'>
         <TableHeader className='bg-slate-100'>
           <TableRow>
             <TableHead className='w-12 text-center'>No.</TableHead>

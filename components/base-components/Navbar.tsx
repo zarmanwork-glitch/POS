@@ -34,9 +34,9 @@ function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   };
 
   return (
-    <nav className='sticky top-0 z-30 h-18 w-full border-b flex items-center justify-between px-6 shadow-md bg-white'>
+    <nav className='sticky top-0 z-30 h-14 sm:h-16 lg:h-18 w-full border-b flex items-center justify-between px-3 sm:px-4 lg:px-6 shadow-md bg-white'>
       {/* Left */}
-      <div className='flex items-center gap-3'>
+      <div className='flex items-center gap-2 sm:gap-3'>
         <Button
           variant='ghost'
           size='icon'
@@ -53,19 +53,19 @@ function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
       </div>
 
       {/* Right */}
-      <div className='flex items-center gap-6'>
+      <div className='flex items-center gap-2 sm:gap-4 lg:gap-6'>
         <LanguageSwitch />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className='flex items-center gap-3 cursor-pointer'>
-              <div className='text-right'>
-                <p className='text-sm font-medium text-gray-800'>
+            <button className='flex items-center gap-2 sm:gap-3 cursor-pointer'>
+              <div className='text-right hidden sm:block'>
+                <p className='text-xs sm:text-sm font-medium text-gray-800 truncate max-w-[100px] sm:max-w-[150px] lg:max-w-[200px]'>
                   {email ?? ''}
                 </p>
-                <p className='text-xs text-gray-500'>Admin</p>
+                <p className='text-[10px] sm:text-xs text-gray-500'>Admin</p>
               </div>
-              <div className='h-9 w-9 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold'>
+              <div className='h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold shrink-0 text-sm sm:text-base'>
                 {initial}
               </div>
             </button>

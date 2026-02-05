@@ -13,38 +13,9 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { ChevronDown, SortAsc, SortDesc, CalendarIcon, X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-
-interface InvoiceControlsBarProps {
-  search: string;
-  searchBy:
-    | 'invoiceNumber'
-    | 'customerPoNumber'
-    | 'name'
-    | 'companyName'
-    | 'customerNumber';
-  sortBy: 'createdAt' | 'invoiceDate';
-  orderBy: 'asc' | 'desc';
-  showFilters: boolean;
-  activeFilters: Array<{ key: string; label: string }>;
-  loading: boolean;
-  isRTL: boolean;
-  startDate: string;
-  endDate: string;
-  onSearchChange: (value: string) => void;
-  onSearchByChange: (value: string) => void;
-  onSortByChange: (value: 'createdAt' | 'invoiceDate') => void;
-  onOrderByChange: () => void;
-  onShowFilters: () => void;
-  onClearFilter: (key: string) => void;
-  onSearch: () => void;
-  onDownload: () => void;
-  onStartDateChange: (value: string) => void;
-  onEndDateChange: (value: string) => void;
-  t: ReturnType<typeof useTranslation>[0];
-}
+import { InvoiceControlsBarProps } from '@/types/componentTypes';
 
 export const InvoiceControlsBar = ({
   search,
@@ -73,13 +44,13 @@ export const InvoiceControlsBar = ({
     <>
       {/* Controls */}
       <div
-        className={`flex flex-wrap items-end justify-between gap-4 ${
-          isRTL ? 'flex-row-reverse' : ''
+        className={`flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 ${
+          isRTL ? 'lg:flex-row-reverse' : ''
         }`}
       >
         {/* Date Filters - Left Side */}
-        <div className='flex gap-4 items-end'>
-          <div className='flex-1'>
+        <div className='flex flex-col sm:flex-row gap-4 items-stretch sm:items-end'>
+          <div className='flex-1 min-w-35'>
             <label className='block text-sm font-medium text-gray-700 mb-1'>
               {t('invoices.startDate')}
             </label>
@@ -125,7 +96,7 @@ export const InvoiceControlsBar = ({
               </PopoverContent>
             </Popover>
           </div>
-          <div className='flex-1'>
+          <div className='flex-1 min-w-35'>
             <label className='block text-sm font-medium text-gray-700 mb-1'>
               {t('invoices.endDate')}
             </label>
@@ -188,14 +159,14 @@ export const InvoiceControlsBar = ({
         </div>
 
         {/* Right Side Controls */}
-        <div className='flex flex-wrap items-center gap-4'>
+        <div className='flex flex-wrap items-center gap-3 sm:gap-4'>
           {/* Sort */}
           <div
             className={`flex items-center gap-2 ${
               isRTL ? 'flex-row-reverse' : ''
             }`}
           >
-            <span className='text-sm text-gray-600'>
+            <span className='text-sm text-gray-600 hidden sm:inline'>
               {t('invoices.sortBy')}
             </span>
             <DropdownMenu>
@@ -240,7 +211,7 @@ export const InvoiceControlsBar = ({
               isRTL ? 'flex-row-reverse' : ''
             }`}
           >
-            <span className='text-sm text-gray-600'>
+            <span className='text-sm text-gray-600 hidden sm:inline'>
               {t('invoices.searchBy')}
             </span>
             <DropdownMenu>
@@ -283,15 +254,15 @@ export const InvoiceControlsBar = ({
           </div>
 
           {/* Search */}
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-2 flex-1 sm:flex-initial'>
             <Input
-              className='h-9 w-40'
+              className='h-9 w-full sm:w-40'
               placeholder={t('invoices.search')}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
             />
             <Button
-              className='h-9 bg-blue-600 hover:bg-blue-700'
+              className='h-9 bg-blue-600 hover:bg-blue-700 shrink-0'
               onClick={onSearch}
               disabled={loading}
             >

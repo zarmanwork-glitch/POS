@@ -8,14 +8,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import React from 'react';
-
-interface BusinessDetailsPaginationProps {
-  page: number;
-  setPage: (page: number) => void;
-  limit: number;
-  totalItems: number;
-  hasMore: boolean;
-}
+import { BusinessDetailsPaginationProps } from '@/types/componentTypes';
 
 export const BusinessDetailsPagination: React.FC<
   BusinessDetailsPaginationProps

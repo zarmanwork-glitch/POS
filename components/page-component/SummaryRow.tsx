@@ -6,14 +6,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Info } from 'lucide-react';
-
-export type SummaryRowProps = {
-  label: string;
-  value: string;
-  bold?: boolean;
-  editable?: boolean;
-  tooltip?: string;
-};
+import { SummaryRowProps } from '@/types/componentTypes';
 
 export function SummaryRow({
   label,
@@ -23,7 +16,7 @@ export function SummaryRow({
   tooltip,
 }: SummaryRowProps) {
   return (
-    <div className='grid grid-cols-[1fr_80px_140px] items-center gap-4 py-3 text-sm'>
+    <div className='grid grid-cols-3 items-center gap-4 py-3 text-sm'>
       {/* Label */}
       <div className='flex items-center gap-2 text-muted-foreground'>
         {tooltip ? (

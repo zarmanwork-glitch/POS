@@ -15,16 +15,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Customer } from '@/types/customerTypes';
 import { MoreHorizontal } from 'lucide-react';
-
-interface CustomerTableProps {
-  customers: Customer[];
-  isLoading: boolean;
-  page: number;
-  limit: number;
-  onEdit: (customerId: string) => void;
-  onDelete: (customerId: string, customerName: string) => void;
-  t: (key: string) => string;
-}
+import { CustomerTableProps } from '@/types/componentTypes';
 
 export const CustomerTable = ({
   customers,
@@ -36,8 +27,8 @@ export const CustomerTable = ({
   t,
 }: CustomerTableProps) => {
   return (
-    <div className='border rounded-lg overflow-hidden'>
-      <Table>
+    <div className='border rounded-lg overflow-x-auto'>
+      <Table className='min-w-200'>
         <TableHeader className='bg-blue-50'>
           <TableRow>
             <TableHead>{t('customers.table.no')}</TableHead>

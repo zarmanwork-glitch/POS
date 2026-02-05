@@ -1,24 +1,18 @@
 import { useState } from 'react';
 import { InvoiceStatusType } from '@/enums/invoiceStatus';
 import { InvoiceTypeType } from '@/enums/invoiceType';
-
-type SearchByType =
-  | 'invoiceNumber'
-  | 'customerPoNumber'
-  | 'name'
-  | 'companyName'
-  | 'customerNumber';
+import { SearchByType } from '@/types/hookTypes';
 
 export const useInvoiceListFilters = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [searchBy, setSearchBy] = useState<SearchByType>('name');
   const [sortBy, setSortBy] = useState<'createdAt' | 'invoiceDate'>(
-    'createdAt'
+    'createdAt',
   );
   const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('desc');
   const [statusFilter, setStatusFilter] = useState<'All' | InvoiceStatusType>(
-    'All'
+    'All',
   );
   const [typeFilter, setTypeFilter] = useState<'All' | InvoiceTypeType>('All');
   const [startDate, setStartDate] = useState('');

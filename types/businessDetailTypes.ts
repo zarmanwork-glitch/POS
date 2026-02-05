@@ -1,34 +1,27 @@
-// Customer types used across the application
+// Business detail types used across the application
 
-// Full customer type for list/table display
-export interface Customer {
+// Full business detail type for list/table display
+export interface BusinessDetail {
   id: string;
   name: string;
+  companyName: string;
   email: string;
   phoneNumber: string;
-  addressStreet?: string;
-  buildingNumber?: string;
-  province?: string;
-  city?: string;
-  district?: string;
-  postalCode?: string;
-  additionalNumber?: string;
-  country: string;
-  status?: string;
-  identificationType?: string;
+  vatNumber?: string;
+  companyRegistrationNumber?: string;
   identificationNumber?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  country: string;
 }
 
-// Extended customer type for invoice/form sections
-export interface CustomerExtended {
+// Extended business detail type for invoice/form sections
+export interface BusinessDetailExtended {
   id?: string;
   _id?: string;
   companyName?: string;
   displayName?: string;
   name?: string;
-  customerNumber?: string;
+  identificationType?: string;
+  identificationNumber?: string;
   address?: string;
   addressStreet?: string;
   addressStreetAdditional?: string;
@@ -42,17 +35,16 @@ export interface CustomerExtended {
   companyRegistrationNumber?: string;
   vatNumber?: string;
   vatGstNumber?: string;
-  identificationType?: string;
-  identificationNumber?: string;
+  momraLicense?: string;
+  isSaudiVatRegistered?: boolean;
 }
 
 // Simplified type for dropdowns/selection
-export interface CustomerOption {
+export interface BusinessDetailOption {
   id?: string;
   _id?: string;
   name?: string;
   companyName?: string;
   email?: string;
   phoneNumber?: string;
-  customerNumber?: string;
 }

@@ -14,30 +14,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { SearchableDropdown } from '@/components/page-component/SearchableDropdown';
-
-interface BankDetail {
-  id?: string;
-  _id?: string;
-  bankName?: string;
-  accountNumber?: string;
-  beneficiaryName?: string;
-  country?: string;
-  swiftCode?: string;
-  iban?: string;
-}
-
-interface PaymentInfoSectionProps {
-  selectedBank: BankDetail | null;
-  setSelectedBank: (bank: BankDetail | null) => void;
-  bankSearch: string;
-  setBankSearch: (search: string) => void;
-  bankFocused: boolean;
-  setBankFocused: (focused: boolean) => void;
-  bankOptions: BankDetail[];
-  filteredBankOptions: BankDetail[];
-  formik: any;
-  t: (key: string) => string;
-}
+import {
+  BankDetailExtended,
+  PaymentInfoSectionProps,
+} from '@/types/componentTypes';
 
 export default function PaymentInfoSection({
   selectedBank,
@@ -53,7 +33,7 @@ export default function PaymentInfoSection({
 }: PaymentInfoSectionProps) {
   const router = useRouter();
 
-  const handleSelectBank = (bank: BankDetail) => {
+  const handleSelectBank = (bank: BankDetailExtended) => {
     const id = bank.id || bank._id || '';
     formik.setFieldValue('bank_detail_id', id);
     setSelectedBank(bank);
@@ -164,7 +144,7 @@ export default function PaymentInfoSection({
         onBlur={() => setTimeout(() => setBankFocused(false), 150)}
         onSelect={(option) => {
           const originalBank = bankOptions.find(
-            (b) => (b.id || b._id) === option.value
+            (b) => (b.id || b._id) === option.value,
           );
           if (originalBank) {
             handleSelectBank(originalBank);

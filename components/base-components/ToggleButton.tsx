@@ -1,15 +1,5 @@
 import React from 'react';
-
-interface ToggleButtonProps<T = string> {
-  value: T;
-  onChange: (value: T) => void;
-  optionA: { value: T; label: React.ReactNode };
-  optionB: { value: T; label: React.ReactNode };
-  label?: string;
-  required?: boolean;
-  className?: string;
-  showStatusText?: boolean;
-}
+import { ToggleButtonProps } from '@/types/componentTypes';
 
 export function ToggleButton<T = string>({
   value,

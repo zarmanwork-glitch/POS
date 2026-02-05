@@ -15,7 +15,9 @@ import { useInvoiceDropdownData } from '@/hooks/useInvoiceDropdownData';
 import { useInvoiceForm } from '@/hooks/useInvoiceForm';
 import { useInvoiceSubmit } from '@/hooks/useInvoiceSubmit';
 import { invoiceValidationSchema } from '@/schema/invoiceFormValidation';
-import { BankDetail, BusinessDetail, Customer } from '@/types/invoiceTypes';
+import { BankDetailExtended } from '@/types/bankDetailTypes';
+import { BusinessDetailExtended } from '@/types/businessDetailTypes';
+import { CustomerExtended } from '@/types/customerTypes';
 import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
@@ -62,11 +64,12 @@ export default function InvoiceFormPage() {
   ]);
 
   const [selectedBusinessDetails, setSelectedBusinessDetails] =
-    useState<BusinessDetail | null>(null);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    useState<BusinessDetailExtended | null>(null);
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<CustomerExtended | null>(null);
+  const [selectedBank, setSelectedBank] = useState<BankDetailExtended | null>(
     null,
   );
-  const [selectedBank, setSelectedBank] = useState<BankDetail | null>(null);
 
   const [businessFocused, setBusinessFocused] = useState(false);
   const [customerFocused, setCustomerFocused] = useState(false);

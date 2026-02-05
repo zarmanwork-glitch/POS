@@ -9,15 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import React from 'react';
-
-interface DeleteBusinessDetailsDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  isDeleting: boolean;
-  deleteItemName: string;
-  confirmDelete: () => void;
-  t: any;
-}
+import { DeleteBusinessDetailsDialogProps } from '@/types/componentTypes';
 
 export const DeleteBusinessDetailsDialog: React.FC<
   DeleteBusinessDetailsDialogProps

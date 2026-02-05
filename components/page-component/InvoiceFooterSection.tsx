@@ -5,12 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { FormikProps } from 'formik';
-
-interface InvoiceFooterSectionProps {
-  formik: FormikProps<any>;
-  invoiceTotal: number;
-  t: (key: string) => string;
-}
+import { InvoiceFooterSectionProps } from '@/types/componentTypes';
 
 /**
  * Convert number to words in English

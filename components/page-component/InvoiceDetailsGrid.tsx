@@ -20,11 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import { CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
-
-interface InvoiceDetailsGridProps {
-  formik: FormikProps<InvoiceFormValues>;
-  t: ReturnType<typeof useTranslation>[0];
-}
+import { InvoiceDetailsGridProps } from '@/types/componentTypes';
 
 export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
   return (

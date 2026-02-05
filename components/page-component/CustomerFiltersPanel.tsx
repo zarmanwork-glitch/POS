@@ -8,17 +8,7 @@ import {
 } from '@/components/ui/select';
 import { customerStatusFilters } from '@/enums/customerStatus';
 import { countries } from '@/enums/country';
-
-interface CustomerFiltersPanelProps {
-  showFilters: boolean;
-  filters: {
-    status: string;
-    country: string;
-  };
-  setFilters: (filters: { status: string; country: string }) => void;
-  onClose: () => void;
-  t: (key: string) => string;
-}
+import { CustomerFiltersPanelProps } from '@/types/componentTypes';
 
 export const CustomerFiltersPanel = ({
   showFilters,

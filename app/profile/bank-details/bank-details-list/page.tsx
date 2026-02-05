@@ -179,16 +179,16 @@ export default function BankDetailsListPage() {
   return (
     <div className='space-y-6'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
-        <h2 className='text-3xl font-bold'>
+      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+        <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
           <span className='text-blue-600'>{t('profile.title')}</span>
           <span className='text-gray-800'>
             {' '}
             | {t('profile.bankDetails.title')}
           </span>
         </h2>
-        <Link href='bank-details-form'>
-          <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
+        <Link href='bank-details-form' className='w-full sm:w-auto'>
+          <Button className='bg-blue-600 hover:bg-blue-700 gap-2 w-full sm:w-auto'>
             <Plus className='h-4 w-4' />
             {t('profile.bankDetails.addBankDetails')}
           </Button>
@@ -200,8 +200,8 @@ export default function BankDetailsListPage() {
 
       {/* Loading State */}
       {isLoading ? (
-        <div className='border rounded-lg overflow-hidden'>
-          <Table>
+        <div className='border rounded-lg overflow-x-auto'>
+          <Table className='min-w-200'>
             <TableHeader className='bg-slate-100'>
               <TableRow>
                 <TableHead className='w-12'>No.</TableHead>
@@ -236,8 +236,8 @@ export default function BankDetailsListPage() {
           </Table>
         </div>
       ) : (
-        <div className='border rounded-lg overflow-hidden'>
-          <Table>
+        <div className='border rounded-lg overflow-x-auto'>
+          <Table className='min-w-200'>
             <TableHeader className='bg-slate-100'>
               <TableRow>
                 <TableHead className='w-12'>No.</TableHead>

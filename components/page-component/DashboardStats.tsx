@@ -6,21 +6,14 @@ import Cookies from 'js-cookie';
 import { getInvoicesList } from '@/api/invoices/invoice.api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, DollarSign, Clock, AlertTriangle } from 'lucide-react';
-
-interface DashboardStatsProps {
-  duration: string;
-}
-
-interface Stats {
-  totalInvoices: number;
-  totalRevenue: number;
-  pendingPayments: number;
-  overdueInvoices: number;
-}
+import {
+  DashboardStats as DashboardStatsType,
+  DashboardStatsProps,
+} from '@/types/dashboardTypes';
 
 export default function DashboardStats({ duration }: DashboardStatsProps) {
   const { t } = useTranslation();
-  const [stats, setStats] = useState<Stats>({
+  const [stats, setStats] = useState<DashboardStatsType>({
     totalInvoices: 0,
     totalRevenue: 0,
     pendingPayments: 0,
@@ -42,7 +35,7 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
         // Calculate date range based on duration
         const endDate = new Date();
         const startDate = new Date();
-        
+
         switch (duration) {
           case 'Last 7 Days':
             startDate.setDate(endDate.getDate() - 7);
@@ -67,13 +60,14 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
         console.log('Stats API response:', response);
 
         // Try different response structures
-        const invoices = response?.data?.data?.results?.invoices || 
-                        response?.data?.results?.invoices || 
-                        response?.data?.invoices || 
-                        [];
-        
+        const invoices =
+          response?.data?.data?.results?.invoices ||
+          response?.data?.results?.invoices ||
+          response?.data?.invoices ||
+          [];
+
         console.log('Extracted invoices for stats:', invoices.length);
-        
+
         if (invoices && invoices.length > 0) {
           // Filter by date range
           const filteredInvoices = invoices.filter((invoice: any) => {
@@ -82,9 +76,9 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
             const invoiceDate = new Date(date);
             return invoiceDate >= startDate && invoiceDate <= endDate;
           });
-          
+
           console.log('Filtered invoices for stats:', filteredInvoices.length);
-          
+
           const totalInvoices = filteredInvoices.length;
           let totalRevenue = 0;
           let pendingPayments = 0;
@@ -165,7 +159,10 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className='hover:shadow-lg transition-shadow duration-300'>
+          <Card
+            key={index}
+            className='hover:shadow-lg transition-shadow duration-300'
+          >
             <CardHeader className='flex flex-row items-center justify-between pb-2 space-y-0'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
                 {stat.title}

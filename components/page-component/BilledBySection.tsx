@@ -16,44 +16,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { SearchableDropdown } from '@/components/page-component/SearchableDropdown';
-
-interface BusinessDetail {
-  id?: string;
-  _id?: string;
-  companyName?: string;
-  displayName?: string;
-  name?: string;
-  identificationType?: string;
-  identificationNumber?: string;
-  address?: string;
-  addressStreet?: string;
-  addressStreetAdditional?: string;
-  buildingNumber?: string;
-  district?: string;
-  city?: string;
-  postalCode?: string;
-  country?: string;
-  phoneNumber?: string;
-  email?: string;
-  companyRegistrationNumber?: string;
-  vatNumber?: string;
-  vatGstNumber?: string;
-  momraLicense?: string;
-  isSaudiVatRegistered?: boolean;
-}
-
-interface BilledBySectionProps {
-  selectedBusinessDetails: BusinessDetail | null;
-  setSelectedBusinessDetails: (details: BusinessDetail | null) => void;
-  businessSearch: string;
-  setBusinessSearch: (search: string) => void;
-  businessFocused: boolean;
-  setBusinessFocused: (focused: boolean) => void;
-  businessOptions: BusinessDetail[];
-  filteredBusinessOptions: BusinessDetail[];
-  formik: any;
-  t: (key: string) => string;
-}
+import {
+  BusinessDetailExtended,
+  BilledBySectionProps,
+} from '@/types/componentTypes';
 
 export default function BilledBySection({
   selectedBusinessDetails,
@@ -69,7 +35,7 @@ export default function BilledBySection({
 }: BilledBySectionProps) {
   const router = useRouter();
 
-  const handleSelectBusiness = (business: BusinessDetail) => {
+  const handleSelectBusiness = (business: BusinessDetailExtended) => {
     const id = business.id || business._id || '';
     formik.setFieldValue('business_detail_id', id);
     setSelectedBusinessDetails(business);

@@ -62,15 +62,15 @@ export default function BusinessDetailsPage() {
   return (
     <div className='space-y-6'>
       {/* Header with breadcrumb and action button */}
-      <div className='flex items-center justify-between'>
+      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
-          <h2 className='text-3xl font-bold'>
+          <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
             <span className='text-blue-600'>Profile</span>
             <span className='text-gray-800'> | Business Details</span>
           </h2>
         </div>
-        <Link href='business-details/business-details-form '>
-          <Button className='bg-blue-600 hover:bg-blue-700'>
+        <Link href='business-details/business-details-form ' className='w-full sm:w-auto'>
+          <Button className='bg-blue-600 hover:bg-blue-700 w-full sm:w-auto'>
             <Plus />
             Add Business Details
           </Button>
@@ -82,8 +82,8 @@ export default function BusinessDetailsPage() {
       </p>
 
       {/* Table */}
-      <div className='border rounded-lg overflow-hidden'>
-        <Table>
+      <div className='border rounded-lg overflow-x-auto'>
+        <Table className='min-w-175'>
           <TableHeader className='bg-slate-100'>
             <TableRow>
               <TableHead className='w-12'>No.</TableHead>

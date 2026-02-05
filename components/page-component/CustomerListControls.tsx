@@ -7,26 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown, Settings2, SortAsc, SortDesc } from 'lucide-react';
-
-interface CustomerListControlsProps {
-  searchCustomer: string;
-  setSearchCustomer: (value: string) => void;
-  searchBy: string;
-  setSearchBy: (value: string) => void;
-  sortBy: string;
-  setSortBy: (value: string) => void;
-  orderBy: 'asc' | 'desc';
-  setOrderBy: (value: 'asc' | 'desc') => void;
-  setPage: (value: number) => void;
-  onShowFilters: () => void;
-  showFilters: boolean;
-  filters: {
-    status: string;
-    country: string;
-  };
-  setFilters: (filters: { status: string; country: string }) => void;
-  t: (key: string) => string;
-}
+import { CustomerListControlsProps } from '@/types/componentTypes';
 
 export const CustomerListControls = ({
   searchCustomer,
@@ -76,9 +57,9 @@ export const CustomerListControls = ({
   };
 
   return (
-    <div className='flex flex-wrap items-center justify-end gap-4'>
+    <div className='flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center sm:justify-end gap-3 sm:gap-4'>
       {/* Filters button */}
-      <div className='relative mr-auto'>
+      <div className='relative sm:mr-auto'>
         <button
           onClick={onShowFilters}
           className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200 '
@@ -165,7 +146,9 @@ export const CustomerListControls = ({
 
       {/* Search By */}
       <div className='flex items-center gap-2'>
-        <span className='text-sm text-gray-600'>{t('customers.searchBy')}</span>
+        <span className='text-sm text-gray-600 hidden sm:inline'>
+          {t('customers.searchBy')}
+        </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className='flex items-center gap-1 text-sm font-medium'>
@@ -195,7 +178,9 @@ export const CustomerListControls = ({
 
       {/* Sort */}
       <div className='flex items-center gap-2'>
-        <span className='text-sm text-gray-600'>{t('customers.sortBy')}</span>
+        <span className='text-sm text-gray-600 hidden sm:inline'>
+          {t('customers.sortBy')}
+        </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className='flex items-center gap-1 text-sm font-medium'>
@@ -237,14 +222,14 @@ export const CustomerListControls = ({
       </div>
 
       {/* Search */}
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-2 flex-1 sm:flex-initial'>
         <Input
-          className='h-9 w-40'
+          className='h-9 w-full sm:w-40'
           placeholder={t('customers.searchPlaceholder')}
           value={searchCustomer}
           onChange={(e) => setSearchCustomer(e.target.value)}
         />
-        <Button className='h-9 bg-blue-600 hover:bg-blue-700'>
+        <Button className='h-9 bg-blue-600 hover:bg-blue-700 shrink-0'>
           {t('profile.go')}
         </Button>
       </div>

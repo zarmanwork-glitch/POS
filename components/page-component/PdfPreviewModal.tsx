@@ -6,13 +6,7 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from 'react-i18next';
-
-interface PDFPreviewModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  loadingPreview: boolean;
-  previewUrl: string | null;
-}
+import { PDFPreviewModalProps } from '@/types/componentTypes';
 
 export default function PDFPreviewModal({
   open,

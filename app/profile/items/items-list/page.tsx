@@ -228,15 +228,15 @@ export default function ItemsListPage() {
   return (
     <div className='space-y-6'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
-        <h2 className='text-3xl font-bold'>
+      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+        <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
           <span className='text-blue-600'>{t('profile.title')}</span>
           <span className='text-gray-800'> | {t('profile.items')}</span>
         </h2>
 
-        <div className='flex gap-3'>
-          <Link href='items-form'>
-            <Button className='bg-blue-600 hover:bg-blue-700 gap-2'>
+        <div className='flex gap-3 w-full sm:w-auto'>
+          <Link href='items-form' className='w-full sm:w-auto'>
+            <Button className='bg-blue-600 hover:bg-blue-700 gap-2 w-full sm:w-auto'>
               <Plus className='h-4 w-4' />
               {t('profile.addItem')}
             </Button>
@@ -248,9 +248,9 @@ export default function ItemsListPage() {
 
       <div className='relative space-y-4'>
         {/* Controls */}
-        <div className='flex flex-wrap items-center justify-end gap-4'>
+        <div className='flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center sm:justify-end gap-3 sm:gap-4'>
           {/* Filters button */}
-          <div className='relative mr-auto'>
+          <div className='relative sm:mr-auto'>
             <button
               onClick={() => setShowFilters(true)}
               className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200 '
@@ -640,8 +640,8 @@ export default function ItemsListPage() {
         </div>
 
         {/* Table */}
-        <div className='border rounded-lg overflow-hidden'>
-          <Table>
+        <div className='border rounded-lg overflow-x-auto'>
+          <Table className='min-w-175'>
             <TableHeader className='bg-blue-50'>
               <TableRow>
                 <TableHead>No.</TableHead>

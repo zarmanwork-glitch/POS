@@ -207,7 +207,7 @@ export default function ItemDetailsSection({
   };
 
   return (
-    <div className='space-y-3'>
+    <div className='space-y-3 w-full max-w-full overflow-hidden'>
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
         <Label className='text-xs font-semibold tracking-wide'>
@@ -225,9 +225,9 @@ export default function ItemDetailsSection({
       </div>
 
       {/* Table */}
-      {/* I'm commenting the overflow property for now */}
-      <div className='border rounded-lg'>
-        <Table className='text-xs min-w-200'>
+      {/* Table scrolls horizontally within its container when content is too wide */}
+      <div className='border rounded-lg overflow-x-auto'>
+        <Table className='text-xs'>
           <TableHeader>
             <TableRow className='bg-gray-50'>
               <TableHead className='text-xs font-semibold text-gray-700'>

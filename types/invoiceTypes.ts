@@ -1,5 +1,8 @@
-import { Invoice } from '@/hooks/useInvoiceListData';
 import { useTranslation } from 'react-i18next';
+import { InvoiceStatusType } from '@/enums/invoiceStatus';
+import { InvoiceTypeType } from '@/enums/invoiceType';
+
+// Business detail type for invoice dropdowns
 export type BusinessDetail = {
   id?: string;
   _id?: string;
@@ -9,6 +12,7 @@ export type BusinessDetail = {
   phoneNumber?: string;
 };
 
+// Customer type for invoice dropdowns
 export type Customer = {
   id?: string;
   _id?: string;
@@ -19,6 +23,7 @@ export type Customer = {
   customerNumber?: string;
 };
 
+// Bank detail type for invoice dropdowns
 export type BankDetail = {
   id?: string;
   _id?: string;
@@ -27,6 +32,7 @@ export type BankDetail = {
   country?: string;
 };
 
+// Invoice line item
 export type InvoiceItem = {
   description: string;
   serviceCode: string;
@@ -42,6 +48,7 @@ export type InvoiceItem = {
   exempt?: string;
 };
 
+// Invoice form values
 export type InvoiceFormValues = {
   invoiceNumber: string;
   invoiceDate: string;
@@ -64,6 +71,24 @@ export type InvoiceFormValues = {
   currency: string;
 };
 
+// Invoice list item (transformed from API)
+export type Invoice = {
+  id: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  invoiceType: InvoiceTypeType;
+  customer: string;
+  customerCompanyName: string;
+  customerCountry: string;
+  customerCity: string;
+  customerLocation: string;
+  total: number;
+  currency: string;
+  status: InvoiceStatusType;
+};
+
+// Invoice table props
 export interface InvoiceTableProps {
   invoices: Invoice[];
   loading: boolean;

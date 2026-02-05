@@ -3,10 +3,7 @@ import { SummaryRow } from '@/components/page-component/SummaryRow';
 import { InvoiceItem } from '@/types/invoiceTypes';
 import { calculateInvoiceTotals } from '@/utils/invoiceCalculations';
 import { useTranslation } from 'react-i18next';
-
-interface InvoiceTotalsSummaryProps {
-  items: InvoiceItem[];
-}
+import { InvoiceTotalsSummaryProps } from '@/types/componentTypes';
 
 export const InvoiceTotalsSummary = ({ items }: InvoiceTotalsSummaryProps) => {
   const { t } = useTranslation();
@@ -22,7 +19,7 @@ export const InvoiceTotalsSummary = ({ items }: InvoiceTotalsSummaryProps) => {
   return (
     <div className='space-y-2'>
       <Separator />
-      <div className='grid place-items-center'>
+      <div className='flex justify-center'>
         <div className='w-full max-w-lg space-y-2'>
           <SummaryRow
             label={t('invoices.form.subTotal')}

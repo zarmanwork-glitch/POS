@@ -7,12 +7,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-
-interface InvoicePaginationProps {
-  page: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}
+import { InvoicePaginationProps } from '@/types/componentTypes';
 
 export const InvoicePagination = ({
   page,
@@ -71,7 +66,7 @@ export const InvoicePagination = ({
                     {p}
                   </PaginationLink>
                 </PaginationItem>
-              )
+              ),
             );
           })()}
 
