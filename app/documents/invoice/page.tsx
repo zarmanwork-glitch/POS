@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -260,6 +261,7 @@ export default function InvoicePage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [type, setType] = useState('all');
+  const { t } = useTranslation();
 
   const filteredInvoices = invoices.filter(
     (inv) =>
@@ -269,80 +271,96 @@ export default function InvoicePage() {
 
   return (
     <div className='space-y-6'>
-      <div className='flex items-center justify-between'>
+      <div className='flex items-center justify-between flex-wrap gap-3'>
         <div>
-          <h2 className='text-3xl font-bold'>
-            <span className='text-blue-600'>Document</span>
-            <span className='text-gray-800'> | Invoice</span>
+          <h2 className='text-2xl sm:text-3xl font-bold'>
+            <span className='text-gradient-brand'>
+              {t('invoices.documents')}
+            </span>
+            <span className='text-gray-800'>
+              {' '}
+              | {t('invoices.invoiceList')}
+            </span>
           </h2>
         </div>
-        <Button className='bg-blue-600 hover:bg-blue-700'>
-          + Create Invoice
+        <Button className='gradient-brand hover:opacity-90 transition-opacity shadow-md shadow-blue-600/20'>
+          + {t('invoices.newInvoice')}
         </Button>
       </div>
 
       {/* Filters & Actions */}
-      <div className='flex flex-wrap gap-4 items-center'>
-        <Select
-          value={status}
-          onValueChange={setStatus}
-        >
-          <SelectTrigger className='w-40'>
-            <SelectValue placeholder='Status' />
+      <div className='flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-stretch sm:items-center'>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger className='w-full sm:w-40'>
+            <SelectValue placeholder={t('invoices.status')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='all'>Status: All</SelectItem>
-            <SelectItem value='paid'>Paid</SelectItem>
-            <SelectItem value='pending'>Pending</SelectItem>
+            <SelectItem value='all'>
+              {t('invoices.status')}:{' '}
+              {t('invoices.all', { defaultValue: 'All' })}
+            </SelectItem>
+            <SelectItem value='paid'>
+              {t('invoices.paid', { defaultValue: 'Paid' })}
+            </SelectItem>
+            <SelectItem value='pending'>
+              {t('invoices.pending', { defaultValue: 'Pending' })}
+            </SelectItem>
           </SelectContent>
         </Select>
 
-        <Select
-          value={type}
-          onValueChange={setType}
-        >
-          <SelectTrigger className='w-40'>
-            <SelectValue placeholder='Type' />
+        <Select value={type} onValueChange={setType}>
+          <SelectTrigger className='w-full sm:w-40'>
+            <SelectValue placeholder={t('invoices.type')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='all'>Type: All</SelectItem>
-            <SelectItem value='standard'>Standard</SelectItem>
-            <SelectItem value='proforma'>Proforma</SelectItem>
+            <SelectItem value='all'>
+              {t('invoices.type')}: {t('invoices.all', { defaultValue: 'All' })}
+            </SelectItem>
+            <SelectItem value='standard'>
+              {t('invoices.standard', { defaultValue: 'Standard' })}
+            </SelectItem>
+            <SelectItem value='proforma'>
+              {t('invoices.proforma', { defaultValue: 'Proforma' })}
+            </SelectItem>
           </SelectContent>
         </Select>
 
         <Input
           type='date'
-          className='w-40'
-          placeholder='Start Date'
+          className='w-full sm:w-40'
+          placeholder={t('invoices.startDate')}
         />
 
         <Input
           type='date'
-          className='w-40'
-          placeholder='End Date'
+          className='w-full sm:w-40'
+          placeholder={t('invoices.endDate')}
         />
 
         <Input
           type='text'
-          className='flex-1 min-w-48'
-          placeholder='Search Invoice Number'
+          className='flex-1 min-w-0 sm:min-w-48'
+          placeholder={t('invoices.searchInvoiceNumber', {
+            defaultValue: 'Search Invoice Number',
+          })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {/* Table */}
-      <div className='border rounded-lg overflow-hidden'>
+      <div className='border rounded-lg overflow-x-auto'>
         <Table>
           <TableHeader className='bg-slate-100'>
             <TableRow>
-              <TableHead className='w-12'>No.</TableHead>
-              <TableHead>Invoice Info</TableHead>
-              <TableHead>Customer Info</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead className='w-10'>Actions</TableHead>
+              <TableHead className='w-12'>{t('invoices.table.no')}</TableHead>
+              <TableHead>{t('invoices.table.invoice')}</TableHead>
+              <TableHead>{t('invoices.table.customer')}</TableHead>
+              <TableHead>{t('invoices.table.dueDate')}</TableHead>
+              <TableHead>{t('invoices.table.amount')}</TableHead>
+              <TableHead className='w-10'>
+                {t('invoices.table.actions')}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -357,14 +375,13 @@ export default function InvoicePage() {
               </TableRow>
             ) : (
               filteredInvoices.map((inv, idx) => (
-                <TableRow
-                  key={inv.id}
-                  className='hover:bg-gray-50'
-                >
+                <TableRow key={inv.id} className='hover:bg-gray-50'>
                   <TableCell className='font-medium'>{idx + 1}</TableCell>
                   <TableCell>
                     <div className='font-medium'>{inv.id}</div>
-                    <div className='text-sm text-gray-500'>standard</div>
+                    <div className='text-sm text-gray-500'>
+                      {t('invoices.standard', { defaultValue: 'standard' })}
+                    </div>
                     <div className='text-xs text-gray-400'>{inv.date}</div>
                   </TableCell>
                   <TableCell>{inv.customer}</TableCell>
@@ -375,19 +392,22 @@ export default function InvoicePage() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                        >
+                        <Button variant='ghost' size='icon'>
                           <MoreHorizontal className='h-4 w-4' />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align='end'>
-                        <DropdownMenuItem>View</DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Download</DropdownMenuItem>
+                        <DropdownMenuItem>
+                          {t('invoices.view', { defaultValue: 'View' })}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          {t('invoices.edit', { defaultValue: 'Edit' })}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          {t('invoices.download')}
+                        </DropdownMenuItem>
                         <DropdownMenuItem className='text-red-600'>
-                          Delete
+                          {t('invoices.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

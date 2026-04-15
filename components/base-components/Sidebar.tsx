@@ -86,13 +86,16 @@ export default function Sidebar({
           mobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
+        aria-hidden='true'
       />
 
       {/* Sidebar with slide animation */}
       <aside
+        role='navigation'
+        aria-label='Main navigation'
         className={`
           fixed lg:static inset-y-0 z-30
-          h-full bg-linear-to-b from-slate-900 to-slate-800 text-white
+          h-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 text-white
           transition-all duration-300 ease-in-out
           ${isRTL ? 'right-0' : 'left-0'}
           ${
@@ -212,15 +215,24 @@ export default function Sidebar({
                     >
                       <div className='ml-9 space-y-1'>
                         {item.children.map((child) => {
-                          const childActive = pathname === child.href;
+                          const childDir = child.href
+                            ? child.href.substring(
+                                0,
+                                child.href.lastIndexOf('/'),
+                              )
+                            : '';
+                          const childActive = child.href
+                            ? pathname === child.href ||
+                              pathname.startsWith(childDir + '/')
+                            : false;
                           return (
                             <Link
                               key={child.label}
                               href={child.href ?? '#'}
                               onClick={onClose}
-                              className={`block px-3 py-2 rounded-md text-xs transition-colors duration-150 ${
+                              className={`block px-3 py-2 rounded-lg text-xs transition-all duration-150 ${
                                 childActive
-                                  ? 'bg-blue-600 text-white font-semibold'
+                                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-sm'
                                   : 'text-gray-400 hover:text-white hover:bg-white/10'
                               }`}
                             >
@@ -236,7 +248,18 @@ export default function Sidebar({
                     icon={icon}
                     label={translatedLabel}
                     href={item.href}
-                    active={pathname === item.href}
+                    active={(() => {
+                      if (!item.href) return false;
+                      if (pathname === item.href) return true;
+                      const parentDir = item.href.substring(
+                        0,
+                        item.href.lastIndexOf('/'),
+                      );
+                      return (
+                        parentDir.length > 0 &&
+                        pathname.startsWith(parentDir + '/')
+                      );
+                    })()}
                     collapsed={collapsed}
                     onClick={onClose}
                   />
@@ -272,12 +295,12 @@ function SidebarLink({
       href={href}
       onClick={onClick}
       className={`
-        flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium
+        flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
         transition-all duration-200 ease-in-out
         ${collapsed ? 'justify-center' : ''}
         ${
           active
-            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/50'
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30'
             : 'text-gray-300 hover:bg-white/10 hover:text-white'
         }
       `}
@@ -320,13 +343,13 @@ function SidebarDropdown({
       onClick={onClick}
       variant='ghost'
       className={`
-        w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium
+        w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium
         transition-all duration-200 ease-in-out
         ${collapsed ? 'justify-center' : ''}
         ${
           active
-            ? 'bg-blue-600 text-white'
-            : 'text-gray-300 hover:bg-gray hover:text-white'
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
+            : 'text-gray-300 hover:bg-white/5 hover:text-white'
         }
       `}
       title={collapsed ? label : undefined}

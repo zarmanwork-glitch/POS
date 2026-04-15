@@ -35,11 +35,11 @@ export default function DashboardPage() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <div>
-          <h1 className='text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600'>
+          <h1 className='text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gradient-brand tracking-tight'>
             {t('dashboard.title')}
           </h1>
           <p className='text-muted-foreground mt-2 text-sm sm:text-base'>
-            Welcome back! Here's what's happening with your invoices.
+            {t('dashboard.subtitle')}
           </p>
         </div>
         <div className='hidden md:flex items-center gap-2 text-sm'>
@@ -47,19 +47,13 @@ export default function DashboardPage() {
           <span className='text-muted-foreground'>
             {t('dashboard.duration')}:
           </span>
-          <Select
-            value={duration}
-            onValueChange={setDuration}
-          >
+          <Select value={duration} onValueChange={setDuration}>
             <SelectTrigger className='w-[160px] border-none shadow-sm'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {dateRanges.map((range) => (
-                <SelectItem
-                  key={range.value}
-                  value={range.value}
-                >
+                <SelectItem key={range.value} value={range.value}>
                   {t(
                     dateRangeKeyMap[range.value] ??
                       'dashboard.dateRanges.allTime',
@@ -76,19 +70,13 @@ export default function DashboardPage() {
         <span className='text-sm text-muted-foreground'>
           {t('dashboard.duration')}:
         </span>
-        <Select
-          value={duration}
-          onValueChange={setDuration}
-        >
+        <Select value={duration} onValueChange={setDuration}>
           <SelectTrigger className='flex-1'>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {dateRanges.map((range) => (
-              <SelectItem
-                key={range.value}
-                value={range.value}
-              >
+              <SelectItem key={range.value} value={range.value}>
                 {t(
                   dateRangeKeyMap[range.value] ??
                     'dashboard.dateRanges.allTime',
@@ -114,11 +102,7 @@ export default function DashboardPage() {
 
       {/* Optional Tabs Section - can be expanded later */}
       <div className='space-y-4'>
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className='w-full'
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
           <TabsList className='grid w-full grid-cols-2 max-w-full sm:max-w-md'>
             <TabsTrigger value='business'>
               {t('dashboard.tabs.businessProfile')}
@@ -128,21 +112,15 @@ export default function DashboardPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent
-            value='business'
-            className='mt-6'
-          >
+          <TabsContent value='business' className='mt-6'>
             <div className='rounded-lg border bg-card p-8 text-center'>
               <p className='text-muted-foreground'>
-                Business profile analytics coming soon...
+                {t('dashboard.businessComingSoon')}
               </p>
             </div>
           </TabsContent>
 
-          <TabsContent
-            value='search'
-            className='mt-6'
-          >
+          <TabsContent value='search' className='mt-6'>
             <div className='space-y-4'>
               <div className='relative max-w-md'>
                 <Input
@@ -155,7 +133,7 @@ export default function DashboardPage() {
               </div>
               <div className='rounded-lg border bg-card p-8 text-center'>
                 <p className='text-muted-foreground'>
-                  Search functionality coming soon...
+                  {t('dashboard.searchComingSoon')}
                 </p>
               </div>
             </div>

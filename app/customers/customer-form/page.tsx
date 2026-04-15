@@ -198,7 +198,11 @@ function CustomerFormContent() {
       <div className='flex items-center justify-center min-h-screen'>
         <div className='space-y-4 text-center'>
           <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
-          <p className='text-gray-600 font-medium'>{t('profile.loading')}</p>
+          <p className='text-gray-600 font-medium'>
+            {t('customers.loadingCustomer', {
+              defaultValue: 'Loading customer details...',
+            })}
+          </p>
         </div>
       </div>
     );
@@ -209,7 +213,7 @@ function CustomerFormContent() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-          <span className='text-blue-600'>{t('sidebar.customers')}</span>
+          <span className='text-gradient-brand'>{t('sidebar.customers')}</span>
           <span className='text-gray-800'>
             {' | '}
             {id ? t('customers.form.editTitle') : t('customers.form.addTitle')}
@@ -225,7 +229,7 @@ function CustomerFormContent() {
             {t('profile.cancel')}
           </Button>
           <Button
-            className='bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-initial'
+            className='gradient-brand hover:opacity-90 transition-opacity flex-1 sm:flex-initial shadow-md shadow-blue-600/20'
             onClick={() => formik.handleSubmit()}
             disabled={isLoading}
           >
@@ -244,13 +248,10 @@ function CustomerFormContent() {
       </div>
 
       {/* Form */}
-      <form
-        onSubmit={formik.handleSubmit}
-        className='space-y-6'
-      >
+      <form onSubmit={formik.handleSubmit} className='space-y-6'>
         {/* Basic Information */}
         <div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.name')}: <span className='text-red-500'>*</span>
@@ -326,7 +327,7 @@ function CustomerFormContent() {
 
         {/* Company Information */}
         <div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.companyName')} :{' '}
@@ -351,7 +352,7 @@ function CustomerFormContent() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Company Name (Local):
+                {t('profile.companyNameLocal')}:
               </label>
               <Input
                 type='text'
@@ -359,13 +360,15 @@ function CustomerFormContent() {
                 value={formik.values.companyNameLocal}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter local company name'
+                placeholder={t('customers.form.placeholders.companyNameLocal', {
+                  defaultValue: 'Enter local company name',
+                })}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Company Registration Number:
+                {t('profile.companyRegistrationNumber')}:
               </label>
               <Input
                 type='text'
@@ -373,13 +376,16 @@ function CustomerFormContent() {
                 value={formik.values.companyRegistrationNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter registration number'
+                placeholder={t(
+                  'customers.form.placeholders.registrationNumber',
+                  { defaultValue: 'Enter registration number' },
+                )}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                VAT Number:
+                {t('profile.vatNo')}:
               </label>
               <Input
                 type='text'
@@ -387,13 +393,15 @@ function CustomerFormContent() {
                 value={formik.values.vatNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter VAT number'
+                placeholder={t('customers.form.placeholders.vatNumber', {
+                  defaultValue: 'Enter VAT number',
+                })}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Group VAT Number:
+                {t('profile.groupVatNo')}:
               </label>
               <Input
                 type='text'
@@ -401,13 +409,15 @@ function CustomerFormContent() {
                 value={formik.values.groupVatNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter group VAT number'
+                placeholder={t('customers.form.placeholders.groupVatNumber', {
+                  defaultValue: 'Enter group VAT number',
+                })}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Identification Type:
+                {t('profile.identification')}:
               </label>
               <Select
                 value={formik.values.identificationType}
@@ -416,14 +426,13 @@ function CustomerFormContent() {
                 }
               >
                 <SelectTrigger className='bg-blue-50 h-10 py-2'>
-                  <SelectValue placeholder='Identification Type' />
+                  <SelectValue
+                    placeholder={t('profile.identificationTypePlaceholder')}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {customerIdentificationTypes.map((type) => (
-                    <SelectItem
-                      key={type.value}
-                      value={type.value}
-                    >
+                    <SelectItem key={type.value} value={type.value}>
                       {type.displayText}
                     </SelectItem>
                   ))}
@@ -432,7 +441,7 @@ function CustomerFormContent() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Identification Number:
+                {t('profile.identificationNumber')}:
               </label>
               <Input
                 type='text'
@@ -440,7 +449,9 @@ function CustomerFormContent() {
                 value={formik.values.identificationNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter identification number'
+                placeholder={t(
+                  'customers.form.placeholders.enterIdentificationNumber',
+                )}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
@@ -452,12 +463,12 @@ function CustomerFormContent() {
           <div className='relative flex items-center py-2'>
             <Separator className='flex-1 bg-blue-100 h-0.5' />
             <span className='mx-6 text-sm font-semibold text-blue-600'>
-              ADDRESS
+              {t('profile.address')}
             </span>
             <Separator className='flex-1 bg-blue-100 h-0.5' />
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.country')}: <span className='text-red-500'>*</span>
@@ -495,10 +506,7 @@ function CustomerFormContent() {
                   </SelectTrigger>
                   <SelectContent>
                     {countries.map((country) => (
-                      <SelectItem
-                        key={country}
-                        value={country}
-                      >
+                      <SelectItem key={country} value={country}>
                         {country}
                       </SelectItem>
                     ))}
@@ -513,7 +521,7 @@ function CustomerFormContent() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Province/State:
+                {t('profile.province')}:
               </label>
               <Input
                 type='text'
@@ -521,7 +529,7 @@ function CustomerFormContent() {
                 value={formik.values.province}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Province/State'
+                placeholder={t('profile.provinceState')}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
@@ -592,7 +600,7 @@ function CustomerFormContent() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Additional Street Info:
+                {t('profile.addressStreetAdditional')}:
               </label>
               <Input
                 type='text'
@@ -600,7 +608,9 @@ function CustomerFormContent() {
                 value={formik.values.addressStreetAdditional}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter additional info'
+                placeholder={t('customers.form.placeholders.additionalInfo', {
+                  defaultValue: 'Enter additional info',
+                })}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
@@ -630,7 +640,10 @@ function CustomerFormContent() {
             </div>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Neighborhood:
+                {t('customers.form.neighborhood', {
+                  defaultValue: 'Neighborhood',
+                })}
+                :
               </label>
               <Input
                 type='text'
@@ -638,7 +651,9 @@ function CustomerFormContent() {
                 value={formik.values.neighborhood}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter neighborhood'
+                placeholder={t('customers.form.placeholders.neighborhood', {
+                  defaultValue: 'Enter neighborhood',
+                })}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>
@@ -666,7 +681,7 @@ function CustomerFormContent() {
             </div>
             <div className='md:col-span-3'>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Address (Local Language):
+                {t('profile.addressLocalLanguage')}:
               </label>
               <Input
                 type='text'
@@ -674,7 +689,9 @@ function CustomerFormContent() {
                 value={formik.values.addressLocal}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter address in local language'
+                placeholder={t('customers.form.placeholders.addressLocal', {
+                  defaultValue: 'Enter address in local language',
+                })}
                 className='bg-blue-50 h-10 py-2'
               />
             </div>

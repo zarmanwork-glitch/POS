@@ -130,11 +130,6 @@ export default function ItemsListPage() {
         payloadToSend.offset = offset;
         payloadToSend.limit = limit;
 
-        // Debug payload to help diagnose pagination/filter issues
-        // Remove or guard in production if needed
-        // eslint-disable-next-line no-console
-        console.debug('Fetching items with payload:', payloadToSend);
-
         const response = await getItemsList(payloadToSend);
 
         if (response?.data?.status === 'success') {
@@ -230,13 +225,13 @@ export default function ItemsListPage() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-          <span className='text-blue-600'>{t('profile.title')}</span>
+          <span className='text-gradient-brand'>{t('profile.title')}</span>
           <span className='text-gray-800'> | {t('profile.items')}</span>
         </h2>
 
         <div className='flex gap-3 w-full sm:w-auto'>
           <Link href='items-form' className='w-full sm:w-auto'>
-            <Button className='bg-blue-600 hover:bg-blue-700 gap-2 w-full sm:w-auto'>
+            <Button className='gradient-brand hover:opacity-90 transition-opacity gap-2 w-full sm:w-auto shadow-md shadow-blue-600/20'>
               <Plus className='h-4 w-4' />
               {t('profile.addItem')}
             </Button>
@@ -301,15 +296,12 @@ export default function ItemsListPage() {
                         setFilters({ ...filters, status: v })
                       }
                     >
-                      <SelectTrigger className='h-8'>
+                      <SelectTrigger className='h-10 sm:h-8'>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {itemStatuses.map((status) => (
-                          <SelectItem
-                            key={status.value}
-                            value={status.value}
-                          >
+                          <SelectItem key={status.value} value={status.value}>
                             {status.displayText}
                           </SelectItem>
                         ))}
@@ -327,15 +319,12 @@ export default function ItemsListPage() {
                         setFilters({ ...filters, unitOfMeasure: v })
                       }
                     >
-                      <SelectTrigger className='h-8'>
+                      <SelectTrigger className='h-10 sm:h-8'>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {unitOfMeasures.map((u) => (
-                          <SelectItem
-                            key={u.value}
-                            value={u.value}
-                          >
+                          <SelectItem key={u.value} value={u.value}>
                             {u.displayText}
                           </SelectItem>
                         ))}
@@ -347,7 +336,7 @@ export default function ItemsListPage() {
                     <label className='text-xs font-medium'>Buy Price</label>
                     <div className='flex items-center gap-2'>
                       <Input
-                        className='h-8 w-24'
+                        className='h-10 sm:h-8 w-full sm:w-24'
                         placeholder='Min'
                         value={filters.buyPriceMin}
                         onChange={(e) =>
@@ -359,7 +348,7 @@ export default function ItemsListPage() {
                       />
                       <span className='text-sm text-gray-500 px-1'>:</span>
                       <Input
-                        className='h-8 w-24'
+                        className='h-10 sm:h-8 w-full sm:w-24'
                         placeholder='Max'
                         value={filters.buyPriceMax}
                         onChange={(e) =>
@@ -376,7 +365,7 @@ export default function ItemsListPage() {
                     <label className='text-xs font-medium'>Sell Price</label>
                     <div className='flex items-center gap-2'>
                       <Input
-                        className='h-8 w-24'
+                        className='h-10 sm:h-8 w-full sm:w-24'
                         placeholder='Min'
                         value={filters.sellPriceMin}
                         onChange={(e) =>
@@ -388,7 +377,7 @@ export default function ItemsListPage() {
                       />
                       <span className='text-sm text-gray-500 px-1'>:</span>
                       <Input
-                        className='h-8 w-24'
+                        className='h-10 sm:h-8 w-full sm:w-24'
                         placeholder='Max'
                         value={filters.sellPriceMax}
                         onChange={(e) =>
@@ -656,21 +645,16 @@ export default function ItemsListPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className='text-center py-8'
-                  >
+                  <TableCell colSpan={6} className='text-center py-8'>
                     <div className='flex flex-col items-center justify-center gap-2'>
                       <Spinner className='h-8 w-8' />
+                      <span className='text-gray-500'>Loading items...</span>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : filteredItems.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className='text-center py-8'
-                  >
+                  <TableCell colSpan={6} className='text-center py-8'>
                     <span className='text-gray-500'>
                       {t('profile.noItemsFound', {
                         defaultValue: 'No items found',
@@ -807,10 +791,7 @@ export default function ItemsListPage() {
       )}
 
       {/* Delete Confirmation Modal */}
-      <Dialog
-        open={deleteModalOpen}
-        onOpenChange={setDeleteModalOpen}
-      >
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>

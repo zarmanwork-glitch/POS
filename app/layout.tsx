@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Point Of Sale',
-  description: 'Modern app for creating in',
+  description:
+    'Modern Point of Sale app for creating and managing invoices, customers, and business profiles',
 };
 
 export default function RootLayout({

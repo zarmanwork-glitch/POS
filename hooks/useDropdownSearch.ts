@@ -1,12 +1,9 @@
 import { useState, useMemo } from 'react';
-
-interface HasSearchableFields {
-  [key: string]: any;
-}
+import { HasSearchableFields } from '@/types/hookTypes';
 
 export const useDropdownSearch = <T extends HasSearchableFields>(
   options: T[],
-  searchFields: (keyof T)[]
+  searchFields: (keyof T)[],
 ) => {
   const [search, setSearch] = useState('');
   const [focused, setFocused] = useState(false);
@@ -17,7 +14,7 @@ export const useDropdownSearch = <T extends HasSearchableFields>(
       searchFields.some((field) => {
         const value = item[field];
         return value && String(value).toLowerCase().includes(query);
-      })
+      }),
     );
   }, [options, search, searchFields]);
 

@@ -33,17 +33,13 @@ export default function ClientShell({
     if (i18n && i18n.language !== lang) {
       i18n.changeLanguage(lang).catch(() => {});
     }
-  }, []);
+  }, [i18n]);
 
   if (isAuthPage) {
     return (
-      <div className='min-h-screen bg-background'>
+      <div className='min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20'>
         {children}
-        <Toaster
-          position='top-right'
-          theme='light'
-          richColors
-        />
+        <Toaster position='top-right' theme='light' richColors />
       </div>
     );
   }
@@ -51,7 +47,7 @@ export default function ClientShell({
   return (
     <div className='min-h-screen bg-background'>
       {/* Navbar */}
-      <header className='fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60'>
+      <header className='fixed top-0 left-0 right-0 z-50 border-b border-border/40 glass'>
         <Navbar onMenuClick={() => setMobileOpen(true)} />
       </header>
 
@@ -80,18 +76,14 @@ export default function ClientShell({
         />
 
         {/* Main Content - Scrollable */}
-        <main className='flex-1 overflow-y-auto'>
+        <main className='flex-1 overflow-y-auto' role='main'>
           <div className='min-h-[calc(100vh-4rem)] px-[clamp(1rem,5vw,2.5rem)] py-[clamp(1rem,4vw,2.5rem)]'>
             {children}
           </div>
         </main>
       </div>
 
-      <Toaster
-        position='top-right'
-        theme='light'
-        richColors
-      />
+      <Toaster position='top-right' theme='light' richColors />
     </div>
   );
 }

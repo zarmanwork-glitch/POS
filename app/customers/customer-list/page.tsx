@@ -82,10 +82,23 @@ export default function CustomerListPage() {
         return;
       }
 
-      await deleteCustomer({
+      const response = await deleteCustomer({
         token,
         customerId: deleteCustomerId,
       });
+
+      const message =
+        response?.data?.data?.results?.error?.message ||
+        response?.data?.message ||
+        '';
+      if (message === 'customer_linked_with_invoice') {
+        setDeleteModalOpen(false);
+        toast.error(
+          'This customer cannot be deleted because it is linked to an invoice.',
+          { duration: 4000 },
+        );
+        return;
+      }
 
       toast.success(`Customer "${deleteCustomerName}" deleted successfully`, {
         duration: 2000,
@@ -98,7 +111,19 @@ export default function CustomerListPage() {
       setDeleteCustomerName('');
     } catch (error: any) {
       console.error('Error deleting customer:', error);
-      toast.error('Error deleting customer', { duration: 2000 });
+      const message =
+        error?.response?.data?.data?.results?.error?.message ||
+        error?.response?.data?.message ||
+        '';
+      if (message === 'customer_linked_with_invoice') {
+        setDeleteModalOpen(false);
+        toast.error(
+          'This customer cannot be deleted because it is linked to an invoice.',
+          { duration: 4000 },
+        );
+      } else {
+        toast.error('Error deleting customer', { duration: 2000 });
+      }
     } finally {
       setIsDeleting(false);
     }
@@ -110,12 +135,14 @@ export default function CustomerListPage() {
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
           <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-            <span className='text-blue-600'>{t('sidebar.customers')}</span>{' '}
+            <span className='text-gradient-brand'>
+              {t('sidebar.customers')}
+            </span>{' '}
             <span className='text-gray-800'>| {t('customers.listTitle')}</span>
           </h2>
         </div>
         <Link href='/customers/customer-form' className='w-full sm:w-auto'>
-          <Button className='bg-blue-600 hover:bg-blue-700 gap-2 w-full sm:w-auto'>
+          <Button className='gradient-brand hover:opacity-90 transition-opacity gap-2 w-full sm:w-auto shadow-md shadow-blue-600/20'>
             <Plus className='h-4 w-4' />
             {t('customers.addCustomer')}
           </Button>

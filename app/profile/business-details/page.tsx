@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -51,12 +52,13 @@ const businessDetails = [
 
 export default function BusinessDetailsPage() {
   const [search, setSearch] = useState('');
+  const { t } = useTranslation();
 
   const filteredDetails = businessDetails.filter(
     (detail) =>
       detail.name.toLowerCase().includes(search.toLowerCase()) ||
       detail.company.toLowerCase().includes(search.toLowerCase()) ||
-      detail.email.toLowerCase().includes(search.toLowerCase())
+      detail.email.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -65,33 +67,37 @@ export default function BusinessDetailsPage() {
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
           <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-            <span className='text-blue-600'>Profile</span>
-            <span className='text-gray-800'> | Business Details</span>
+            <span className='text-gradient-brand'>{t('profile.title')}</span>
+            <span className='text-gray-800'>
+              {' '}
+              | {t('profile.businessDetails')}
+            </span>
           </h2>
         </div>
-        <Link href='business-details/business-details-form ' className='w-full sm:w-auto'>
-          <Button className='bg-blue-600 hover:bg-blue-700 w-full sm:w-auto'>
+        <Link
+          href='business-details/business-details-form '
+          className='w-full sm:w-auto'
+        >
+          <Button className='gradient-brand hover:opacity-90 transition-opacity w-full sm:w-auto shadow-md shadow-blue-600/20'>
             <Plus />
-            Add Business Details
+            {t('profile.addBusinessDetails')}
           </Button>
         </Link>
       </div>
       {/* Description */}
-      <p className='text-sm text-gray-600'>
-        Showing all available material/service items.
-      </p>
+      <p className='text-sm text-gray-600'>{t('profile.showingAll')}</p>
 
       {/* Table */}
       <div className='border rounded-lg overflow-x-auto'>
         <Table className='min-w-175'>
           <TableHeader className='bg-slate-100'>
             <TableRow>
-              <TableHead className='w-12'>No.</TableHead>
-              <TableHead>Name / Company Name</TableHead>
-              <TableHead>Contact Info</TableHead>
-              <TableHead>Tax Number</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead className='w-10'>Actions</TableHead>
+              <TableHead className='w-12'>{t('invoices.table.no')}</TableHead>
+              <TableHead>{t('profile.nameCompanyName')}</TableHead>
+              <TableHead>{t('profile.contactInfo')}</TableHead>
+              <TableHead>{t('profile.taxNumber')}</TableHead>
+              <TableHead>{t('profile.country')}</TableHead>
+              <TableHead className='w-10'>{t('profile.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -101,15 +107,14 @@ export default function BusinessDetailsPage() {
                   colSpan={6}
                   className='text-center py-6 text-gray-400'
                 >
-                  No business details found
+                  {t('profile.noBusinessDetailsFound', {
+                    defaultValue: 'No business details found',
+                  })}
                 </TableCell>
               </TableRow>
             ) : (
               filteredDetails.map((detail) => (
-                <TableRow
-                  key={detail.id}
-                  className='hover:bg-gray-50'
-                >
+                <TableRow key={detail.id} className='hover:bg-gray-50'>
                   <TableCell className='font-medium'>{detail.id}</TableCell>
                   <TableCell>
                     <div className='font-medium'>{detail.name}</div>
@@ -126,19 +131,20 @@ export default function BusinessDetailsPage() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                        >
+                        <Button variant='ghost' size='icon'>
                           <MoreHorizontal className='h-4 w-4' />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align='end'>
-                        <DropdownMenuItem>View</DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Download</DropdownMenuItem>
+                        <DropdownMenuItem>
+                          {t('profile.view', { defaultValue: 'View' })}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>{t('profile.edit')}</DropdownMenuItem>
+                        <DropdownMenuItem>
+                          {t('invoices.download')}
+                        </DropdownMenuItem>
                         <DropdownMenuItem className='text-red-600'>
-                          Delete
+                          {t('profile.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

@@ -179,14 +179,14 @@ export default function PaymentInfoSection({
               {bankDetailRows.map((r, i) => (
                 <div
                   key={i}
-                  className={`flex items-start px-4 py-3 ${
+                  className={`flex flex-col sm:flex-row items-start px-4 py-3 gap-1 sm:gap-0 ${
                     i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
                   }`}
                 >
-                  <div className='w-1/3 text-gray-600 font-medium'>
+                  <div className='w-full sm:w-1/3 text-gray-600 font-medium'>
                     {r.label}:
                   </div>
-                  <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                  <div className='w-full sm:w-2/3 text-gray-700 whitespace-pre-wrap'>
                     {r.value || '-'}
                   </div>
                 </div>

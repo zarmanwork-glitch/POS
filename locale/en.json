@@ -1,4 +1,9 @@
 {
+  "navbar": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
   "sidebar": {
     "dashboard": "Dashboard",
     "profile": "Profile",
@@ -45,13 +50,27 @@
     "addBusinessDetails": "Add Business Details",
     "editBusinessDetails": "Edit Business Details",
     "loading": "Loading...",
+    "loadingBankDetails": "Loading bank details...",
+    "loadingBusinessDetails": "Loading business details...",
+    "loadingItemDetails": "Loading item details...",
     "updating": "Updating...",
     "saving": "Saving...",
     "update": "Update",
     "uploading": "Uploading:",
     "changeLogo": "Change Logo",
     "editItem": "Edit Item",
+    "editBankDetails": "Edit Bank Details",
     "itemInformation": "ITEM INFORMATION",
+    "itemStatus": "Item Status",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "unitOfMeasure": "Unit of Measure",
+    "selectUnit": "Select a unit",
+    "materialServiceNo": "Material / Service No",
+    "materialNoPlaceholder": "e.g. MAT-001",
+    "descriptionPlaceholder": "Enter item description",
+    "discountPercentage": "Discount Percentage",
+    "vatRegistrationPrompt": "Please provide VAT registration details",
     "itemType": "Item Type",
     "service": "Service",
     "material": "Material",
@@ -104,6 +123,11 @@
     "branch2": "Branch 2",
     "branch3": "Branch 3",
     "refundPolicy": "REFUND POLICY",
+    "refundPolicyDescription": "The refund policy outlines the rules for obtaining refunds for purchased goods and services. This policy will be included in all simple and standard invoices.",
+    "refundPolicyLabel": "Refund Policy:",
+    "refundPolicyLocalLabel": "Refund Policy in local language:",
+    "refundPolicyEnglishPlaceholder": "No refunds",
+    "refundPolicyLocalPlaceholder": "No refunds in local language",
     "refundPolicyPlaceholder": "Enter your refund policy details",
     "addressLocalLanguage": "Address in Local Language",
     "johnDoe": "John Doe",
@@ -145,6 +169,8 @@
       "bankNamePlaceholder": "Bank Name",
       "specifyBankCode": "Specify Bank Code",
       "beneficiaryNamePlaceholder": "Arthur Dent",
+      "beneficiaryPlaceholder": "Enter beneficiary name",
+      "specifyBankName": "Enter bank name",
       "cancel": "Cancel",
       "add": "Add",
       "required": "Required"
@@ -158,6 +184,7 @@
     "sortBy": "Sort by",
     "searchPlaceholder": "Search",
     "loadingCustomers": "Loading customers...",
+    "loadingCustomer": "Loading customer details...",
     "noCustomersFound": "No customers found",
     "table": {
       "no": "No.",
@@ -210,6 +237,9 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "subtitle": "Welcome back! Here's what's happening with your invoices.",
+    "businessComingSoon": "Business profile analytics coming soon...",
+    "searchComingSoon": "Search functionality coming soon...",
     "tabs": {
       "businessProfile": "Business Profile",
       "searchProfile": "Search Profile"
@@ -249,7 +279,10 @@
       "signingIn": "Signing in...",
       "signIn": "Sign In",
       "noAccount": "Don't have an account?",
-      "or": "or"
+      "or": "or",
+      "errors": {
+        "unexpectedError": "An unexpected error occurred. Please try again."
+      }
     },
     "signUp": {
       "brand": "Point Of Sale",
@@ -272,10 +305,13 @@
     "newInvoice": "New Invoice",
     "showingAllSent": "Showing all sent invoices",
     "noInvoicesFound": "No invoices found",
+    "loadingPreview": "Loading preview...",
+    "pdfPreview": "PDF Preview",
     "sortBy": "Sort by",
     "searchBy": "Search By",
     "search": "Search",
     "go": "Go",
+    "searching": "Searching...",
     "download": "Download",
     "creationDate": "Creation Date",
     "invoiceDate": "Invoice Date",
@@ -413,6 +449,7 @@
       "addItemButton": "Add Item",
       "subTotal": "Sub Total:",
       "totalItemDiscountAmount": "Total Item Discount Amount:",
+      "totalNonTaxableAmount": "Total Non-Taxable Amount:",
       "totalTaxableAmount": "Total Taxable Amount:",
       "totalVat": "Total VAT:",
       "totalVatSar": "Total VAT (SAR):",

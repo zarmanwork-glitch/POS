@@ -1,22 +1,13 @@
 import { Item } from '@/types/itemTypes';
 import { parseNumber } from '@/lib/number';
-
-export interface ItemCalculation {
-  quantity: number;
-  unitRate: number;
-  price: number;
-  discountAmount: number;
-  vatAmount: number;
-  totalAmount: number;
-  taxableAmount: number;
-}
+import { ItemRowCalculation } from '@/types/calculationTypes';
 
 /**
  * Calculate item row totals based on quantity, rate, discount type, and VAT
  * @param row - Item row with quantity, unitRate, discount, discountType, and taxRate
  * @returns Object containing all calculated amounts
  */
-export const calculateItemRow = (row: Item): ItemCalculation => {
+export const calculateItemRow = (row: Item): ItemRowCalculation => {
   const quantity = parseNumber(row.quantity) || 0;
   const unitRate = parseNumber(row.unitRate) || 0;
   const discountValue = parseNumber(row.discount) || 0;

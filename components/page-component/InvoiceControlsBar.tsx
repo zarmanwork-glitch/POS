@@ -71,10 +71,7 @@ export const InvoiceControlsBar = ({
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                className='w-auto p-0'
-                align='start'
-              >
+              <PopoverContent className='w-auto p-0' align='start'>
                 <Calendar
                   mode='single'
                   selected={
@@ -117,10 +114,7 @@ export const InvoiceControlsBar = ({
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                className='w-auto p-0'
-                align='start'
-              >
+              <PopoverContent className='w-auto p-0' align='start'>
                 <Calendar
                   mode='single'
                   selected={
@@ -256,17 +250,19 @@ export const InvoiceControlsBar = ({
           {/* Search */}
           <div className='flex items-center gap-2 flex-1 sm:flex-initial'>
             <Input
-              className='h-9 w-full sm:w-40'
+              className='h-10 sm:h-9 w-full sm:w-40'
               placeholder={t('invoices.search')}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
             />
             <Button
-              className='h-9 bg-blue-600 hover:bg-blue-700 shrink-0'
+              className='h-10 sm:h-9 bg-blue-600 hover:bg-blue-700 shrink-0'
               onClick={onSearch}
               disabled={loading}
             >
-              {loading ? 'Loading...' : t('invoices.go')}
+              {loading
+                ? t('invoices.searching', { defaultValue: 'Searching...' })
+                : t('invoices.go')}
             </Button>
           </div>
         </div>

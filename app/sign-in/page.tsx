@@ -108,9 +108,10 @@ export default function SignInPage() {
   });
 
   return (
-    <div className='grid min-h-screen grid-cols-1 lg:grid-cols-[55%_45%] bg-white'>
-      {/* Left Side - Background Image */}
-      <div className='relative hidden lg:block bg-gray-50 overflow-hidden'>
+    <div className='grid min-h-screen grid-cols-1 lg:grid-cols-[55%_45%]'>
+      {/* Left Side - Background Image with gradient overlay */}
+      <div className='relative hidden lg:block overflow-hidden'>
+        <div className='absolute inset-0 bg-gradient-to-br from-blue-600/10 via-indigo-600/5 to-transparent z-10' />
         <Image
           src={loginBackground}
           alt='Login background illustration'
@@ -121,7 +122,7 @@ export default function SignInPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className='flex items-center justify-center py-8 px-6 lg:py-0 lg:px-8'>
+      <div className='flex items-center justify-center py-8 px-6 lg:py-0 lg:px-8 bg-white'>
         <div className='w-full max-w-sm space-y-8'>
           {/* Language Switch */}
           <div className='flex justify-end'>
@@ -131,12 +132,12 @@ export default function SignInPage() {
           {/* Logo/Brand */}
           <div className='text-center space-y-4'>
             <div className='flex justify-center'>
-              <span className='text-3xl sm:text-4xl lg:text-5xl font-bold text-blue-600'>
+              <span className='text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gradient-brand tracking-tight'>
                 POS
               </span>
             </div>
             <div className='space-y-2'>
-              <p className='text-sm text-gray-600'>
+              <p className='text-sm text-gray-500'>
                 {t('auth.signIn.subtitle')}
               </p>
             </div>
@@ -166,11 +167,13 @@ export default function SignInPage() {
                   value={formik.values.email}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className='pl-10 bg-yellow-50 border-yellow-200'
+                  className='pl-10 bg-slate-50/50 border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors'
                 />
               </div>
               {formik.touched.email && formik.errors.email && (
-                <p className='text-red-500 text-xs'>{formik.errors.email}</p>
+                <p className='text-red-500 text-xs' role='alert'>
+                  {formik.errors.email}
+                </p>
               )}
             </div>
 
@@ -193,12 +196,13 @@ export default function SignInPage() {
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className='pl-10 pr-10 bg-yellow-50 border-yellow-200'
+                  className='pl-10 pr-10 bg-slate-50/50 border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors'
                 />
                 <button
                   type='button'
                   onClick={() => setShowPassword(!showPassword)}
                   className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeOff className='h-5 w-5' />
@@ -208,7 +212,9 @@ export default function SignInPage() {
                 </button>
               </div>
               {formik.touched.password && formik.errors.password && (
-                <p className='text-red-500 text-xs'>{formik.errors.password}</p>
+                <p className='text-red-500 text-xs' role='alert'>
+                  {formik.errors.password}
+                </p>
               )}
             </div>
 
@@ -228,7 +234,7 @@ export default function SignInPage() {
             <Button
               type='submit'
               disabled={isLoading || !formik.isValid}
-              className='w-full bg-blue-700 text-white hover:bg-blue-800 py-2 transition disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full gradient-brand text-white hover:opacity-90 py-2.5 transition-all shadow-lg shadow-blue-600/25 disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isLoading ? (
                 <>

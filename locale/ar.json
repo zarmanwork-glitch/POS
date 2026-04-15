@@ -1,4 +1,9 @@
 {
+  "navbar": {
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "signOut": "تسجيل الخروج"
+  },
   "sidebar": {
     "dashboard": "لوحة التحكم",
     "profile": "الملف الشخصي",
@@ -45,13 +50,27 @@
     "addBusinessDetails": "إضافة تفاصيل العمل",
     "editBusinessDetails": "تعديل تفاصيل العمل",
     "loading": "جارٍ التحميل...",
+    "loadingBankDetails": "جارٍ تحميل تفاصيل البنك...",
+    "loadingBusinessDetails": "جارٍ تحميل تفاصيل العمل...",
+    "loadingItemDetails": "جارٍ تحميل تفاصيل العنصر...",
     "updating": "جارٍ التحديث...",
     "saving": "جارٍ الحفظ...",
     "update": "تحديث",
     "uploading": "جاري التحميل:",
     "changeLogo": "تغيير الشعار",
     "editItem": "تعديل العنصر",
+    "editBankDetails": "تعديل تفاصيل البنك",
     "itemInformation": "معلومات العنصر",
+    "itemStatus": "حالة العنصر",
+    "enabled": "مفعّل",
+    "disabled": "معطّل",
+    "unitOfMeasure": "وحدة القياس",
+    "selectUnit": "اختر وحدة",
+    "materialServiceNo": "رقم المادة / الخدمة",
+    "materialNoPlaceholder": "مثال: MAT-001",
+    "descriptionPlaceholder": "أدخل وصف العنصر",
+    "discountPercentage": "نسبة الخصم",
+    "vatRegistrationPrompt": "يرجى تقديم تفاصيل تسجيل ضريبة القيمة المضافة",
     "itemType": "نوع العنصر",
     "service": "خدمة",
     "material": "مادة",
@@ -104,6 +123,11 @@
     "branch2": "فرع 2",
     "branch3": "فرع 3",
     "refundPolicy": "سياسة الاسترجاع",
+    "refundPolicyDescription": "توضح سياسة الاسترجاع القواعد الخاصة بالحصول على المبالغ المستردة مقابل السلع والخدمات المشتراة. سيتم تضمين هذه السياسة في جميع الفواتير المبسطة والقياسية.",
+    "refundPolicyLabel": "سياسة الاسترجاع:",
+    "refundPolicyLocalLabel": "سياسة الاسترجاع باللغة المحلية:",
+    "refundPolicyEnglishPlaceholder": "لا يوجد استرجاع",
+    "refundPolicyLocalPlaceholder": "لا يوجد استرجاع",
     "refundPolicyPlaceholder": "أدخل تفاصيل سياسة الاسترجاع",
     "addressLocalLanguage": "العنوان باللغة المحلية",
     "johnDoe": "جون دو",
@@ -145,6 +169,8 @@
       "bankNamePlaceholder": "اسم البنك",
       "specifyBankCode": "حدد رمز البنك",
       "beneficiaryNamePlaceholder": "آرثر ديت",
+      "beneficiaryPlaceholder": "أدخل اسم المستفيد",
+      "specifyBankName": "أدخل اسم البنك",
       "cancel": "إلغاء",
       "add": "إضافة",
       "required": "مطلوب"
@@ -158,6 +184,7 @@
     "sortBy": "ترتيب حسب",
     "searchPlaceholder": "بحث",
     "loadingCustomers": "جارٍ تحميل العملاء...",
+    "loadingCustomer": "جارٍ تحميل تفاصيل العميل...",
     "noCustomersFound": "لم يتم العثور على عملاء",
     "table": {
       "no": "الرقم",
@@ -210,6 +237,9 @@
   },
   "dashboard": {
     "title": "لوحة التحكم",
+    "subtitle": "مرحبًا بعودتك! إليك ما يحدث مع فواتيرك.",
+    "businessComingSoon": "تحليلات ملف العمل قريبًا...",
+    "searchComingSoon": "وظيفة البحث قريبًا...",
     "tabs": {
       "businessProfile": "ملف العمل",
       "searchProfile": "بحث في الملف"
@@ -249,7 +279,10 @@
       "signingIn": "جارٍ تسجيل الدخول...",
       "signIn": "تسجيل الدخول",
       "noAccount": "ليس لديك حساب؟",
-      "or": "أو"
+      "or": "أو",
+      "errors": {
+        "unexpectedError": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+      }
     },
     "signUp": {
       "brand": "نقطة البيع",
@@ -272,10 +305,13 @@
     "newInvoice": "فاتورة جديدة",
     "showingAllSent": "عرض جميع الفواتير المرسلة",
     "noInvoicesFound": "لم يتم العثور على فواتير",
+    "loadingPreview": "جارٍ تحميل المعاينة...",
+    "pdfPreview": "معاينة PDF",
     "sortBy": "ترتيب حسب",
     "searchBy": "البحث حسب",
     "search": "بحث",
     "go": "اذهب",
+    "searching": "جارٍ البحث...",
     "download": "تحميل",
     "creationDate": "تاريخ الإنشاء",
     "invoiceDate": "تاريخ الفاتورة",
@@ -413,6 +449,7 @@
       "addItemButton": "إضافة عنصر",
       "subTotal": "المجموع الفرعي:",
       "totalItemDiscountAmount": "إجمالي مبلغ خصم العناصر:",
+      "totalNonTaxableAmount": "إجمالي المبلغ غير الخاضع للضريبة:",
       "totalTaxableAmount": "إجمالي المبلغ الخاضع للضريبة:",
       "totalVat": "إجمالي الضريبة:",
       "totalVatSar": "إجمالي الضريبة (ريال سعودي):",

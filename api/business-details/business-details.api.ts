@@ -2,15 +2,7 @@ import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
 import { successMessagesEnums } from '@/enums/successMessages.enum';
 import axios from 'axios';
-
-interface BusinessDetailsType {
-  token: string;
-  payload?: any;
-  successCallbackFunction?: () => void;
-  successMessage?: string;
-  file?: File;
-  onUploadProgress?: (progressEvent: any) => void;
-}
+import { BusinessDetailsApiParams } from '@/types/apiTypes';
 
 export const addBusinessDetails = async ({
   token,
@@ -18,7 +10,7 @@ export const addBusinessDetails = async ({
   successCallbackFunction,
   file,
   onUploadProgress,
-}: BusinessDetailsType) => {
+}: BusinessDetailsApiParams) => {
   // If file is provided, use FormData and axios directly
   if (file) {
     const formData = new FormData();
@@ -46,7 +38,7 @@ export const addBusinessDetails = async ({
             'Content-Type': 'multipart/form-data',
           },
           onUploadProgress,
-        }
+        },
       );
 
       if (
@@ -82,7 +74,7 @@ export const updateBusinessDetails = async ({
   successCallbackFunction,
   file,
   onUploadProgress,
-}: BusinessDetailsType & { businessDetailsId?: string }) => {
+}: BusinessDetailsApiParams & { businessDetailsId?: string }) => {
   // If file is provided, use FormData and axios directly
   if (file) {
     const formData = new FormData();
@@ -114,7 +106,7 @@ export const updateBusinessDetails = async ({
             'Content-Type': 'multipart/form-data',
           },
           onUploadProgress,
-        }
+        },
       );
 
       if (

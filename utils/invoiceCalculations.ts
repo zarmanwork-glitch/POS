@@ -1,35 +1,17 @@
-interface InvoiceItem {
-  quantity: number | string;
-  unitRate: number | string;
-  discount: number | string;
-  discountType: 'PERC' | 'NUMBER';
-  taxRate: number | string;
-}
-
-interface InvoiceTotals {
-  subTotal: number;
-  totalDiscount: number;
-  totalTaxableAmount: number;
-  totalTaxableAmount15: number;
-  totalVATAmount: number;
-  totalInvoiceAmount: number;
-  totalNonTaxableAmount: number;
-}
-
-interface ItemCalculation {
-  price: number;
-  discountAmount: number;
-  vatAmount: number;
-  totalAmount: number;
-  taxableAmount: number;
-}
+import {
+  InvoiceCalcItem,
+  InvoiceTotals,
+  InvoiceItemCalculation,
+} from '@/types/calculationTypes';
 
 /**
  * Calculate individual item totals based on discount type and VAT rate
  * @param item - Invoice item with quantity, rate, discount, and VAT info
  * @returns Object containing price, discount, VAT, total, and taxable amounts
  */
-export const calculateItemTotals = (item: InvoiceItem): ItemCalculation => {
+export const calculateItemTotals = (
+  item: InvoiceCalcItem,
+): InvoiceItemCalculation => {
   const quantity = parseFloat(item.quantity.toString()) || 0;
   const unitRate = parseFloat(item.unitRate.toString()) || 0;
   const discountValue = parseFloat(item.discount.toString()) || 0;
@@ -76,7 +58,9 @@ export const calculateItemTotals = (item: InvoiceItem): ItemCalculation => {
  * @param items - Array of invoice items
  * @returns Object containing all summary totals
  */
-export const calculateInvoiceTotals = (items: InvoiceItem[]): InvoiceTotals => {
+export const calculateInvoiceTotals = (
+  items: InvoiceCalcItem[],
+): InvoiceTotals => {
   let subTotal = 0;
   let totalDiscount = 0;
   let totalTaxableAmount = 0;

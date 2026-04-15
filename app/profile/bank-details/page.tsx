@@ -13,11 +13,14 @@ export default function BankDetailsPage() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-          <span className='text-blue-600'>{t('profile.title')}</span>
+          <span className='text-gradient-brand'>{t('profile.title')}</span>
           <span className='text-gray-800'> | {t('profile.bankDetails')}</span>
         </h2>
-        <Link href='bank-details/bank-details-form' className='w-full sm:w-auto'>
-          <Button className='bg-blue-600 hover:bg-blue-700 gap-2 w-full sm:w-auto'>
+        <Link
+          href='bank-details/bank-details-form'
+          className='w-full sm:w-auto'
+        >
+          <Button className='gradient-brand hover:opacity-90 transition-opacity gap-2 w-full sm:w-auto shadow-md shadow-blue-600/20'>
             <Plus className='h-4 w-4' />
             {t('profile.addBankDetails')}
           </Button>

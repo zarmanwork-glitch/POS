@@ -92,10 +92,7 @@ export default function InvoiceFooterSection({
           {t('invoices.form.totalAmountInWords')}
         </Label>
         <div className='mt-2 space-y-2'>
-          <div
-            className='text-right text-sm text-gray-600'
-            dir='rtl'
-          >
+          <div className='text-right text-sm text-gray-600' dir='rtl'>
             المجموع في الكلمات
           </div>
           <Textarea
@@ -119,10 +116,7 @@ export default function InvoiceFooterSection({
 
       {/* Notes */}
       <div>
-        <Label
-          htmlFor='notes'
-          className='text-sm font-semibold text-gray-700'
-        >
+        <Label htmlFor='notes' className='text-sm font-semibold text-gray-700'>
           {t('invoices.form.notesLabel')}
         </Label>
         <Textarea
@@ -146,7 +140,7 @@ export default function InvoiceFooterSection({
         <Input
           id='amountPaidToDate'
           type='number'
-          className='bg-blue-50 mt-2 h-10 w-2/12'
+          className='bg-blue-50 mt-2 h-10 w-full sm:w-4/12 lg:w-2/12'
           placeholder='0'
           name='amountPaidToDate'
           value={formik.values.amountPaidToDate || ''}

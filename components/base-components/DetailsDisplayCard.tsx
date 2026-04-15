@@ -42,7 +42,7 @@ export function DetailsDisplayCard({
             <Label className='text-xs text-gray-600 font-medium mb-2'>
               {identificationLabel}
             </Label>
-            <div className='grid grid-cols-2 gap-2'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
               <Input
                 placeholder={identificationTypePlaceholder}
                 className='text-xs bg-blue-50'
@@ -60,14 +60,14 @@ export function DetailsDisplayCard({
             {detailRows.map((row, i) => (
               <div
                 key={i}
-                className={`flex items-start px-4 py-3 ${
+                className={`flex flex-col sm:flex-row items-start px-4 py-3 gap-1 sm:gap-0 ${
                   i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
                 }`}
               >
-                <div className='w-1/3 text-gray-600 font-medium'>
+                <div className='w-full sm:w-1/3 text-gray-600 font-medium'>
                   {row.label}:
                 </div>
-                <div className='w-2/3 text-gray-700 whitespace-pre-wrap'>
+                <div className='w-full sm:w-2/3 text-gray-700 whitespace-pre-wrap'>
                   {row.value || '-'}
                 </div>
               </div>

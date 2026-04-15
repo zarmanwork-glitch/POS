@@ -109,12 +109,10 @@ export default function InvoiceListPage() {
   };
 
   const handleViewDetails = (invoiceId: string) => {
-    console.log('View invoice details:', invoiceId);
     toast.info('View details feature coming soon');
   };
 
   const handleEmailInvoice = (invoiceId: string) => {
-    console.log('Email invoice:', invoiceId);
     toast.info('Email feature coming soon');
   };
 
@@ -126,11 +124,11 @@ export default function InvoiceListPage() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-          <span className='text-blue-600'>{t('invoices.documents')}</span>
+          <span className='text-gradient-brand'>{t('invoices.documents')}</span>
           <span className='text-gray-800'> | {t('invoices.invoiceList')}</span>
         </h2>
         <Link href='/documents/invoice/invoice-form'>
-          <Button className='bg-blue-600 hover:bg-blue-700 gap-2 w-full sm:w-auto'>
+          <Button className='gradient-brand hover:opacity-90 transition-opacity gap-2 w-full sm:w-auto shadow-md shadow-blue-600/20'>
             <Plus className='h-4 w-4' /> {t('invoices.newInvoice')}
           </Button>
         </Link>
@@ -171,7 +169,7 @@ export default function InvoiceListPage() {
           onClearFilter={filters.clearFilter}
           onSearch={() => filters.setPage(1)}
           onDownload={() => {
-            console.log('Download invoices');
+            toast.info('Download feature coming soon');
           }}
           onStartDateChange={(value) => {
             filters.setStartDate(value);

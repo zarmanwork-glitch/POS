@@ -1,3 +1,5 @@
-export default function page() {
-  return <div>page</div>;
+import { redirect } from 'next/navigation';
+
+export default function CustomersPage() {
+  redirect('/customers/customer-list');
 }

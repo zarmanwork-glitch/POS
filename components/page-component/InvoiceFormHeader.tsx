@@ -33,7 +33,7 @@ export function InvoiceFormHeader({
         </Button>
         <Button
           type='button'
-          className='bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-initial'
+          className='gradient-brand hover:opacity-90 transition-opacity flex-1 sm:flex-initial shadow-md shadow-blue-600/20'
           disabled={isLoading}
           onClick={onSubmit}
         >

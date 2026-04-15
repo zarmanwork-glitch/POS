@@ -14,16 +14,13 @@ export default function InvoiceTotalsForm() {
       <CardContent className='space-y-6'>
         {/* Total Amount in Words */}
         <div className='space-y-2'>
-          <div className='flex justify-between items-center'>
+          <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1'>
             <Label>Total Amount in Words</Label>
             <span className='text-sm text-muted-foreground'>
               Grand Total (in words): SAR – One and fifteen
             </span>
           </div>
-          <Textarea
-            placeholder='Enter number in Arabic'
-            className='min-h-15'
-          />
+          <Textarea placeholder='Enter number in Arabic' className='min-h-15' />
           <p className='text-xs text-muted-foreground'>
             This is a system-generated translation and may not be accurate. We
             recommend you provide the translation yourself.
@@ -33,19 +30,13 @@ export default function InvoiceTotalsForm() {
         {/* Notes */}
         <div className='space-y-2'>
           <Label>Notes</Label>
-          <Textarea
-            placeholder='Additional Notes'
-            className='min-h-30'
-          />
+          <Textarea placeholder='Additional Notes' className='min-h-30' />
         </div>
 
         {/* Amount Paid to Date */}
-        <div className='space-y-2 max-w-xs'>
+        <div className='space-y-2 w-full sm:max-w-xs'>
           <Label>Amount Paid to Date</Label>
-          <Input
-            type='number'
-            defaultValue={0}
-          />
+          <Input type='number' defaultValue={0} />
         </div>
       </CardContent>
     </Card>

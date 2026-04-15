@@ -7,7 +7,6 @@ import {
 } from '@/api/bank-details/bank-details.api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -148,7 +147,9 @@ function BankDetailsFormContent() {
         <div className='space-y-4 text-center'>
           <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
           <p className='text-gray-600 font-medium'>
-            {t('profile.loading', { defaultValue: 'Loading...' })}
+            {t('profile.loadingBankDetails', {
+              defaultValue: 'Loading bank details...',
+            })}
           </p>
         </div>
       </div>
@@ -157,14 +158,11 @@ function BankDetailsFormContent() {
 
   return (
     <div className='space-y-6'>
-      <form
-        onSubmit={formik.handleSubmit}
-        className='space-y-6'
-      >
+      <form onSubmit={formik.handleSubmit} className='space-y-6'>
         {/* Header */}
         <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
           <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-            <span className='text-blue-600'>{t('profile.title')}</span>
+            <span className='text-gradient-brand'>{t('profile.title')}</span>
             <span className='text-gray-800'>
               {' | '}
               {id
@@ -186,7 +184,7 @@ function BankDetailsFormContent() {
             </Button>
             <Button
               type='submit'
-              className='bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-initial'
+              className='gradient-brand hover:opacity-90 transition-opacity flex-1 sm:flex-initial shadow-md shadow-blue-600/20'
               disabled={formik.isSubmitting}
             >
               {formik.isSubmitting ? (
@@ -206,13 +204,13 @@ function BankDetailsFormContent() {
         </div>
 
         {/* Form Fields */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
           {/* Country */}
           <div>
-            <Label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.country')}:{' '}
               <span className='text-red-500'>*</span>
-            </Label>
+            </label>
             {formik.values.country ? (
               <div className='flex items-center gap-2 bg-blue-50 border border-gray-300 rounded-md px-3 h-10 w-full'>
                 <span className='text-sm text-gray-700 flex-1'>
@@ -240,10 +238,7 @@ function BankDetailsFormContent() {
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
-                    <SelectItem
-                      key={country}
-                      value={country}
-                    >
+                    <SelectItem key={country} value={country}>
                       {country}
                     </SelectItem>
                   ))}
@@ -259,10 +254,10 @@ function BankDetailsFormContent() {
 
           {/* Account Number */}
           <div>
-            <Label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.accountNumber')}:{' '}
               <span className='text-red-500'>*</span>
-            </Label>
+            </label>
             <Input
               type='text'
               name='accountNumber'
@@ -281,10 +276,10 @@ function BankDetailsFormContent() {
 
           {/* IBAN */}
           <div>
-            <Label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.iban')}:{' '}
               <span className='text-red-500'>*</span>
-            </Label>
+            </label>
             <Input
               type='text'
               name='iban'
@@ -301,16 +296,19 @@ function BankDetailsFormContent() {
         </div>
 
         {/* Second Row */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
           {/* Bank Name */}
           <div>
-            <Label className='block text-sm font-medium text-gray-700 mb-2'>
-              Bank Name: <span className='text-red-500'>*</span>
-            </Label>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
+              {t('profile.bankDetails.bankName')}:{' '}
+              <span className='text-red-500'>*</span>
+            </label>
             <Input
               type='text'
               name='bankName'
-              placeholder='BankName Placeholder'
+              placeholder={t('profile.bankDetails.specifyBankName', {
+                defaultValue: 'Enter bank name',
+              })}
               className='bg-blue-50 h-10 py-2'
               value={formik.values.bankName}
               onChange={formik.handleChange}
@@ -325,10 +323,10 @@ function BankDetailsFormContent() {
 
           {/* SWIFT Code */}
           <div>
-            <Label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.swiftCode')}:{' '}
               <span className='text-red-500'>*</span>
-            </Label>
+            </label>
             <Input
               type='text'
               name='swiftCode'
@@ -347,13 +345,18 @@ function BankDetailsFormContent() {
 
           {/* Beneficiary Name */}
           <div>
-            <Label className='block text-sm font-medium text-gray-700 mb-2'>
-              Beneficiary Name:
-            </Label>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
+              {t('profile.bankDetails.beneficiaryName', {
+                defaultValue: 'Beneficiary Name',
+              })}
+              :
+            </label>
             <Input
               type='text'
               name='beneficiaryName'
-              placeholder='Arthur Dent'
+              placeholder={t('profile.bankDetails.beneficiaryPlaceholder', {
+                defaultValue: 'Enter beneficiary name',
+              })}
               className='bg-blue-50 h-10 py-2'
               value={formik.values.beneficiaryName}
               onChange={formik.handleChange}

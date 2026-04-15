@@ -58,7 +58,7 @@ export function SearchableDropdown({
           </div>
 
           {isOpen && options.length > 0 && (
-            <div className='absolute z-50 w-full max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg'>
+            <div className='absolute z-50 w-full max-h-40 sm:max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg'>
               {filteredOptions.map((option) => (
                 <button
                   type='button'

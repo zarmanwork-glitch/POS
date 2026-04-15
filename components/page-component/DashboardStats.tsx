@@ -27,7 +27,6 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
         setLoading(true);
         const token = Cookies.get('authToken');
         if (!token) {
-          console.log('No auth token found');
           setLoading(false);
           return;
         }
@@ -57,7 +56,6 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
           limit: 1000,
         });
 
-        console.log('Stats API response:', response);
 
         // Try different response structures
         const invoices =
@@ -66,7 +64,6 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
           response?.data?.invoices ||
           [];
 
-        console.log('Extracted invoices for stats:', invoices.length);
 
         if (invoices && invoices.length > 0) {
           // Filter by date range
@@ -77,7 +74,6 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
             return invoiceDate >= startDate && invoiceDate <= endDate;
           });
 
-          console.log('Filtered invoices for stats:', filteredInvoices.length);
 
           const totalInvoices = filteredInvoices.length;
           let totalRevenue = 0;
@@ -155,24 +151,23 @@ export default function DashboardStats({ duration }: DashboardStatsProps) {
   ];
 
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6'>
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card
-            key={index}
-            className='hover:shadow-lg transition-shadow duration-300'
-          >
+          <Card key={index} className='card-elevated border-0 overflow-hidden'>
             <CardHeader className='flex flex-row items-center justify-between pb-2 space-y-0'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
                 {stat.title}
               </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+              <div className={`p-2.5 rounded-xl ${stat.bgColor} shadow-sm`}>
                 <Icon className={`h-5 w-5 ${stat.color}`} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className='text-3xl font-bold'>{stat.value}</div>
+              <div className='text-3xl font-bold tracking-tight'>
+                {stat.value}
+              </div>
             </CardContent>
           </Card>
         );

@@ -45,10 +45,7 @@ export const InvoiceTable = ({
         <TableBody>
           {invoices.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={6}
-                className='text-center py-8'
-              >
+              <TableCell colSpan={6} className='text-center py-8'>
                 {loading ? (
                   <div className='flex items-center justify-center gap-2'>
                     <Spinner className='h-5 w-5 text-blue-600' />
@@ -95,18 +92,12 @@ export const InvoiceTable = ({
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                      >
+                      <Button variant='ghost' size='icon'>
                         <MoreHorizontal className='h-4 w-4' />
                       </Button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent
-                      align='end'
-                      className='w-48'
-                    >
+                    <DropdownMenuContent align='end' className='w-48'>
                       <DropdownMenuItem onClick={() => onDownloadPdf(inv.id)}>
                         <Download className='mr-2 h-4 w-4' />
                         Download PDF

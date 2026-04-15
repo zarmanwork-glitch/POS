@@ -1,13 +1,7 @@
 import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
 import { successMessagesEnums } from '@/enums/successMessages.enum';
-
-interface ItemType {
-  token: string;
-  payload?: any;
-  successCallbackFunction?: () => void;
-  successMessage?: string;
-}
+import { ItemApiParams } from '@/types/apiTypes';
 
 export const getItemsForSelection = async ({ token }: { token: string }) => {
   return api_client({
@@ -21,7 +15,7 @@ export const addITEM = async ({
   token,
   payload,
   successCallbackFunction,
-}: ItemType) => {
+}: ItemApiParams) => {
   return api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.ITEMS.ADD_ITEMS,
@@ -148,7 +142,7 @@ export const updateItem = async ({
   token,
   payload,
   successCallbackFunction,
-}: ItemType) => {
+}: ItemApiParams) => {
   return api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.ITEMS.UPDATE_ITEM,

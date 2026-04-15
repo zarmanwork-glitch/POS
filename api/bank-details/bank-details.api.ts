@@ -1,19 +1,13 @@
 import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
 import { successMessagesEnums } from '@/enums/successMessages.enum';
-
-interface BankDetailsType {
-  token: string;
-  payload?: any;
-  successCallbackFunction?: () => void;
-  successMessage?: string;
-}
+import { BankDetailsApiParams } from '@/types/apiTypes';
 
 export const addBankDetails = async ({
   token,
   payload,
   successCallbackFunction,
-}: BankDetailsType) => {
+}: BankDetailsApiParams) => {
   return api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.BANK_DETAILS.ADD_BANK_DETAILS,
@@ -29,7 +23,7 @@ export const updateBankDetails = async ({
   token,
   payload,
   successCallbackFunction,
-}: BankDetailsType) => {
+}: BankDetailsApiParams) => {
   return api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.BANK_DETAILS.UPDATE_BANK_DETAILS,

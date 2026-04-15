@@ -8,33 +8,11 @@ import { getItemsForSelection } from '@/api/items/item.api';
 import { BusinessDetailExtended } from '@/types/businessDetailTypes';
 import { CustomerExtended } from '@/types/customerTypes';
 import { BankDetailExtended } from '@/types/bankDetailTypes';
-
-interface ApiResponse {
-  data?: {
-    data?: {
-      results?: {
-        businessDetails?: BusinessDetailExtended[];
-        customers?: CustomerExtended[];
-        bankDetails?: BankDetailExtended[];
-        items?: Record<string, unknown>[];
-      };
-    };
-    results?: {
-      businessDetails?: BusinessDetailExtended[];
-      customers?: CustomerExtended[];
-      bankDetails?: BankDetailExtended[];
-      items?: Record<string, unknown>[];
-    };
-  };
-}
-
-interface DropdownData {
-  businessOptions: BusinessDetailExtended[];
-  customerOptions: CustomerExtended[];
-  bankOptions: BankDetailExtended[];
-  itemOptions: Record<string, unknown>[];
-  isLoading: boolean;
-}
+import {
+  ApiResponse,
+  DropdownApiResults,
+  DropdownData,
+} from '@/types/hookTypes';
 
 export const useInvoiceDropdownData = (): DropdownData => {
   const [businessOptions, setBusinessOptions] = useState<
@@ -48,7 +26,9 @@ export const useInvoiceDropdownData = (): DropdownData => {
   const [isLoading, setIsLoading] = useState(true);
 
   const extractData = useCallback(
-    (response: ApiResponse | undefined): Record<string, unknown>[] => {
+    (
+      response: ApiResponse<DropdownApiResults> | undefined,
+    ): Record<string, unknown>[] => {
       if (!response) return [];
       return (
         (response?.data?.data?.results?.businessDetails as Record<

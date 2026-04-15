@@ -3,14 +3,7 @@ import { backendApiEnums } from '@/enums/backendApi.enums';
 import { successMessagesEnums } from '@/enums/successMessages.enum';
 import axios from 'axios';
 import { toast } from 'sonner';
-
-interface InvoiceType {
-  token: string;
-  payload?: any;
-  successCallbackFunction?: () => void;
-  file?: File;
-  onUploadProgress?: (progressEvent: any) => void;
-}
+import { InvoiceApiParams } from '@/types/apiTypes';
 
 export const createInvoice = async ({
   token,
@@ -18,7 +11,7 @@ export const createInvoice = async ({
   successCallbackFunction,
   file,
   onUploadProgress,
-}: InvoiceType) => {
+}: InvoiceApiParams) => {
   // If file is provided, use FormData and axios directly
   if (file) {
     const formData = new FormData();

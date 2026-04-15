@@ -168,7 +168,9 @@ function ItemsFormContent() {
         <div className='space-y-4 text-center'>
           <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
           <p className='text-gray-600 font-medium'>
-            {t('profile.loading', { defaultValue: 'Loading...' })}
+            {t('profile.loadingItemDetails', {
+              defaultValue: 'Loading item details...',
+            })}
           </p>
         </div>
       </div>
@@ -179,7 +181,7 @@ function ItemsFormContent() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-          <span className='text-blue-600'>{t('profile.title')}</span>
+          <span className='text-gradient-brand'>{t('profile.title')}</span>
           <span className='text-gray-800'>
             {' | '}
             {id
@@ -197,7 +199,7 @@ function ItemsFormContent() {
             {t('profile.cancel')}
           </Button>
           <Button
-            className='bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-initial'
+            className='gradient-brand hover:opacity-90 transition-opacity flex-1 sm:flex-initial shadow-md shadow-blue-600/20'
             onClick={() => formik.handleSubmit()}
             disabled={formik.isSubmitting}
           >
@@ -218,10 +220,7 @@ function ItemsFormContent() {
       </div>
 
       {/* Form */}
-      <form
-        onSubmit={formik.handleSubmit}
-        className='space-y-6'
-      >
+      <form onSubmit={formik.handleSubmit} className='space-y-6'>
         {/* Item Information Section */}
         <div className='relative flex items-center py-4'>
           <Separator className='flex-1 bg-blue-100 h-0.5' />
@@ -231,7 +230,7 @@ function ItemsFormContent() {
           <Separator className='flex-1 bg-blue-100 h-0.5' />
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6'>
           {/* Left Column */}
           <div className='space-y-6'>
             {/* Item Type */}
@@ -279,14 +278,17 @@ function ItemsFormContent() {
             {/* Description */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Description: <span className='text-red-500'>*</span>
+                {t('profile.description', { defaultValue: 'Description' })}:{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <textarea
                 name='description'
                 value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter item description'
+                placeholder={t('profile.descriptionPlaceholder', {
+                  defaultValue: 'Enter item description',
+                })}
                 className={`w-full p-3 border rounded-md bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
                   hasError('description') ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -302,7 +304,10 @@ function ItemsFormContent() {
             {/* Material / Service No */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Material / Service No: <span className='text-red-500'>*</span>
+                {t('profile.materialServiceNo', {
+                  defaultValue: 'Material / Service No',
+                })}
+                : <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='text'
@@ -310,7 +315,9 @@ function ItemsFormContent() {
                 value={formik.values.materialNo}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='e.g. MAT-001'
+                placeholder={t('profile.materialNoPlaceholder', {
+                  defaultValue: 'e.g. MAT-001',
+                })}
                 className={`bg-blue-50 h-10 py-2 ${
                   hasError('materialNo') ? 'border-red-500 border' : ''
                 }`}
@@ -325,7 +332,10 @@ function ItemsFormContent() {
             {/* Unit of Measure */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Unit of Measure: <span className='text-red-500'>*</span>
+                {t('profile.unitOfMeasure', {
+                  defaultValue: 'Unit of Measure',
+                })}
+                : <span className='text-red-500'>*</span>
               </label>
               <Select
                 value={formik.values.unitOfMeasure}
@@ -338,14 +348,15 @@ function ItemsFormContent() {
                     hasError('unitOfMeasure') ? 'border-red-500 border' : ''
                   }`}
                 >
-                  <SelectValue placeholder='Select a unit' />
+                  <SelectValue
+                    placeholder={t('profile.selectUnit', {
+                      defaultValue: 'Select a unit',
+                    })}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {unitOfMeasures.map((unit) => (
-                    <SelectItem
-                      key={unit.value}
-                      value={unit.value}
-                    >
+                    <SelectItem key={unit.value} value={unit.value}>
                       {unit.displayText}
                     </SelectItem>
                   ))}
@@ -365,9 +376,15 @@ function ItemsFormContent() {
             <ToggleButton
               value={formik.values.itemStatus}
               onChange={(val) => formik.setFieldValue('itemStatus', val)}
-              optionA={{ value: 'enabled', label: 'Enabled' }}
-              optionB={{ value: 'disabled', label: 'Disabled' }}
-              label='Item Status'
+              optionA={{
+                value: 'enabled',
+                label: t('profile.enabled', { defaultValue: 'Enabled' }),
+              }}
+              optionB={{
+                value: 'disabled',
+                label: t('profile.disabled', { defaultValue: 'Disabled' }),
+              }}
+              label={t('profile.itemStatus', { defaultValue: 'Item Status' })}
               required
               showStatusText
             />
@@ -375,7 +392,8 @@ function ItemsFormContent() {
             {/* Buy Price */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Buy Price: <span className='text-red-500'>*</span>
+                {t('profile.buyPrice', { defaultValue: 'Buy Price' })}:{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='number'
@@ -398,7 +416,8 @@ function ItemsFormContent() {
             {/* Sell Price */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Sell Price: <span className='text-red-500'>*</span>
+                {t('profile.sellPrice', { defaultValue: 'Sell Price' })}:{' '}
+                <span className='text-red-500'>*</span>
               </label>
               <Input
                 type='number'
@@ -421,7 +440,10 @@ function ItemsFormContent() {
             {/* Discount Percentage */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                Discount Percentage:
+                {t('profile.discountPercentage', {
+                  defaultValue: 'Discount Percentage',
+                })}
+                :
               </label>
               <div className='flex items-center gap-2'>
                 <Input

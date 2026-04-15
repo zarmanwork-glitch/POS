@@ -30,7 +30,6 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
         setLoading(true);
         const token = Cookies.get('authToken');
         if (!token) {
-          console.log('No auth token found');
           setLoading(false);
           return;
         }
@@ -60,7 +59,6 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
           limit: 1000,
         });
 
-        console.log('Invoice API response:', response);
 
         // Try different response structures
         const invoices =
@@ -69,7 +67,6 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
           response?.data?.invoices ||
           [];
 
-        console.log('Extracted invoices:', invoices.length);
 
         if (invoices && invoices.length > 0) {
           // Filter by date range
@@ -80,7 +77,6 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
             return invoiceDate >= startDate && invoiceDate <= endDate;
           });
 
-          console.log('Filtered invoices:', filteredInvoices.length);
 
           // Group invoices by date
           const invoiceMap = new Map<
@@ -134,16 +130,20 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
           <CardHeader>
             <CardTitle>{t('dashboard.charts.invoiceCount')}</CardTitle>
           </CardHeader>
-          <CardContent className='h-[350px] flex items-center justify-center'>
-            <div className='text-muted-foreground'>Loading...</div>
+          <CardContent className='h-62.5 sm:h-87.5 flex items-center justify-center'>
+            <div className='text-muted-foreground'>
+              Loading invoice chart...
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>{t('dashboard.charts.revenue')}</CardTitle>
           </CardHeader>
-          <CardContent className='h-[350px] flex items-center justify-center'>
-            <div className='text-muted-foreground'>Loading...</div>
+          <CardContent className='h-62.5 sm:h-87.5 flex items-center justify-center'>
+            <div className='text-muted-foreground'>
+              Loading revenue chart...
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -157,7 +157,7 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
           <CardHeader>
             <CardTitle>{t('dashboard.charts.invoiceCount')}</CardTitle>
           </CardHeader>
-          <CardContent className='h-[350px] flex items-center justify-center'>
+          <CardContent className='h-62.5 sm:h-87.5 flex items-center justify-center'>
             <div className='text-muted-foreground'>{t('dashboard.noData')}</div>
           </CardContent>
         </Card>
@@ -165,7 +165,7 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
           <CardHeader>
             <CardTitle>{t('dashboard.charts.revenue')}</CardTitle>
           </CardHeader>
-          <CardContent className='h-[350px] flex items-center justify-center'>
+          <CardContent className='h-62.5 sm:h-87.5 flex items-center justify-center'>
             <div className='text-muted-foreground'>{t('dashboard.noData')}</div>
           </CardContent>
         </Card>
@@ -180,16 +180,10 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
         <CardHeader>
           <CardTitle>{t('dashboard.charts.invoiceCount')}</CardTitle>
         </CardHeader>
-        <CardContent className='h-[350px]'>
-          <ResponsiveContainer
-            width='100%'
-            height='100%'
-          >
+        <CardContent className='h-62.5 sm:h-87.5'>
+          <ResponsiveContainer width='100%' height='100%'>
             <BarChart data={data}>
-              <CartesianGrid
-                strokeDasharray='3 3'
-                stroke='#e5e7eb'
-              />
+              <CartesianGrid strokeDasharray='3 3' stroke='#e5e7eb' />
               <XAxis
                 dataKey='date'
                 tick={{ fontSize: 12 }}
@@ -198,10 +192,7 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
                   return `${date.getMonth() + 1}/${date.getDate()}`;
                 }}
               />
-              <YAxis
-                allowDecimals={false}
-                tick={{ fontSize: 12 }}
-              />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: 'white',
@@ -213,11 +204,7 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
                   return date.toLocaleDateString();
                 }}
               />
-              <Bar
-                dataKey='count'
-                fill='#3b82f6'
-                radius={[8, 8, 0, 0]}
-              />
+              <Bar dataKey='count' fill='#3b82f6' radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -228,16 +215,10 @@ export default function InvoiceChart({ duration }: InvoiceChartProps) {
         <CardHeader>
           <CardTitle>{t('dashboard.charts.revenue')}</CardTitle>
         </CardHeader>
-        <CardContent className='h-[350px]'>
-          <ResponsiveContainer
-            width='100%'
-            height='100%'
-          >
+        <CardContent className='h-62.5 sm:h-87.5'>
+          <ResponsiveContainer width='100%' height='100%'>
             <LineChart data={data}>
-              <CartesianGrid
-                strokeDasharray='3 3'
-                stroke='#e5e7eb'
-              />
+              <CartesianGrid strokeDasharray='3 3' stroke='#e5e7eb' />
               <XAxis
                 dataKey='date'
                 tick={{ fontSize: 12 }}

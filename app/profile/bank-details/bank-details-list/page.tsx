@@ -158,7 +158,7 @@ export default function BankDetailsListPage() {
           `Bank detail for "${deleteItemName}" deleted successfully`,
           {
             duration: 2000,
-          }
+          },
         );
         setData(data.filter((item) => item.id !== deleteItemId));
         setTotalItems(Math.max(0, totalItems - 1));
@@ -166,11 +166,35 @@ export default function BankDetailsListPage() {
         setDeleteItemId(null);
         setDeleteItemName('');
       } else {
-        toast.error('Failed to delete bank detail');
+        const message =
+          response?.data?.data?.results?.error?.message ||
+          response?.data?.message ||
+          '';
+        if (message === 'bank_detail_linked_with_invoice') {
+          setDeleteModalOpen(false);
+          toast.error(
+            'This bank detail cannot be deleted because it is linked to an invoice.',
+            { duration: 4000 },
+          );
+        } else {
+          toast.error('Failed to delete bank detail');
+        }
       }
     } catch (error: any) {
       console.error('Error deleting bank details:', error);
-      toast.error('Error deleting bank detail', { duration: 2000 });
+      const message =
+        error?.response?.data?.data?.results?.error?.message ||
+        error?.response?.data?.message ||
+        '';
+      if (message === 'bank_detail_linked_with_invoice') {
+        setDeleteModalOpen(false);
+        toast.error(
+          'This bank detail cannot be deleted because it is linked to an invoice.',
+          { duration: 4000 },
+        );
+      } else {
+        toast.error('Error deleting bank detail', { duration: 2000 });
+      }
     } finally {
       setIsDeleting(false);
     }
@@ -181,14 +205,14 @@ export default function BankDetailsListPage() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-          <span className='text-blue-600'>{t('profile.title')}</span>
+          <span className='text-gradient-brand'>{t('profile.title')}</span>
           <span className='text-gray-800'>
             {' '}
             | {t('profile.bankDetails.title')}
           </span>
         </h2>
         <Link href='bank-details-form' className='w-full sm:w-auto'>
-          <Button className='bg-blue-600 hover:bg-blue-700 gap-2 w-full sm:w-auto'>
+          <Button className='gradient-brand hover:opacity-90 transition-opacity gap-2 w-full sm:w-auto shadow-md shadow-blue-600/20'>
             <Plus className='h-4 w-4' />
             {t('profile.bankDetails.addBankDetails')}
           </Button>
@@ -218,10 +242,7 @@ export default function BankDetailsListPage() {
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className='text-center py-8'
-                >
+                <TableCell colSpan={8} className='text-center py-8'>
                   <div className='flex flex-col items-center justify-center gap-2'>
                     <Spinner className='h-8 w-8' />
                     <span className='text-gray-500'>
@@ -264,10 +285,7 @@ export default function BankDetailsListPage() {
                 </TableRow>
               ) : (
                 data.map((row, index) => (
-                  <TableRow
-                    key={row.id}
-                    className='hover:bg-gray-50'
-                  >
+                  <TableRow key={row.id} className='hover:bg-gray-50'>
                     <TableCell className='font-medium'>
                       {(page - 1) * limit + index + 1}
                     </TableCell>
@@ -363,7 +381,7 @@ export default function BankDetailsListPage() {
                         {p}
                       </PaginationLink>
                     </PaginationItem>
-                  )
+                  ),
                 );
               })()}
 
@@ -387,10 +405,7 @@ export default function BankDetailsListPage() {
       )}
 
       {/* Delete Confirmation Modal */}
-      <Dialog
-        open={deleteModalOpen}
-        onOpenChange={setDeleteModalOpen}
-      >
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>

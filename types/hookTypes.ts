@@ -1,6 +1,9 @@
 // Hook-specific types
 import { InvoiceStatusType } from '@/enums/invoiceStatus';
 import { InvoiceTypeType } from '@/enums/invoiceType';
+import { BusinessDetailExtended } from '@/types/businessDetailTypes';
+import { CustomerExtended } from '@/types/customerTypes';
+import { BankDetailExtended } from '@/types/bankDetailTypes';
 
 // Search by type
 export type SearchByType =
@@ -85,11 +88,19 @@ export interface UseCustomerListDataProps {
   country: string;
 }
 
+// Dropdown API results
+export interface DropdownApiResults {
+  businessDetails?: BusinessDetailExtended[];
+  customers?: CustomerExtended[];
+  bankDetails?: BankDetailExtended[];
+  items?: Record<string, unknown>[];
+}
+
 // Dropdown data types
 export interface DropdownData {
-  businessOptions: any[];
-  customerOptions: any[];
-  bankOptions: any[];
+  businessOptions: BusinessDetailExtended[];
+  customerOptions: CustomerExtended[];
+  bankOptions: BankDetailExtended[];
   itemOptions: Record<string, unknown>[];
   isLoading: boolean;
 }

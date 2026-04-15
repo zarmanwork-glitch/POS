@@ -2,25 +2,7 @@ import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
 import { successMessagesEnums } from '@/enums/successMessages.enum';
 import Cookies from 'js-cookie';
-
-interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-interface AuthResponse {
-  status: 'success' | 'error';
-  data: {
-    results: {
-      user: {
-        id: string;
-        email: string;
-      };
-      token: string;
-    };
-  };
-  message?: string;
-}
+import { LoginPayload, AuthResponse } from '@/types/apiTypes';
 
 export const login = async ({
   payload,
@@ -42,13 +24,20 @@ export const login = async ({
     const data = response?.data as AuthResponse;
 
     if (data?.status === 'success' && data?.data?.results?.token) {
-      Cookies.set('authToken', data.data.results.token);
-      Cookies.set('userEmail', data.data.results.user.email);
+      Cookies.set('authToken', data.data.results.token, {
+        secure: window.location.protocol === 'https:',
+        sameSite: 'lax',
+        expires: 7,
+      });
+      Cookies.set('userEmail', data.data.results.user.email, {
+        secure: window.location.protocol === 'https:',
+        sameSite: 'lax',
+        expires: 7,
+      });
     }
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
     throw error;
   }
 };

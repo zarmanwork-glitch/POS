@@ -107,11 +107,35 @@ export function useBusinessDetailsList() {
         setDeleteItemId(null);
         setDeleteItemName('');
       } else {
-        toast.error('Failed to delete business detail');
+        const message =
+          response?.data?.data?.results?.error?.message ||
+          response?.data?.message ||
+          '';
+        if (message === 'business_detail_linked_with_invoice') {
+          setDeleteModalOpen(false);
+          toast.error(
+            'This business detail cannot be deleted because it is linked to an invoice.',
+            { duration: 4000 },
+          );
+        } else {
+          toast.error('Failed to delete business detail');
+        }
       }
     } catch (error: any) {
       console.error('Error deleting business detail:', error);
-      toast.error('Error deleting business detail');
+      const message =
+        error?.response?.data?.data?.results?.error?.message ||
+        error?.response?.data?.message ||
+        '';
+      if (message === 'business_detail_linked_with_invoice') {
+        setDeleteModalOpen(false);
+        toast.error(
+          'This business detail cannot be deleted because it is linked to an invoice.',
+          { duration: 4000 },
+        );
+      } else {
+        toast.error('Error deleting business detail');
+      }
     } finally {
       setIsDeleting(false);
     }

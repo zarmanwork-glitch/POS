@@ -24,12 +24,9 @@ import { InvoiceDetailsGridProps } from '@/types/componentTypes';
 
 export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
   return (
-    <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
+    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
       <div>
-        <Label
-          htmlFor='invoiceNumber'
-          className='text-sm text-gray-700 mb-1'
-        >
+        <Label htmlFor='invoiceNumber' className='text-sm text-gray-700 mb-1'>
           {t('invoices.form.invoiceNumberLabel')}
         </Label>
         <Input
@@ -185,10 +182,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
       </div>
 
       <div>
-        <Label
-          htmlFor='incoterms'
-          className='block text-sm text-gray-700 mb-1'
-        >
+        <Label htmlFor='incoterms' className='block text-sm text-gray-700 mb-1'>
           {t('invoices.form.incoTerms')}:
         </Label>
         <div className='flex items-center gap-3'>
@@ -201,10 +195,7 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
             </SelectTrigger>
             <SelectContent>
               {incoTerms.map((it) => (
-                <SelectItem
-                  key={it.value}
-                  value={it.value}
-                >
+                <SelectItem key={it.value} value={it.value}>
                   {it.displayText}
                 </SelectItem>
               ))}

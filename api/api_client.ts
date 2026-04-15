@@ -4,25 +4,9 @@ import axios, {
   AxiosRequestConfig,
   AxiosProgressEvent,
 } from 'axios';
-import Router from 'next/router';
 import { toast } from 'sonner';
 import { ApiKeys } from '@/utils/apiMessages';
-
-interface ApiGatewayParams {
-  endpoint: string;
-  method: AxiosRequestConfig['method'];
-  token?: string | null;
-  payload?: any;
-  isDisplayResponsePopUp?: boolean;
-  successMessage?: string | null;
-  successCallback?: (() => void) | null;
-  successPlainText?: string | null;
-  contentType?: string | null;
-  errorCallback?: (() => void) | null;
-  directAction?: boolean;
-  onUploadProgress?: ((progressEvent: AxiosProgressEvent) => void) | null;
-  responseType?: AxiosRequestConfig['responseType'];
-}
+import { ApiGatewayParams } from '@/types/apiTypes';
 
 export const api_client = async ({
   endpoint,
@@ -102,9 +86,10 @@ export const api_client = async ({
     const error = err as AxiosError<any>;
 
     if (
+      error.response?.status === 401 ||
       error.response?.data?.data?.results?.error === 'UnauthorizedException'
     ) {
-      Router.push('/login');
+      window.location.href = '/sign-in';
       return;
     }
 

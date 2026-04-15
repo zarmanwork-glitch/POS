@@ -324,7 +324,9 @@ function BusinessDetailsFormContent() {
         <div className='space-y-4 text-center'>
           <Spinner className='h-12 w-12 text-blue-600 mx-auto' />
           <p className='text-gray-600 font-medium'>
-            {t('profile.loading', { defaultValue: 'Loading...' })}
+            {t('profile.loadingBusinessDetails', {
+              defaultValue: 'Loading business details...',
+            })}
           </p>
         </div>
       </div>
@@ -336,7 +338,7 @@ function BusinessDetailsFormContent() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold'>
-          <span className='text-blue-600'>{t('profile.title')}</span>
+          <span className='text-gradient-brand'>{t('profile.title')}</span>
           <span className='text-gray-800'>
             {' | '}
             {id
@@ -355,7 +357,7 @@ function BusinessDetailsFormContent() {
             {t('profile.cancel')}
           </Button>
           <Button
-            className='bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-initial'
+            className='gradient-brand hover:opacity-90 transition-opacity flex-1 sm:flex-initial shadow-md shadow-blue-600/20'
             onClick={() => formik.handleSubmit()}
             disabled={isLoading}
           >
@@ -376,10 +378,7 @@ function BusinessDetailsFormContent() {
       </div>
 
       {/* Form */}
-      <form
-        onSubmit={formik.handleSubmit}
-        className='space-y-6'
-      >
+      <form onSubmit={formik.handleSubmit} className='space-y-6'>
         {/* Basic Information */}
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
@@ -583,7 +582,7 @@ function BusinessDetailsFormContent() {
         </div>
 
         {/* Address Streets */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4'>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.addressStreet')}
@@ -643,7 +642,7 @@ function BusinessDetailsFormContent() {
         </div>
 
         {/* Country, Province, City */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4'>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.country')}: <span className='text-red-500'>*</span>
@@ -664,10 +663,7 @@ function BusinessDetailsFormContent() {
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
-                    <SelectItem
-                      key={country}
-                      value={country}
-                    >
+                    <SelectItem key={country} value={country}>
                       {country}
                     </SelectItem>
                   ))}
@@ -722,7 +718,7 @@ function BusinessDetailsFormContent() {
         </div>
 
         {/* District, Postal Code, Additional Number */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4'>
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.district')}: <span className='text-red-500'>*</span>
@@ -860,10 +856,12 @@ function BusinessDetailsFormContent() {
         {/* VAT Registration Section */}
         <div className=' p-6 rounded-lg  '>
           <p className='text-sm text-gray-600 mb-4'>
-            Please provide VAT registration details
+            {t('profile.vatRegistrationPrompt', {
+              defaultValue: 'Please provide VAT registration details',
+            })}
           </p>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.companyRegistrationNumber')}:{' '}
@@ -938,6 +936,7 @@ function BusinessDetailsFormContent() {
             </span>
 
             {/* The other side of the line */}
+
             <Separator className='flex-1 bg-blue-100 h-0.5' />
           </div>
           <p className='text-xs text-gray-600 mb-4'>
@@ -970,10 +969,7 @@ function BusinessDetailsFormContent() {
 
                 <SelectContent>
                   {identificationTypes.map((option, index) => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value}
-                    >
+                    <SelectItem key={option.value} value={option.value}>
                       {t(`${option.displayText}`)}
                     </SelectItem>
                   ))}
@@ -1037,16 +1033,13 @@ function BusinessDetailsFormContent() {
           defaultValue='refund-policy'
           className='space-y-4'
         >
-          <AccordionItem
-            value='refund-policy'
-            className='border-none'
-          >
+          <AccordionItem value='refund-policy' className='border-none'>
             {/* Header */}
             <AccordionTrigger className='relative flex items-center py-2 hover:no-underline group'>
               <Separator className='flex-1 bg-blue-100 h-0.5' />
 
               <span className='mx-6 text-sm font-semibold text-blue-500 flex items-center gap-2'>
-                REFUND POLICY
+                {t('profile.refundPolicy')}
                 <ChevronDown className='h-4 w-4 text-blue-400 transition-transform duration-300 group-data-[state=open]:rotate-180' />
               </span>
 
@@ -1057,22 +1050,20 @@ function BusinessDetailsFormContent() {
             <AccordionContent className='pt-4 space-y-4'>
               {/* Description */}
               <p className='text-sm text-gray-500'>
-                The refund policy outlines the rules for obtaining refunds for
-                purchased goods and services. This policy will be included in
-                all simple and standard invoices.
+                {t('profile.refundPolicyDescription')}
               </p>
 
               {/* Refund Policy (English) */}
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Refund Policy:
+                  {t('profile.refundPolicyLabel')}
                 </label>
                 <textarea
                   name='refundPolicy'
                   value={formik.values.refundPolicy}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder='No refunds'
+                  placeholder={t('profile.refundPolicyEnglishPlaceholder')}
                   rows={3}
                   className={`w-full bg-blue-50 border rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     hasError('refundPolicy')
@@ -1090,14 +1081,14 @@ function BusinessDetailsFormContent() {
               {/* Refund Policy (Local Language) */}
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Refund Policy in local language:
+                  {t('profile.refundPolicyLocalLabel')}
                 </label>
                 <textarea
                   name='refundPolicyLocal'
                   value={formik.values.refundPolicyLocal}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder='لا يوجد استرجاع'
+                  placeholder={t('profile.refundPolicyLocalPlaceholder')}
                   rows={3}
                   className={`w-full bg-blue-50 border rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     hasError('refundPolicyLocal')

@@ -1,18 +1,13 @@
 import { api_client } from '@/api/api_client';
 import { backendApiEnums } from '@/enums/backendApi.enums';
 import { successMessagesEnums } from '@/enums/successMessages.enum';
-
-interface CustomerType {
-  token: string;
-  payload?: any;
-  successCallbackFunction?: () => void;
-}
+import { CustomerApiParams } from '@/types/apiTypes';
 
 export const createCustomer = async ({
   token,
   payload,
   successCallbackFunction,
-}: CustomerType) => {
+}: CustomerApiParams) => {
   return api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.CUSTOMERS.ADD_CUSTOMER,
@@ -28,7 +23,7 @@ export const updateCustomer = async ({
   token,
   payload,
   successCallbackFunction,
-}: CustomerType) => {
+}: CustomerApiParams) => {
   return api_client({
     token,
     endpoint: backendApiEnums.ENDPOINTS.CUSTOMERS.UPDATE_CUSTOMER,
