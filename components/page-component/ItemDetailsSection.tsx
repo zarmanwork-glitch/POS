@@ -248,9 +248,7 @@ export default function ItemDetailsSection({
                               )}
                             />
                             <CommandList>
-                              <CommandEmpty>
-                                No results found.
-                              </CommandEmpty>
+                              <CommandEmpty>No results found.</CommandEmpty>
                               <CommandGroup>
                                 {itemOptions.map((item) => (
                                   <CommandItem
@@ -475,11 +473,7 @@ export default function ItemDetailsSection({
                                       key={opt.value}
                                       value={opt.value}
                                       onSelect={() => {
-                                        updateItem(
-                                          idx,
-                                          'vatSa32',
-                                          opt.value,
-                                        );
+                                        updateItem(idx, 'vatSa32', opt.value);
                                         setActiveExportIdx(null);
                                       }}
                                     >
@@ -602,11 +596,7 @@ export default function ItemDetailsSection({
                                       key={opt.value}
                                       value={opt.value}
                                       onSelect={() => {
-                                        updateItem(
-                                          idx,
-                                          'exempt',
-                                          opt.value,
-                                        );
+                                        updateItem(idx, 'exempt', opt.value);
                                         setActiveExemptIdx(null);
                                       }}
                                     >

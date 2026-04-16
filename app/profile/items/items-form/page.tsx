@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { units } from '@/json/units.json';
 import { unitOfMeasures } from '@/enums/unitOfMeasure';
 import { useFormik } from 'formik';
@@ -21,7 +22,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { ToggleButton } from '@/components/base-components/ToggleButton';
 import * as Yup from 'yup';
 
 // Validation Schema using Yup
@@ -375,21 +375,28 @@ function ItemsFormContent() {
           {/* Right Column */}
           <div className='space-y-6'>
             {/* Item Status Toggle */}
-            <ToggleButton
-              value={formik.values.itemStatus}
-              onChange={(val) => formik.setFieldValue('itemStatus', val)}
-              optionA={{
-                value: 'enabled',
-                label: t('profile.enabled', { defaultValue: 'Enabled' }),
-              }}
-              optionB={{
-                value: 'disabled',
-                label: t('profile.disabled', { defaultValue: 'Disabled' }),
-              }}
-              label={t('profile.itemStatus', { defaultValue: 'Item Status' })}
-              required
-              showStatusText
-            />
+            <div>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
+                {t('profile.itemStatus', { defaultValue: 'Item Status' })}:{' '}
+                <span className='text-red-500'>*</span>
+              </Label>
+              <div className='flex items-center gap-3'>
+                <Switch
+                  checked={formik.values.itemStatus === 'enabled'}
+                  onCheckedChange={(checked) =>
+                    formik.setFieldValue(
+                      'itemStatus',
+                      checked ? 'enabled' : 'disabled',
+                    )
+                  }
+                />
+                <span className='text-sm text-gray-600'>
+                  {formik.values.itemStatus === 'enabled'
+                    ? t('profile.enabled', { defaultValue: 'Enabled' })
+                    : t('profile.disabled', { defaultValue: 'Disabled' })}
+                </span>
+              </div>
+            </div>
 
             {/* Buy Price */}
             <div>

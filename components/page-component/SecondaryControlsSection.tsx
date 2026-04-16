@@ -79,9 +79,7 @@ export default function SecondaryControlsSection({
                 className='w-full justify-between bg-blue-50 h-10 mt-2 text-xs font-normal'
               >
                 {formik.values.paymentMeans ? (
-                  <span className='truncate'>
-                    {formik.values.paymentMeans}
-                  </span>
+                  <span className='truncate'>{formik.values.paymentMeans}</span>
                 ) : (
                   <span className='text-muted-foreground'>
                     {t('invoices.form.searchByCode')}
@@ -90,7 +88,10 @@ export default function SecondaryControlsSection({
                 <ChevronDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
+            <PopoverContent
+              className='w-[--radix-popover-trigger-width] p-0'
+              align='start'
+            >
               <Command>
                 <CommandInput placeholder={t('invoices.form.searchByCode')} />
                 <CommandList>
