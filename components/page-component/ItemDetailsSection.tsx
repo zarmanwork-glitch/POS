@@ -3,6 +3,14 @@
 import { ToggleButton } from '@/components/base-components/ToggleButton';
 import { Button } from '@/components/ui/button';
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -12,6 +20,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -37,7 +50,6 @@ import { ItemDetailsSectionProps } from '@/types/itemTypes';
 import { calculateItemRow } from '@/utils/itemCalculations';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 export default function ItemDetailsSection({
@@ -63,55 +75,6 @@ export default function ItemDetailsSection({
     useState(false);
   const hasShownNegativeWarning = useRef(false);
 
-  // Per-row search state for description dropdowns
-  const [itemSearches, setItemSearches] = useState<Record<number, string>>({});
-
-  // Track dropdown position for portal
-  const [dropdownPos, setDropdownPos] = useState<{
-    top: number;
-    left: number;
-    width: number;
-  } | null>(null);
-  const descriptionInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Track tax code dropdown position for portal
-  const [taxCodeDropdownPos, setTaxCodeDropdownPos] = useState<{
-    top: number;
-    left: number;
-    width: number;
-  } | null>(null);
-  const taxCodeBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  // Update dropdown positions on scroll so they stick to their anchors
-  useEffect(() => {
-    const updatePositions = () => {
-      if (activeDescriptionIdx !== null) {
-        const el = descriptionInputRefs.current[activeDescriptionIdx];
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          setDropdownPos({
-            top: rect.bottom + 4,
-            left: rect.left,
-            width: rect.width,
-          });
-        }
-      }
-      if (activeTaxCodeIdx !== null) {
-        const el = taxCodeBtnRefs.current[activeTaxCodeIdx];
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          setTaxCodeDropdownPos({
-            top: rect.bottom + 4,
-            left: rect.left,
-            width: rect.width,
-          });
-        }
-      }
-    };
-    window.addEventListener('scroll', updatePositions, true);
-    return () => window.removeEventListener('scroll', updatePositions, true);
-  }, [activeDescriptionIdx, activeTaxCodeIdx]);
-
   // Check for negative amounts
   useEffect(() => {
     const hasNegative = items.some((row) => {
@@ -127,85 +90,6 @@ export default function ItemDetailsSection({
     }
   }, [items]);
 
-  const taxCodeRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const exportRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const descriptionRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const outOfScopeRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const exemptRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      // Check if click is outside any tax code dropdown
-      if (activeTaxCodeIdx !== null) {
-        const taxRef = taxCodeRefs.current[activeTaxCodeIdx];
-        if (taxRef && !taxRef.contains(target)) {
-          setActiveTaxCodeIdx(null);
-        }
-      }
-
-      // Check if click is outside any export dropdown
-      if (activeExportIdx !== null) {
-        const exportRef = exportRefs.current[activeExportIdx];
-        if (exportRef && !exportRef.contains(target)) {
-          setActiveExportIdx(null);
-        }
-      }
-
-      // Check if click is outside any out of scope dropdown
-      if (activeOutOfScopeIdx !== null) {
-        const oosRef = outOfScopeRefs.current[activeOutOfScopeIdx];
-        if (oosRef && !oosRef.contains(target)) {
-          setActiveOutOfScopeIdx(null);
-        }
-      }
-
-      // Check if click is outside any exempt dropdown
-      if (activeExemptIdx !== null) {
-        const exemptRef = exemptRefs.current[activeExemptIdx];
-        if (exemptRef && !exemptRef.contains(target)) {
-          setActiveExemptIdx(null);
-        }
-      }
-
-      // Check if click is outside any description dropdown
-      if (activeDescriptionIdx !== null) {
-        const descRef = descriptionRefs.current[activeDescriptionIdx];
-        if (descRef && !descRef.contains(target)) {
-          setActiveDescriptionIdx(null);
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [
-    activeTaxCodeIdx,
-    activeExportIdx,
-    activeOutOfScopeIdx,
-    activeExemptIdx,
-    activeDescriptionIdx,
-  ]);
-
-  // Filter items by description for a specific row
-  const getFilteredItems = (idx: number) => {
-    const search = itemSearches[idx] || '';
-    if (!search) return itemOptions;
-
-    return Array.isArray(itemOptions)
-      ? itemOptions.filter((item) => {
-          const query = search.toLowerCase();
-          return (
-            (item.description &&
-              item.description.toLowerCase().includes(query)) ||
-            (item.name && item.name.toLowerCase().includes(query))
-          );
-        })
-      : [];
-  };
-
   const handleSelectItem = (itemId: string, itemIndex: number) => {
     const selected = itemOptions.find((i) => {
       const id = i.id || i._id;
@@ -218,7 +102,6 @@ export default function ItemDetailsSection({
       updateItem(itemIndex, 'unitOfMeasure', selected.unitOfMeasure || '');
       updateItem(itemIndex, 'unitRate', selected.sellPrice || '');
       updateItem(itemIndex, 'discount', selected.discountPercentage || '');
-      setItemSearches((prev) => ({ ...prev, [itemIndex]: '' }));
       setActiveDescriptionIdx(null);
     }
   };
@@ -328,79 +211,66 @@ export default function ItemDetailsSection({
                   </TableCell>
                   {/* Description & Service Code & Reporting Tags */}
                   <TableCell className='align-top'>
-                    <div
-                      className='flex flex-col gap-1 relative'
-                      ref={(el) => {
-                        descriptionRefs.current[idx] = el;
-                      }}
-                    >
-                      <Input
-                        className='bg-blue-50 h-9 text-xs w-full'
-                        placeholder={t('invoices.form.descriptionPlaceholder')}
-                        value={row.description}
-                        onChange={(e) => {
-                          updateItem(idx, 'description', e.target.value);
-                          setItemSearches((prev) => ({
-                            ...prev,
-                            [idx]: e.target.value,
-                          }));
-                        }}
-                        ref={(el) => {
-                          descriptionInputRefs.current[idx] = el;
-                        }}
-                        onFocus={() => {
-                          setActiveDescriptionIdx(idx);
-                          const el = descriptionInputRefs.current[idx];
-                          if (el) {
-                            const rect = el.getBoundingClientRect();
-                            setDropdownPos({
-                              top: rect.bottom + 4,
-                              left: rect.left,
-                              width: rect.width,
-                            });
-                          }
-                        }}
-                        onBlur={() => {
-                          setTimeout(() => {
-                            setActiveDescriptionIdx(null);
-                            setDropdownPos(null);
-                          }, 200);
-                        }}
-                      />
-                      {activeDescriptionIdx === idx &&
-                        itemOptions.length > 0 &&
-                        dropdownPos &&
-                        createPortal(
-                          <div
-                            className='fixed z-9999 bg-white border rounded-md shadow-lg max-h-48 overflow-y-auto flex flex-col'
-                            style={{
-                              top: dropdownPos.top,
-                              left: dropdownPos.left,
-                              width: dropdownPos.width,
-                            }}
-                            onMouseDown={(e) => e.preventDefault()}
+                    <div className='flex flex-col gap-1'>
+                      <Popover
+                        open={activeDescriptionIdx === idx}
+                        onOpenChange={(open) =>
+                          setActiveDescriptionIdx(open ? idx : null)
+                        }
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant='outline'
+                            role='combobox'
+                            aria-expanded={activeDescriptionIdx === idx}
+                            className='w-full justify-between bg-blue-50 h-9 text-xs font-normal'
                           >
-                            {getFilteredItems(idx).map((item) => (
-                              <Button
-                                key={item.id || item._id}
-                                type='button'
-                                variant='ghost'
-                                className='w-full text-left px-3 py-2 text-xs hover:bg-blue-50 border-b last:border-b-0 whitespace-nowrap overflow-hidden text-ellipsis justify-start'
-                                onClick={() => {
-                                  handleSelectItem(
-                                    item.id || item._id || '',
-                                    idx,
-                                  );
-                                  setActiveDescriptionIdx(null);
-                                  setDropdownPos(null);
-                                }}
-                              >
-                                {item.description}
-                              </Button>
-                            ))}
-                          </div>,
-                          document.body,
-                        )}
+                            {row.description ? (
+                              <span className='truncate'>
+                                {row.description}
+                              </span>
+                            ) : (
+                              <span className='text-muted-foreground'>
+                                {t('invoices.form.descriptionPlaceholder')}
+                              </span>
+                            )}
+                            <ChevronDown className='ml-2 h-3 w-3 shrink-0 opacity-50' />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className='w-[--radix-popover-trigger-width] p-0'
+                          align='start'
+                        >
+                          <Command>
+                            <CommandInput
+                              placeholder={t(
+                                'invoices.form.descriptionPlaceholder',
+                              )}
+                            />
+                            <CommandList>
+                              <CommandEmpty>
+                                No results found.
+                              </CommandEmpty>
+                              <CommandGroup>
+                                {itemOptions.map((item) => (
+                                  <CommandItem
+                                    key={item.id || item._id}
+                                    value={item.description || item.name || ''}
+                                    onSelect={() => {
+                                      handleSelectItem(
+                                        item.id || item._id || '',
+                                        idx,
+                                      );
+                                    }}
+                                  >
+                                    {item.description}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                       <Input
                         className='bg-blue-50 h-9 text-xs w-full'
                         placeholder={t('invoices.form.serviceCodePlaceholder')}
@@ -509,273 +379,254 @@ export default function ItemDetailsSection({
                   </TableCell>
                   {/* Tax Code */}
                   <TableCell className='align-top'>
-                    <div
-                      className='relative'
-                      ref={(el) => {
-                        taxCodeRefs.current[idx] = el;
-                      }}
+                    <Popover
+                      open={activeTaxCodeIdx === idx}
+                      onOpenChange={(open) =>
+                        setActiveTaxCodeIdx(open ? idx : null)
+                      }
                     >
-                      <Button
-                        type='button'
-                        variant='outline'
-                        size='sm'
-                        className='bg-blue-50 h-9 text-xs w-full flex justify-between items-center px-2 min-w-30 hover:bg-blue-50'
-                        ref={(el) => {
-                          taxCodeBtnRefs.current[idx] = el;
-                        }}
-                        onClick={() => {
-                          const opening = activeTaxCodeIdx !== idx;
-                          setActiveTaxCodeIdx(opening ? idx : null);
-                          if (opening) {
-                            const el = taxCodeBtnRefs.current[idx];
-                            if (el) {
-                              const rect = el.getBoundingClientRect();
-                              setTaxCodeDropdownPos({
-                                top: rect.bottom + 4,
-                                left: rect.left,
-                                width: rect.width,
-                              });
-                            }
-                          } else {
-                            setTaxCodeDropdownPos(null);
-                          }
-                        }}
-                        tabIndex={0}
-                      >
-                        {row.taxCode ? (
-                          <span className='font-bold truncate'>
-                            {row.taxCode}
-                          </span>
-                        ) : (
-                          <span className='text-gray-400 truncate'>
-                            Select tax code
-                          </span>
-                        )}
-                        <ChevronDown className='ml-2 w-4 h-4 text-gray-400 shrink-0' />
-                      </Button>
-                      {activeTaxCodeIdx === idx &&
-                        taxCodeDropdownPos &&
-                        createPortal(
-                          <div
-                            className='fixed z-9999 flex flex-col max-h-48 overflow-y-auto text-xs rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'
-                            style={{
-                              top: taxCodeDropdownPos.top,
-                              left: taxCodeDropdownPos.left,
-                              width: Math.max(taxCodeDropdownPos.width, 200),
-                            }}
-                            onMouseDown={(e) => e.preventDefault()}
-                          >
-                            {taxCodes.map((tc) => (
-                              <Button
-                                type='button'
-                                variant='ghost'
-                                key={tc.value}
-                                className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start h-auto'
-                                onClick={() => {
-                                  handleTaxCodeChange(tc.value, idx);
-                                  setActiveTaxCodeIdx(null);
-                                  setTaxCodeDropdownPos(null);
-                                }}
-                              >
-                                <div>
-                                  <span className='font-bold'>{tc.value}</span>
-                                  {tc.displayText && (
-                                    <div className='text-gray-700 mt-0.5 mb-0.5'>
-                                      {tc.displayText}
-                                    </div>
-                                  )}
-                                </div>
-                              </Button>
-                            ))}
-                          </div>,
-                          document.body,
-                        )}
-                    </div>
-                    {/* VATAX-SA-32 dropdown, only show if taxCode is 'Z' */}
-                    {row.taxCode === 'Z' && (
-                      <div className='mt-2'>
-                        <div
-                          className='relative'
-                          ref={(el) => {
-                            exportRefs.current[idx] = el;
-                          }}
+                      <PopoverTrigger asChild>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='sm'
+                          role='combobox'
+                          aria-expanded={activeTaxCodeIdx === idx}
+                          className='bg-blue-50 h-9 text-xs w-full flex justify-between items-center px-2 min-w-30 hover:bg-blue-50'
                         >
-                          <Input
-                            className='bg-blue-50 h-9 text-xs w-full pr-8 relative'
-                            value={
-                              exportTypeOptions.find(
-                                (opt) => opt.value === row.vatSa32,
-                              )?.displayText || 'Export of goods'
-                            }
-                            readOnly
-                          />
-                          <Button
-                            type='button'
-                            variant='ghost'
-                            size='sm'
-                            className='absolute right-0 top-0 h-9 text-xs flex justify-between items-center px-2 rounded-l-none bg-blue-50 border border-l-0 border-gray-200 hover:bg-blue-50'
-                            onClick={() =>
-                              setActiveExportIdx(
-                                activeExportIdx === idx ? null : idx,
-                              )
-                            }
-                            tabIndex={0}
-                          >
-                            <ChevronDown className='ml-2 w-4 h-4' />
-                          </Button>
-                          {activeExportIdx === idx && (
-                            <div className='absolute z-50 min-w-75 flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'>
-                              {exportTypeOptions.map((opt) => (
-                                <Button
-                                  type='button'
-                                  variant='ghost'
-                                  key={opt.value}
-                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start h-auto'
-                                  onClick={() => {
-                                    updateItem(idx, 'vatSa32', opt.value);
-                                    setActiveExportIdx(null);
+                          {row.taxCode ? (
+                            <span className='font-bold truncate'>
+                              {row.taxCode}
+                            </span>
+                          ) : (
+                            <span className='text-gray-400 truncate'>
+                              Select tax code
+                            </span>
+                          )}
+                          <ChevronDown className='ml-2 w-4 h-4 text-gray-400 shrink-0' />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className='min-w-[200px] p-0'
+                        align='start'
+                      >
+                        <Command>
+                          <CommandList>
+                            <CommandGroup>
+                              {taxCodes.map((tc) => (
+                                <CommandItem
+                                  key={tc.value}
+                                  value={tc.value}
+                                  onSelect={() => {
+                                    handleTaxCodeChange(tc.value, idx);
+                                    setActiveTaxCodeIdx(null);
                                   }}
                                 >
                                   <div>
                                     <span className='font-bold'>
-                                      {opt.value}
+                                      {tc.value}
                                     </span>
-                                    {opt.displayText && (
-                                      <div className='text-gray-700 mt-0.5 mb-0.5 whitespace-normal wrap-break-word'>
-                                        {opt.displayText}
+                                    {tc.displayText && (
+                                      <div className='text-gray-700 text-xs mt-0.5 mb-0.5'>
+                                        {tc.displayText}
                                       </div>
                                     )}
                                   </div>
-                                </Button>
+                                </CommandItem>
                               ))}
-                            </div>
-                          )}
-                        </div>
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {/* VATAX-SA-32 dropdown, only show if taxCode is 'Z' */}
+                    {row.taxCode === 'Z' && (
+                      <div className='mt-2'>
+                        <Popover
+                          open={activeExportIdx === idx}
+                          onOpenChange={(open) =>
+                            setActiveExportIdx(open ? idx : null)
+                          }
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              className='bg-blue-50 h-9 text-xs w-full flex justify-between items-center px-2 hover:bg-blue-50'
+                            >
+                              <span className='truncate text-xs'>
+                                {exportTypeOptions.find(
+                                  (opt) => opt.value === row.vatSa32,
+                                )?.displayText || 'Export of goods'}
+                              </span>
+                              <ChevronDown className='ml-2 w-4 h-4 shrink-0' />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className='min-w-[300px] p-0'
+                            align='start'
+                          >
+                            <Command>
+                              <CommandList>
+                                <CommandGroup>
+                                  {exportTypeOptions.map((opt) => (
+                                    <CommandItem
+                                      key={opt.value}
+                                      value={opt.value}
+                                      onSelect={() => {
+                                        updateItem(
+                                          idx,
+                                          'vatSa32',
+                                          opt.value,
+                                        );
+                                        setActiveExportIdx(null);
+                                      }}
+                                    >
+                                      <div>
+                                        <span className='font-bold'>
+                                          {opt.value}
+                                        </span>
+                                        {opt.displayText && (
+                                          <div className='text-gray-700 text-xs mt-0.5 mb-0.5 whitespace-normal break-words'>
+                                            {opt.displayText}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     )}
                     {/* Out of scope dropdown, only show if taxCode is 'O' */}
                     {row.taxCode === 'O' && (
                       <div className='mt-2'>
-                        <div
-                          className='relative'
-                          ref={(el) => {
-                            outOfScopeRefs.current[idx] = el;
-                          }}
+                        <Popover
+                          open={activeOutOfScopeIdx === idx}
+                          onOpenChange={(open) =>
+                            setActiveOutOfScopeIdx(open ? idx : null)
+                          }
                         >
-                          <Input
-                            className='bg-blue-50 h-9 text-xs w-full pr-8 relative'
-                            value={
-                              outOfScopeOptions.find(
-                                (opt) => opt.value === row.outOfScope,
-                              )?.displayText || 'Not subject to VAT'
-                            }
-                            readOnly
-                          />
-                          <Button
-                            type='button'
-                            variant='ghost'
-                            size='sm'
-                            className='absolute right-0 top-0 h-9 text-xs flex justify-between items-center px-2 rounded-l-none bg-blue-50 border border-l-0 border-gray-200 hover:bg-blue-50'
-                            onClick={() =>
-                              setActiveOutOfScopeIdx(
-                                activeOutOfScopeIdx === idx ? null : idx,
-                              )
-                            }
-                            tabIndex={0}
+                          <PopoverTrigger asChild>
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              className='bg-blue-50 h-9 text-xs w-full flex justify-between items-center px-2 hover:bg-blue-50'
+                            >
+                              <span className='truncate text-xs'>
+                                {outOfScopeOptions.find(
+                                  (opt) => opt.value === row.outOfScope,
+                                )?.displayText || 'Not subject to VAT'}
+                              </span>
+                              <ChevronDown className='ml-2 w-4 h-4 shrink-0' />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className='min-w-[300px] p-0'
+                            align='start'
                           >
-                            <ChevronDown className='ml-2 w-4 h-4' />
-                          </Button>
-                          {activeOutOfScopeIdx === idx && (
-                            <div className='absolute z-50 min-w-75 flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'>
-                              {outOfScopeOptions.map((opt) => (
-                                <Button
-                                  type='button'
-                                  variant='ghost'
-                                  key={opt.value}
-                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start h-auto'
-                                  onClick={() => {
-                                    updateItem(idx, 'outOfScope', opt.value);
-                                    setActiveOutOfScopeIdx(null);
-                                  }}
-                                >
-                                  <div>
-                                    <span className='font-bold'>
-                                      {opt.value}
-                                    </span>
-                                    {opt.displayText && (
-                                      <div className='text-gray-700 mt-0.5 mb-0.5 whitespace-normal wrap-break-word'>
-                                        {opt.displayText}
+                            <Command>
+                              <CommandList>
+                                <CommandGroup>
+                                  {outOfScopeOptions.map((opt) => (
+                                    <CommandItem
+                                      key={opt.value}
+                                      value={opt.value}
+                                      onSelect={() => {
+                                        updateItem(
+                                          idx,
+                                          'outOfScope',
+                                          opt.value,
+                                        );
+                                        setActiveOutOfScopeIdx(null);
+                                      }}
+                                    >
+                                      <div>
+                                        <span className='font-bold'>
+                                          {opt.value}
+                                        </span>
+                                        {opt.displayText && (
+                                          <div className='text-gray-700 text-xs mt-0.5 mb-0.5 whitespace-normal break-words'>
+                                            {opt.displayText}
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-                                  </div>
-                                </Button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     )}
                     {/* Exempt dropdown, only show if taxCode is 'E' */}
                     {row.taxCode === 'E' && (
                       <div className='mt-2'>
-                        <div
-                          className='relative'
-                          ref={(el) => {
-                            exemptRefs.current[idx] = el;
-                          }}
+                        <Popover
+                          open={activeExemptIdx === idx}
+                          onOpenChange={(open) =>
+                            setActiveExemptIdx(open ? idx : null)
+                          }
                         >
-                          <Input
-                            className='bg-blue-50 h-9 text-xs w-full pr-8 relative'
-                            value={
-                              exemptOptions.find(
-                                (opt) => opt.value === row.exempt,
-                              )?.displayText ||
-                              'Financial services mentioned in Article 29 of the VAT Regulations'
-                            }
-                            readOnly
-                          />
-                          <Button
-                            type='button'
-                            variant='ghost'
-                            size='sm'
-                            className='absolute right-0 top-0 h-9 text-xs flex justify-between items-center px-2 rounded-l-none bg-blue-50 border border-l-0 border-gray-200 hover:bg-blue-50'
-                            onClick={() =>
-                              setActiveExemptIdx(
-                                activeExemptIdx === idx ? null : idx,
-                              )
-                            }
-                            tabIndex={0}
+                          <PopoverTrigger asChild>
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              className='bg-blue-50 h-9 text-xs w-full flex justify-between items-center px-2 hover:bg-blue-50'
+                            >
+                              <span className='truncate text-xs'>
+                                {exemptOptions.find(
+                                  (opt) => opt.value === row.exempt,
+                                )?.displayText ||
+                                  'Financial services mentioned in Article 29 of the VAT Regulations'}
+                              </span>
+                              <ChevronDown className='ml-2 w-4 h-4 shrink-0' />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className='min-w-[300px] p-0'
+                            align='start'
                           >
-                            <ChevronDown className='ml-2 w-4 h-4' />
-                          </Button>
-                          {activeExemptIdx === idx && (
-                            <div className='absolute z-50 min-w-75 flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'>
-                              {exemptOptions.map((opt) => (
-                                <Button
-                                  type='button'
-                                  variant='ghost'
-                                  key={opt.value}
-                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start h-auto'
-                                  onClick={() => {
-                                    updateItem(idx, 'exempt', opt.value);
-                                    setActiveExemptIdx(null);
-                                  }}
-                                >
-                                  <div>
-                                    <span className='font-bold'>
-                                      {opt.value}
-                                    </span>
-                                    {opt.displayText && (
-                                      <div className='text-gray-700 mt-0.5 mb-0.5 whitespace-normal wrap-break-word'>
-                                        {opt.displayText}
+                            <Command>
+                              <CommandList>
+                                <CommandGroup>
+                                  {exemptOptions.map((opt) => (
+                                    <CommandItem
+                                      key={opt.value}
+                                      value={opt.value}
+                                      onSelect={() => {
+                                        updateItem(
+                                          idx,
+                                          'exempt',
+                                          opt.value,
+                                        );
+                                        setActiveExemptIdx(null);
+                                      }}
+                                    >
+                                      <div>
+                                        <span className='font-bold'>
+                                          {opt.value}
+                                        </span>
+                                        {opt.displayText && (
+                                          <div className='text-gray-700 text-xs mt-0.5 mb-0.5 whitespace-normal break-words'>
+                                            {opt.displayText}
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-                                  </div>
-                                </Button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     )}
                   </TableCell>

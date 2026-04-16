@@ -1,16 +1,32 @@
 import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
 import { ToggleButton } from '@/components/base-components/ToggleButton';
 import { paymentMeans } from '@/enums/paymentMeans';
-import { Search } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 import { SecondaryControlsSectionProps } from '@/types/paymentMeansTypes';
 
 export default function SecondaryControlsSection({
   formik,
   t,
 }: SecondaryControlsSectionProps) {
+  const [paymentMeansOpen, setPaymentMeansOpen] = useState(false);
+
   return (
     <div className='space-y-4'>
       {/* Pre Payment Invoice Toggle */}
@@ -50,72 +66,65 @@ export default function SecondaryControlsSection({
         </div>
 
         {/* Payment Means */}
-        <div className='relative'>
+        <div>
           <Label htmlFor='paymentMeans' className='text-sm text-gray-700'>
             {t('invoices.form.paymentMeansLabel')}
           </Label>
-          <div className='relative mt-2'>
-            <Search className='absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none' />
-            <Input
-              id='paymentMeans'
-              name='paymentMeans'
-              autoComplete='off'
-              className='bg-blue-50 h-10 w-full pl-8 pr-2 text-xs rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-200'
-              placeholder={t('invoices.form.searchByCode')}
-              value={formik.values.paymentMeansSearch || ''}
-              onChange={(e) => {
-                formik.setFieldValue('paymentMeansSearch', e.target.value);
-              }}
-              onFocus={(e) =>
-                formik.setFieldValue('paymentMeansDropdownOpen', true)
-              }
-              onBlur={(e) =>
-                setTimeout(
-                  () => formik.setFieldValue('paymentMeansDropdownOpen', false),
-                  150,
-                )
-              }
-            />
-          </div>
-          {formik.values.paymentMeansDropdownOpen && (
-            <div className='absolute z-10 w-full max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg'>
-              {paymentMeans
-                .filter(
-                  (pm) =>
-                    (formik.values.paymentMeansSearch || '') === '' ||
-                    pm.value
-                      .toLowerCase()
-                      .includes(
-                        (formik.values.paymentMeansSearch || '').toLowerCase(),
-                      ),
-                )
-                .map((pm) => (
-                  <Button
-                    type='button'
-                    variant='ghost'
-                    key={pm.value}
-                    className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start'
-                    onMouseDown={() => {
-                      formik.setFieldValue('paymentMeans', pm.value);
-                      formik.setFieldValue('paymentMeansSearch', pm.value);
-                      formik.setFieldValue('paymentMeansDropdownOpen', false);
-                    }}
-                  >
-                    <div>
-                      <span className='font-bold'>{pm.value}</span>
-                      {pm.displayText && (
-                        <div className=' text-gray-700 mt-0.5 mb-0.5'>
-                          {pm.displayText}
+          <Popover open={paymentMeansOpen} onOpenChange={setPaymentMeansOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant='outline'
+                role='combobox'
+                aria-expanded={paymentMeansOpen}
+                className='w-full justify-between bg-blue-50 h-10 mt-2 text-xs font-normal'
+              >
+                {formik.values.paymentMeans ? (
+                  <span className='truncate'>
+                    {formik.values.paymentMeans}
+                  </span>
+                ) : (
+                  <span className='text-muted-foreground'>
+                    {t('invoices.form.searchByCode')}
+                  </span>
+                )}
+                <ChevronDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
+              <Command>
+                <CommandInput placeholder={t('invoices.form.searchByCode')} />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    {paymentMeans.map((pm) => (
+                      <CommandItem
+                        key={pm.value}
+                        value={pm.value}
+                        onSelect={() => {
+                          formik.setFieldValue('paymentMeans', pm.value);
+                          setPaymentMeansOpen(false);
+                        }}
+                      >
+                        <div>
+                          <span className='font-bold'>{pm.value}</span>
+                          {pm.displayText && (
+                            <div className='text-gray-700 text-xs mt-0.5 mb-0.5'>
+                              {pm.displayText}
+                            </div>
+                          )}
+                          {pm.description && (
+                            <p className='text-gray-500 text-xs mt-0.5'>
+                              {pm.description}
+                            </p>
+                          )}
                         </div>
-                      )}
-                      {pm.description && (
-                        <p className='text-gray-500 mt-0.5'>{pm.description}</p>
-                      )}
-                    </div>
-                  </Button>
-                ))}
-            </div>
-          )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           {formik.touched.paymentMeans && formik.errors.paymentMeans ? (
             <div className='text-sm text-red-500 mt-1'>
               {t(String(formik.errors.paymentMeans))}
