@@ -13,6 +13,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { SearchableDropdown } from '@/components/page-component/SearchableDropdown';
@@ -244,23 +245,23 @@ export default function BilledBySection({
               }
 
               return (
-                <div className='divide-y divide-gray-200'>
-                  {rows.map((row, index) => (
-                    <div
-                      key={index}
-                      className={`flex flex-col sm:flex-row items-start px-4 py-3 gap-1 sm:gap-0 ${
-                        index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                      }`}
-                    >
-                      <div className='w-full sm:w-1/3 text-gray-600 font-medium'>
-                        {row.label}:
-                      </div>
-                      <div className='w-full sm:w-2/3 text-gray-700 whitespace-pre-wrap'>
-                        {row.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <Table>
+                  <TableBody>
+                    {rows.map((row, index) => (
+                      <TableRow
+                        key={index}
+                        className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+                      >
+                        <TableCell className='w-1/3 text-gray-600 font-medium py-3'>
+                          {row.label}:
+                        </TableCell>
+                        <TableCell className='w-2/3 text-gray-700 whitespace-pre-wrap py-3'>
+                          {row.value}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               );
             })()}
           </div>

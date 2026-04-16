@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Label } from '@/components/ui/label';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -236,23 +237,23 @@ export default function BilledToSection({
                 ];
 
                 return (
-                  <div className='divide-y divide-gray-200'>
-                    {rows.map((r, i) => (
-                      <div
-                        key={i}
-                        className={`flex flex-col sm:flex-row items-start px-4 py-3 gap-1 sm:gap-0 ${
-                          i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                        }`}
-                      >
-                        <div className='w-full sm:w-1/3 text-gray-600 font-medium'>
-                          {r.label}:
-                        </div>
-                        <div className='w-full sm:w-2/3 text-gray-700 whitespace-pre-wrap'>
-                          {r.value}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <Table>
+                    <TableBody>
+                      {rows.map((r, i) => (
+                        <TableRow
+                          key={i}
+                          className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+                        >
+                          <TableCell className='w-1/3 text-gray-600 font-medium py-3'>
+                            {r.label}:
+                          </TableCell>
+                          <TableCell className='w-2/3 text-gray-700 whitespace-pre-wrap py-3'>
+                            {r.value}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 );
               })()}
             </div>

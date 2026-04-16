@@ -1,3 +1,4 @@
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -15,9 +16,9 @@ export const InvoiceDatesIncoTerms = ({
 }: InvoiceDatesIncoTermsProps) => {
   return (
     <div>
-      <label className='block text-sm text-gray-700 mb-1'>
+      <Label className='block text-sm text-gray-700 mb-1'>
         {t('invoices.form.incoTerms')}:
-      </label>
+      </Label>
       <div className='flex items-center gap-3'>
         <Select
           value={formik.values.incoterms}

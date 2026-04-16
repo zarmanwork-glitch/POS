@@ -34,12 +34,14 @@ export const InvoiceFilterPanel = ({
       >
         {/* Close */}
         <div className={`flex ${isRTL ? 'justify-start' : 'justify-end'}`}>
-          <button
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-6 w-6 text-gray-400 hover:text-gray-600'
             onClick={onApply}
-            className='text-gray-400 hover:text-gray-600'
           >
             ✕
-          </button>
+          </Button>
         </div>
 
         {/* Actions */}

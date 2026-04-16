@@ -63,7 +63,8 @@ function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
+            <Button
+              variant='ghost'
               className='flex items-center gap-2 sm:gap-3 cursor-pointer rounded-full p-1 transition-colors hover:bg-accent'
               aria-label='User menu'
             >
@@ -76,7 +77,7 @@ function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
               <div className='h-8 w-8 sm:h-9 sm:w-9 rounded-full gradient-brand flex items-center justify-center text-white font-semibold shrink-0 text-sm sm:text-base ring-2 ring-white shadow-sm'>
                 {initial}
               </div>
-            </button>
+            </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align='end'>

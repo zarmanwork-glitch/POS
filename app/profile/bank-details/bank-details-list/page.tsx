@@ -298,9 +298,13 @@ export default function BankDetailsListPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className='p-2 rounded-md hover:bg-gray-100'>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='p-2 rounded-md hover:bg-gray-100'
+                          >
                             <MoreHorizontal className='h-4 w-4' />
-                          </button>
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end'>
                           <DropdownMenuItem onClick={() => handleEdit(row.id)}>

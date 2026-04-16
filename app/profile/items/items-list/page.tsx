@@ -1,4 +1,5 @@
 'use client';
+import { Label } from '@/components/ui/label';
 
 import { deleteItem, getItemsList } from '@/api/items/item.api';
 import { Button } from '@/components/ui/button';
@@ -246,12 +247,14 @@ export default function ItemsListPage() {
         <div className='flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center sm:justify-end gap-3 sm:gap-4'>
           {/* Filters button */}
           <div className='relative sm:mr-auto'>
-            <button
+            <Button
+              variant='ghost'
+              size='icon'
+              className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200'
               onClick={() => setShowFilters(true)}
-              className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200 '
             >
               <Settings2 className='h-4 w-4 text-gray-600' />
-            </button>
+            </Button>
 
             {/* FILTER PANEL */}
             {showFilters && (
@@ -280,16 +283,18 @@ export default function ItemsListPage() {
                 >
                   {/* Close */}
                   <div className='flex justify-end'>
-                    <button
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='h-6 w-6 text-gray-400 hover:text-gray-600'
                       onClick={() => setShowFilters(false)}
-                      className='text-gray-400 hover:text-gray-600'
                     >
                       ✕
-                    </button>
+                    </Button>
                   </div>
                   {/* Status */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Status</label>
+                    <Label className='text-xs font-medium'>Status</Label>
                     <Select
                       value={filters.status}
                       onValueChange={(v) =>
@@ -310,9 +315,9 @@ export default function ItemsListPage() {
                   </div>
                   {/* Unit */}
                   <div className='space-y-1  flex items-center justify-between'>
-                    <label className='text-xs font-medium'>
+                    <Label className='text-xs font-medium'>
                       Unit of Measure
-                    </label>
+                    </Label>
                     <Select
                       value={filters.unitOfMeasure}
                       onValueChange={(v) =>
@@ -333,7 +338,7 @@ export default function ItemsListPage() {
                   </div>
                   {/* Buy Price */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Buy Price</label>
+                    <Label className='text-xs font-medium'>Buy Price</Label>
                     <div className='flex items-center gap-2'>
                       <Input
                         className='h-10 sm:h-8 w-full sm:w-24'
@@ -362,7 +367,7 @@ export default function ItemsListPage() {
                   </div>
                   {/* Sell Price */}
                   <div className='space-y-1 flex items-center justify-between'>
-                    <label className='text-xs font-medium'>Sell Price</label>
+                    <Label className='text-xs font-medium'>Sell Price</Label>
                     <div className='flex items-center gap-2'>
                       <Input
                         className='h-10 sm:h-8 w-full sm:w-24'
@@ -535,13 +540,15 @@ export default function ItemsListPage() {
                           className='flex items-center gap-2 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full'
                         >
                           <span>{a.label}</span>
-                          <button
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='ml-1 h-4 w-4 p-0 text-blue-700 hover:text-blue-900'
                             onClick={() => clearFilter(a.key)}
                             aria-label={`Clear ${a.key}`}
-                            className='ml-1 text-blue-700 hover:text-blue-900'
                           >
                             ✕
-                          </button>
+                          </Button>
                         </span>
                       ))}
                     </div>
@@ -555,10 +562,13 @@ export default function ItemsListPage() {
             <span className='text-sm text-gray-600'>Sort by</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className='flex items-center gap-1 text-sm font-medium'>
+                <Button
+                  variant='ghost'
+                  className='flex items-center gap-1 text-sm font-medium'
+                >
                   {sortBy || 'Chronological'}
                   <ChevronDown className='h-4 w-4' />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setSortBy('Chronological')}>
@@ -574,7 +584,9 @@ export default function ItemsListPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <button
+            <Button
+              variant='ghost'
+              size='icon'
               aria-label='Toggle order'
               title={orderBy === 'desc' ? 'Descending' : 'Ascending'}
               onClick={() => {
@@ -588,7 +600,7 @@ export default function ItemsListPage() {
               ) : (
                 <SortAsc className='h-4 w-4 text-gray-600' />
               )}
-            </button>
+            </Button>
           </div>
 
           {/* Search By */}
@@ -596,10 +608,13 @@ export default function ItemsListPage() {
             <span className='text-sm text-gray-600'>Search By</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className='flex items-center gap-1 text-sm font-medium'>
+                <Button
+                  variant='ghost'
+                  className='flex items-center gap-1 text-sm font-medium'
+                >
                   {searchBy || 'Description'}
                   <ChevronDown className='h-4 w-4' />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setSearchBy('Description')}>
@@ -684,9 +699,9 @@ export default function ItemsListPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button>
+                          <Button variant='ghost' size='icon'>
                             <MoreHorizontal className='h-5 w-5' />
-                          </button>
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end'>
                           <DropdownMenuItem onClick={() => handleEdit(item.id)}>

@@ -1,3 +1,4 @@
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -45,17 +46,19 @@ export const CustomerFiltersPanel = ({
       >
         {/* Close */}
         <div className='flex justify-end'>
-          <button
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-6 w-6 text-gray-400 hover:text-gray-600'
             onClick={onClose}
-            className='text-gray-400 hover:text-gray-600'
           >
             ✕
-          </button>
+          </Button>
         </div>
 
         {/* Status */}
         <div className='space-y-1 flex items-center justify-between'>
-          <label className='text-xs font-medium'>{t('profile.status')}</label>
+          <Label className='text-xs font-medium'>{t('profile.status')}</Label>
           <Select
             value={filters.status}
             onValueChange={(v) => setFilters({ ...filters, status: v })}
@@ -65,10 +68,7 @@ export const CustomerFiltersPanel = ({
             </SelectTrigger>
             <SelectContent>
               {customerStatusFilters.map((status) => (
-                <SelectItem
-                  key={status.value}
-                  value={status.value}
-                >
+                <SelectItem key={status.value} value={status.value}>
                   {status.displayText}
                 </SelectItem>
               ))}
@@ -78,7 +78,7 @@ export const CustomerFiltersPanel = ({
 
         {/* Country */}
         <div className='space-y-1 flex items-center justify-between'>
-          <label className='text-xs font-medium'>{t('profile.country')}</label>
+          <Label className='text-xs font-medium'>{t('profile.country')}</Label>
           <Select
             value={filters.country}
             onValueChange={(v) => setFilters({ ...filters, country: v })}
@@ -88,10 +88,7 @@ export const CustomerFiltersPanel = ({
             </SelectTrigger>
             <SelectContent>
               {countries.map((country) => (
-                <SelectItem
-                  key={country.value}
-                  value={country.value}
-                >
+                <SelectItem key={country.value} value={country.value}>
                   {country.displayText}
                 </SelectItem>
               ))}

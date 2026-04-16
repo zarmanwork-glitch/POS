@@ -60,12 +60,14 @@ export const CustomerListControls = ({
     <div className='flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center sm:justify-end gap-3 sm:gap-4'>
       {/* Filters button */}
       <div className='relative sm:mr-auto'>
-        <button
+        <Button
+          variant='ghost'
+          size='icon'
+          className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200'
           onClick={onShowFilters}
-          className='p-2 hover:bg-gray-300 rounded-lg bg-gray-200 '
         >
           <Settings2 className='h-4 w-4 text-gray-600' />
-        </button>
+        </Button>
 
         {/* Active filters preview (below the filter icon) */}
         {!showFilters &&
@@ -129,13 +131,15 @@ export const CustomerListControls = ({
                       className='flex items-center gap-2 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full'
                     >
                       <span>{a.label}</span>
-                      <button
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='ml-1 h-4 w-4 p-0 text-blue-700 hover:text-blue-900'
                         onClick={() => clearFilter(a.key)}
                         aria-label={`Clear ${a.key}`}
-                        className='ml-1 text-blue-700 hover:text-blue-900'
                       >
                         ✕
-                      </button>
+                      </Button>
                     </span>
                   ))}
                 </div>
@@ -151,10 +155,13 @@ export const CustomerListControls = ({
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className='flex items-center gap-1 text-sm font-medium'>
+            <Button
+              variant='ghost'
+              className='flex items-center gap-1 text-sm font-medium'
+            >
               {getSearchByLabel(searchBy)}
               <ChevronDown className='h-4 w-4' />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setSearchBy('name')}>
@@ -183,10 +190,13 @@ export const CustomerListControls = ({
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className='flex items-center gap-1 text-sm font-medium'>
+            <Button
+              variant='ghost'
+              className='flex items-center gap-1 text-sm font-medium'
+            >
               {getSortByLabel(sortBy)}
               <ChevronDown className='h-4 w-4' />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setSortBy('createdAt')}>
@@ -200,7 +210,9 @@ export const CustomerListControls = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <button
+        <Button
+          variant='ghost'
+          size='icon'
           aria-label='Toggle order'
           title={
             orderBy === 'desc'
@@ -218,7 +230,7 @@ export const CustomerListControls = ({
           ) : (
             <SortAsc className='h-4 w-4 text-gray-600' />
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Search */}

@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -35,10 +36,7 @@ export default function SecondaryControlsSection({
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
         {/* Payment Terms */}
         <div>
-          <Label
-            htmlFor='paymentTerms'
-            className='text-sm text-gray-700'
-          >
+          <Label htmlFor='paymentTerms' className='text-sm text-gray-700'>
             {t('invoices.form.paymentTermsLabel')}
           </Label>
           <Input
@@ -53,10 +51,7 @@ export default function SecondaryControlsSection({
 
         {/* Payment Means */}
         <div className='relative'>
-          <Label
-            htmlFor='paymentMeans'
-            className='text-sm text-gray-700'
-          >
+          <Label htmlFor='paymentMeans' className='text-sm text-gray-700'>
             {t('invoices.form.paymentMeansLabel')}
           </Label>
           <div className='relative mt-2'>
@@ -95,10 +90,11 @@ export default function SecondaryControlsSection({
                       ),
                 )
                 .map((pm) => (
-                  <button
+                  <Button
                     type='button'
+                    variant='ghost'
                     key={pm.value}
-                    className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none'
+                    className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start'
                     onMouseDown={() => {
                       formik.setFieldValue('paymentMeans', pm.value);
                       formik.setFieldValue('paymentMeansSearch', pm.value);
@@ -116,7 +112,7 @@ export default function SecondaryControlsSection({
                         <p className='text-gray-500 mt-0.5'>{pm.description}</p>
                       )}
                     </div>
-                  </button>
+                  </Button>
                 ))}
             </div>
           )}

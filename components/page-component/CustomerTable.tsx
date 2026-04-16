@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -43,10 +44,7 @@ export const CustomerTable = ({
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell
-                colSpan={7}
-                className='text-center py-8'
-              >
+              <TableCell colSpan={7} className='text-center py-8'>
                 <div className='flex flex-col items-center justify-center gap-2'>
                   <Spinner className='h-8 w-8' />
                   <span className='text-gray-500'>
@@ -57,10 +55,7 @@ export const CustomerTable = ({
             </TableRow>
           ) : customers.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={7}
-                className='text-center py-8'
-              >
+              <TableCell colSpan={7} className='text-center py-8'>
                 <span className='text-gray-500'>
                   {t('customers.noCustomersFound')}
                 </span>
@@ -81,9 +76,9 @@ export const CustomerTable = ({
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button>
+                      <Button variant='ghost' size='icon'>
                         <MoreHorizontal className='h-5 w-5' />
-                      </button>
+                      </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                       <DropdownMenuItem onClick={() => onEdit(customer.id)}>

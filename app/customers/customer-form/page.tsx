@@ -1,4 +1,5 @@
 'use client';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -253,9 +254,9 @@ function CustomerFormContent() {
         <div>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.name')}: <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='name'
@@ -274,9 +275,9 @@ function CustomerFormContent() {
               )}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('customers.searchOptions.customerNumber')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='customerNumber'
@@ -288,9 +289,9 @@ function CustomerFormContent() {
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.email')}: <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='email'
                 name='email'
@@ -309,9 +310,9 @@ function CustomerFormContent() {
               )}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.phoneNumber')}:
-              </label>
+              </Label>
               <Input
                 type='tel'
                 name='phoneNumber'
@@ -329,10 +330,10 @@ function CustomerFormContent() {
         <div>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.companyName')} :{' '}
                 <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='companyName'
@@ -351,9 +352,9 @@ function CustomerFormContent() {
               )}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.companyNameLocal')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='companyNameLocal'
@@ -367,9 +368,9 @@ function CustomerFormContent() {
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.companyRegistrationNumber')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='companyRegistrationNumber'
@@ -384,9 +385,9 @@ function CustomerFormContent() {
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.vatNo')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='vatNumber'
@@ -400,9 +401,9 @@ function CustomerFormContent() {
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.groupVatNo')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='groupVatNumber'
@@ -416,9 +417,9 @@ function CustomerFormContent() {
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.identification')}:
-              </label>
+              </Label>
               <Select
                 value={formik.values.identificationType}
                 onValueChange={(value) =>
@@ -440,9 +441,9 @@ function CustomerFormContent() {
               </Select>
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.identificationNumber')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='identificationNumber'
@@ -470,21 +471,23 @@ function CustomerFormContent() {
 
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.country')}: <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               {formik.values.country ? (
                 <div className='flex items-center gap-2 bg-blue-50 border border-gray-300 rounded-md p-2 h-10'>
                   <span className='text-sm text-gray-700 flex-1'>
                     {formik.values.country}
                   </span>
-                  <button
+                  <Button
                     type='button'
+                    variant='ghost'
+                    size='icon'
+                    className='h-6 w-6 text-gray-400 hover:text-gray-600'
                     onClick={handleClearCountry}
-                    className='text-gray-400 hover:text-gray-600'
                   >
                     <X className='h-4 w-4' />
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <Select
@@ -520,9 +523,9 @@ function CustomerFormContent() {
               )}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.province')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='province'
@@ -534,9 +537,9 @@ function CustomerFormContent() {
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.city')} : <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='city'
@@ -555,10 +558,10 @@ function CustomerFormContent() {
               )}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.district')} :{' '}
                 <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='district'
@@ -577,10 +580,10 @@ function CustomerFormContent() {
               )}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.addressStreet')} :{' '}
                 <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='addressStreet'
@@ -599,9 +602,9 @@ function CustomerFormContent() {
               )}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.addressStreetAdditional')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='addressStreetAdditional'
@@ -615,10 +618,10 @@ function CustomerFormContent() {
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.buildingNumber')} :{' '}
                 <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='buildingNumber'
@@ -639,12 +642,12 @@ function CustomerFormContent() {
               )}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('customers.form.neighborhood', {
                   defaultValue: 'Neighborhood',
                 })}
                 :
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='neighborhood'
@@ -658,10 +661,10 @@ function CustomerFormContent() {
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.postalCode')} :{' '}
                 <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='postalCode'
@@ -680,9 +683,9 @@ function CustomerFormContent() {
               )}
             </div>
             <div className='md:col-span-3'>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.addressLocalLanguage')}:
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='addressLocal'

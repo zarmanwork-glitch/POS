@@ -198,10 +198,12 @@ export default function SignInPage() {
                   onBlur={formik.handleBlur}
                   className='pl-10 pr-10 bg-slate-50/50 border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors'
                 />
-                <button
+                <Button
                   type='button'
+                  variant='ghost'
+                  size='icon'
                   onClick={() => setShowPassword(!showPassword)}
-                  className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
+                  className='absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-gray-600 transition-colors'
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -209,7 +211,7 @@ export default function SignInPage() {
                   ) : (
                     <Eye className='h-5 w-5' />
                   )}
-                </button>
+                </Button>
               </div>
               {formik.touched.password && formik.errors.password && (
                 <p className='text-red-500 text-xs' role='alert'>

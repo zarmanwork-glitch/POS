@@ -1,4 +1,5 @@
 'use client';
+import { Label } from '@/components/ui/label';
 
 import {
   addBankDetails,
@@ -207,22 +208,24 @@ function BankDetailsFormContent() {
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
           {/* Country */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <Label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.country')}:{' '}
               <span className='text-red-500'>*</span>
-            </label>
+            </Label>
             {formik.values.country ? (
               <div className='flex items-center gap-2 bg-blue-50 border border-gray-300 rounded-md px-3 h-10 w-full'>
                 <span className='text-sm text-gray-700 flex-1'>
                   {formik.values.country}
                 </span>
-                <button
+                <Button
                   type='button'
+                  variant='ghost'
+                  size='icon'
+                  className='h-6 w-6 text-gray-400 hover:text-gray-600'
                   onClick={() => formik.setFieldValue('country', '')}
-                  className='text-gray-400 hover:text-gray-600'
                 >
                   <X className='h-4 w-4' />
-                </button>
+                </Button>
               </div>
             ) : (
               <Select
@@ -254,10 +257,10 @@ function BankDetailsFormContent() {
 
           {/* Account Number */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <Label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.accountNumber')}:{' '}
               <span className='text-red-500'>*</span>
-            </label>
+            </Label>
             <Input
               type='text'
               name='accountNumber'
@@ -276,10 +279,10 @@ function BankDetailsFormContent() {
 
           {/* IBAN */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <Label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.iban')}:{' '}
               <span className='text-red-500'>*</span>
-            </label>
+            </Label>
             <Input
               type='text'
               name='iban'
@@ -299,10 +302,10 @@ function BankDetailsFormContent() {
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
           {/* Bank Name */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <Label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.bankName')}:{' '}
               <span className='text-red-500'>*</span>
-            </label>
+            </Label>
             <Input
               type='text'
               name='bankName'
@@ -323,10 +326,10 @@ function BankDetailsFormContent() {
 
           {/* SWIFT Code */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <Label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.swiftCode')}:{' '}
               <span className='text-red-500'>*</span>
-            </label>
+            </Label>
             <Input
               type='text'
               name='swiftCode'
@@ -345,12 +348,12 @@ function BankDetailsFormContent() {
 
           {/* Beneficiary Name */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <Label className='block text-sm font-medium text-gray-700 mb-2'>
               {t('profile.bankDetails.beneficiaryName', {
                 defaultValue: 'Beneficiary Name',
               })}
               :
-            </label>
+            </Label>
             <Input
               type='text'
               name='beneficiaryName'

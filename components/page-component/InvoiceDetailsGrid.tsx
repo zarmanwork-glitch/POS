@@ -86,16 +86,18 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
             </PopoverContent>
           </Popover>
           {formik.values.invoiceDate && (
-            <button
+            <Button
               type='button'
+              variant='ghost'
+              size='icon'
+              className='absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-400 hover:text-gray-600'
               onClick={(e) => {
                 e.stopPropagation();
                 formik.setFieldValue('invoiceDate', '');
               }}
-              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
             >
               <X className='h-4 w-4' />
-            </button>
+            </Button>
           )}
         </div>
         {formik.touched.invoiceDate && formik.errors.invoiceDate ? (
@@ -156,16 +158,18 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
             </PopoverContent>
           </Popover>
           {formik.values.supplyDate && (
-            <button
+            <Button
               type='button'
+              variant='ghost'
+              size='icon'
+              className='absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-400 hover:text-gray-600'
               onClick={(e) => {
                 e.stopPropagation();
                 formik.setFieldValue('supplyDate', '');
               }}
-              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
             >
               <X className='h-4 w-4' />
-            </button>
+            </Button>
           )}
         </div>
         {formik.touched.supplyDate && formik.errors.supplyDate ? (
@@ -256,16 +260,18 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
             </PopoverContent>
           </Popover>
           {formik.values.dueDate && (
-            <button
+            <Button
               type='button'
+              variant='ghost'
+              size='icon'
+              className='absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-400 hover:text-gray-600'
               onClick={(e) => {
                 e.stopPropagation();
                 formik.setFieldValue('dueDate', '');
               }}
-              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
             >
               <X className='h-4 w-4' />
-            </button>
+            </Button>
           )}
         </div>
         {formik.touched.dueDate && formik.errors.dueDate ? (
@@ -331,16 +337,18 @@ export const InvoiceDetailsGrid = ({ formik, t }: InvoiceDetailsGridProps) => {
             </PopoverContent>
           </Popover>
           {formik.values.supplyEndDate && (
-            <button
+            <Button
               type='button'
+              variant='ghost'
+              size='icon'
+              className='absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-400 hover:text-gray-600'
               onClick={(e) => {
                 e.stopPropagation();
                 formik.setFieldValue('supplyEndDate', '');
               }}
-              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
             >
               <X className='h-4 w-4' />
-            </button>
+            </Button>
           )}
         </div>
         {!formik.values.supplyEndDate && (

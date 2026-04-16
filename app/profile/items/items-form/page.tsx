@@ -1,4 +1,6 @@
 'use client';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { addITEM, getItemById, updateItem } from '@/api/items/item.api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -235,11 +237,11 @@ function ItemsFormContent() {
           <div className='space-y-6'>
             {/* Item Type */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-3'>
+              <Label className='block text-sm font-medium text-gray-700 mb-3'>
                 {t('profile.itemType')}: <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <div className='flex gap-6'>
-                <label className='flex items-center gap-2 cursor-pointer'>
+                <Label className='flex items-center gap-2 cursor-pointer'>
                   <input
                     type='radio'
                     name='itemType'
@@ -252,8 +254,8 @@ function ItemsFormContent() {
                   <span className='text-gray-700'>
                     {t('profile.service', { defaultValue: 'Service' })}
                   </span>
-                </label>
-                <label className='flex items-center gap-2 cursor-pointer'>
+                </Label>
+                <Label className='flex items-center gap-2 cursor-pointer'>
                   <input
                     type='radio'
                     name='itemType'
@@ -266,7 +268,7 @@ function ItemsFormContent() {
                   <span className='text-gray-700'>
                     {t('profile.material', { defaultValue: 'Material' })}
                   </span>
-                </label>
+                </Label>
               </div>
               {hasError('itemType') && (
                 <p className='text-red-500 text-xs mt-1'>
@@ -277,11 +279,11 @@ function ItemsFormContent() {
 
             {/* Description */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.description', { defaultValue: 'Description' })}:{' '}
                 <span className='text-red-500'>*</span>
-              </label>
-              <textarea
+              </Label>
+              <Textarea
                 name='description'
                 value={formik.values.description}
                 onChange={formik.handleChange}
@@ -303,12 +305,12 @@ function ItemsFormContent() {
 
             {/* Material / Service No */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.materialServiceNo', {
                   defaultValue: 'Material / Service No',
                 })}
                 : <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='text'
                 name='materialNo'
@@ -331,12 +333,12 @@ function ItemsFormContent() {
 
             {/* Unit of Measure */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.unitOfMeasure', {
                   defaultValue: 'Unit of Measure',
                 })}
                 : <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Select
                 value={formik.values.unitOfMeasure}
                 onValueChange={(value) =>
@@ -391,10 +393,10 @@ function ItemsFormContent() {
 
             {/* Buy Price */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.buyPrice', { defaultValue: 'Buy Price' })}:{' '}
                 <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='number'
                 name='buyPrice'
@@ -415,10 +417,10 @@ function ItemsFormContent() {
 
             {/* Sell Price */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.sellPrice', { defaultValue: 'Sell Price' })}:{' '}
                 <span className='text-red-500'>*</span>
-              </label>
+              </Label>
               <Input
                 type='number'
                 name='sellPrice'
@@ -439,12 +441,12 @@ function ItemsFormContent() {
 
             {/* Discount Percentage */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <Label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('profile.discountPercentage', {
                   defaultValue: 'Discount Percentage',
                 })}
                 :
-              </label>
+              </Label>
               <div className='flex items-center gap-2'>
                 <Input
                   type='number'

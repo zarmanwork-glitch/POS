@@ -67,8 +67,50 @@ export default function ItemDetailsSection({
   const [itemSearches, setItemSearches] = useState<Record<number, string>>({});
 
   // Track dropdown position for portal
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
   const descriptionInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Track tax code dropdown position for portal
+  const [taxCodeDropdownPos, setTaxCodeDropdownPos] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+  const taxCodeBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  // Update dropdown positions on scroll so they stick to their anchors
+  useEffect(() => {
+    const updatePositions = () => {
+      if (activeDescriptionIdx !== null) {
+        const el = descriptionInputRefs.current[activeDescriptionIdx];
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          setDropdownPos({
+            top: rect.bottom + 4,
+            left: rect.left,
+            width: rect.width,
+          });
+        }
+      }
+      if (activeTaxCodeIdx !== null) {
+        const el = taxCodeBtnRefs.current[activeTaxCodeIdx];
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          setTaxCodeDropdownPos({
+            top: rect.bottom + 4,
+            left: rect.left,
+            width: rect.width,
+          });
+        }
+      }
+    };
+    window.addEventListener('scroll', updatePositions, true);
+    return () => window.removeEventListener('scroll', updatePositions, true);
+  }, [activeDescriptionIdx, activeTaxCodeIdx]);
 
   // Check for negative amounts
   useEffect(() => {
@@ -230,7 +272,7 @@ export default function ItemDetailsSection({
       </div>
 
       {/* Table */}
-      {/* Table scrolls horizontally within its container when content is too wide */}
+
       <div className='border rounded-lg overflow-x-auto'>
         <Table className='text-xs'>
           <TableHeader>
@@ -280,10 +322,7 @@ export default function ItemDetailsSection({
               const { vatAmount, totalAmount } = calculateItemRow(row);
 
               return (
-                <TableRow
-                  key={idx}
-                  className='align-top'
-                >
+                <TableRow key={idx} className='align-top'>
                   <TableCell className='font-medium bg-gray-50 align-top'>
                     {idx + 1}
                   </TableCell>
@@ -314,7 +353,11 @@ export default function ItemDetailsSection({
                           const el = descriptionInputRefs.current[idx];
                           if (el) {
                             const rect = el.getBoundingClientRect();
-                            setDropdownPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+                            setDropdownPos({
+                              top: rect.bottom + 4,
+                              left: rect.left,
+                              width: rect.width,
+                            });
                           }
                         }}
                         onBlur={() => {
@@ -330,7 +373,11 @@ export default function ItemDetailsSection({
                         createPortal(
                           <div
                             className='fixed z-9999 bg-white border rounded-md shadow-lg max-h-48 overflow-y-auto flex flex-col'
-                            style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width }}
+                            style={{
+                              top: dropdownPos.top,
+                              left: dropdownPos.left,
+                              width: dropdownPos.width,
+                            }}
                             onMouseDown={(e) => e.preventDefault()}
                           >
                             {getFilteredItems(idx).map((item) => (
@@ -399,10 +446,7 @@ export default function ItemDetailsSection({
                         </SelectTrigger>
                         <SelectContent>
                           {unitOfMeasures.map((u) => (
-                            <SelectItem
-                              key={u.value}
-                              value={u.value}
-                            >
+                            <SelectItem key={u.value} value={u.value}>
                               {u.displayText}
                             </SelectItem>
                           ))}
@@ -476,11 +520,26 @@ export default function ItemDetailsSection({
                         variant='outline'
                         size='sm'
                         className='bg-blue-50 h-9 text-xs w-full flex justify-between items-center px-2 min-w-30 hover:bg-blue-50'
-                        onClick={() =>
-                          setActiveTaxCodeIdx(
-                            activeTaxCodeIdx === idx ? null : idx,
-                          )
-                        }
+                        ref={(el) => {
+                          taxCodeBtnRefs.current[idx] = el;
+                        }}
+                        onClick={() => {
+                          const opening = activeTaxCodeIdx !== idx;
+                          setActiveTaxCodeIdx(opening ? idx : null);
+                          if (opening) {
+                            const el = taxCodeBtnRefs.current[idx];
+                            if (el) {
+                              const rect = el.getBoundingClientRect();
+                              setTaxCodeDropdownPos({
+                                top: rect.bottom + 4,
+                                left: rect.left,
+                                width: rect.width,
+                              });
+                            }
+                          } else {
+                            setTaxCodeDropdownPos(null);
+                          }
+                        }}
                         tabIndex={0}
                       >
                         {row.taxCode ? (
@@ -494,30 +553,43 @@ export default function ItemDetailsSection({
                         )}
                         <ChevronDown className='ml-2 w-4 h-4 text-gray-400 shrink-0' />
                       </Button>
-                      {activeTaxCodeIdx === idx && (
-                        <div className=' absolute z-50 min-w-30 flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'>
-                          {taxCodes.map((tc) => (
-                            <button
-                              type='button'
-                              key={tc.value}
-                              className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none'
-                              onClick={() => {
-                                handleTaxCodeChange(tc.value, idx);
-                                setActiveTaxCodeIdx(null);
-                              }}
-                            >
-                              <div>
-                                <span className='font-bold'>{tc.value}</span>
-                                {tc.displayText && (
-                                  <div className='text-gray-700 mt-0.5 mb-0.5'>
-                                    {tc.displayText}
-                                  </div>
-                                )}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                      {activeTaxCodeIdx === idx &&
+                        taxCodeDropdownPos &&
+                        createPortal(
+                          <div
+                            className='fixed z-9999 flex flex-col max-h-48 overflow-y-auto text-xs rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'
+                            style={{
+                              top: taxCodeDropdownPos.top,
+                              left: taxCodeDropdownPos.left,
+                              width: Math.max(taxCodeDropdownPos.width, 200),
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                          >
+                            {taxCodes.map((tc) => (
+                              <Button
+                                type='button'
+                                variant='ghost'
+                                key={tc.value}
+                                className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start h-auto'
+                                onClick={() => {
+                                  handleTaxCodeChange(tc.value, idx);
+                                  setActiveTaxCodeIdx(null);
+                                  setTaxCodeDropdownPos(null);
+                                }}
+                              >
+                                <div>
+                                  <span className='font-bold'>{tc.value}</span>
+                                  {tc.displayText && (
+                                    <div className='text-gray-700 mt-0.5 mb-0.5'>
+                                      {tc.displayText}
+                                    </div>
+                                  )}
+                                </div>
+                              </Button>
+                            ))}
+                          </div>,
+                          document.body,
+                        )}
                     </div>
                     {/* VATAX-SA-32 dropdown, only show if taxCode is 'Z' */}
                     {row.taxCode === 'Z' && (
@@ -554,10 +626,11 @@ export default function ItemDetailsSection({
                           {activeExportIdx === idx && (
                             <div className='absolute z-50 min-w-75 flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'>
                               {exportTypeOptions.map((opt) => (
-                                <button
+                                <Button
                                   type='button'
+                                  variant='ghost'
                                   key={opt.value}
-                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none'
+                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start h-auto'
                                   onClick={() => {
                                     updateItem(idx, 'vatSa32', opt.value);
                                     setActiveExportIdx(null);
@@ -573,7 +646,7 @@ export default function ItemDetailsSection({
                                       </div>
                                     )}
                                   </div>
-                                </button>
+                                </Button>
                               ))}
                             </div>
                           )}
@@ -615,10 +688,11 @@ export default function ItemDetailsSection({
                           {activeOutOfScopeIdx === idx && (
                             <div className='absolute z-50 min-w-75 flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'>
                               {outOfScopeOptions.map((opt) => (
-                                <button
+                                <Button
                                   type='button'
+                                  variant='ghost'
                                   key={opt.value}
-                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none'
+                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start h-auto'
                                   onClick={() => {
                                     updateItem(idx, 'outOfScope', opt.value);
                                     setActiveOutOfScopeIdx(null);
@@ -634,7 +708,7 @@ export default function ItemDetailsSection({
                                       </div>
                                     )}
                                   </div>
-                                </button>
+                                </Button>
                               ))}
                             </div>
                           )}
@@ -677,10 +751,11 @@ export default function ItemDetailsSection({
                           {activeExemptIdx === idx && (
                             <div className='absolute z-50 min-w-75 flex flex-col max-h-48 overflow-y-auto text-xs mt-1 rounded border border-gray-200 bg-white shadow-lg overflow-x-hidden'>
                               {exemptOptions.map((opt) => (
-                                <button
+                                <Button
                                   type='button'
+                                  variant='ghost'
                                   key={opt.value}
-                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none'
+                                  className='w-full text-left px-2 py-2 hover:bg-blue-50 focus:bg-blue-100 focus:outline-none justify-start h-auto'
                                   onClick={() => {
                                     updateItem(idx, 'exempt', opt.value);
                                     setActiveExemptIdx(null);
@@ -696,7 +771,7 @@ export default function ItemDetailsSection({
                                       </div>
                                     )}
                                   </div>
-                                </button>
+                                </Button>
                               ))}
                             </div>
                           )}
@@ -740,12 +815,7 @@ export default function ItemDetailsSection({
       </div>
 
       {/* Footer */}
-      <Button
-        type='button'
-        variant='outline'
-        size='sm'
-        onClick={addItemDetail}
-      >
+      <Button type='button' variant='outline' size='sm' onClick={addItemDetail}>
         <Plus className='h-4 w-4 mr-2' />
         {t('invoices.form.addItemButton')}
       </Button>

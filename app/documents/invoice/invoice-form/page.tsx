@@ -106,10 +106,7 @@ export default function InvoiceFormPage() {
       className={`space-y-6 ${isRTL ? 'rtl' : 'ltr'}`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <form
-        onSubmit={formik.handleSubmit}
-        className='space-y-6'
-      >
+      <form onSubmit={formik.handleSubmit} className='space-y-6'>
         <InvoiceFormHeader
           isLoading={isLoading}
           isRTL={isRTL}
@@ -123,10 +120,7 @@ export default function InvoiceFormPage() {
 
         <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
           <div className='lg:col-span-3'>
-            <InvoiceDetailsGrid
-              formik={formik}
-              t={t}
-            />
+            <InvoiceDetailsGrid formik={formik} t={t} />
           </div>
 
           <div className='lg:col-span-1'>
@@ -140,10 +134,7 @@ export default function InvoiceFormPage() {
           </div>
         </div>
 
-        <SecondaryControlsSection
-          formik={formik}
-          t={t}
-        />
+        <SecondaryControlsSection formik={formik} t={t} />
 
         <InvoiceFormSections
           selectedBusinessDetails={selectedBusinessDetails}

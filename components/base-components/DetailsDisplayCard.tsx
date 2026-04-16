@@ -1,7 +1,11 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { X } from 'lucide-react';
 import { DetailRow, DetailsDisplayCardProps } from '@/types/componentTypes';
 
@@ -18,25 +22,29 @@ export function DetailsDisplayCard({
   identificationNumberPlaceholder,
 }: DetailsDisplayCardProps) {
   return (
-    <div className=' overflow-hidden'>
-      <div className='bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between'>
+    <Card className='overflow-hidden'>
+      <CardHeader className='bg-gray-50 px-4 py-3 flex flex-row items-center justify-between space-y-0'>
         <span className='text-sm text-gray-700 font-medium'>
           {title}
           <span className='text-red-500 ml-1'>*</span>
         </span>
         <div className='flex items-center gap-2'>
           <span className='text-sm text-gray-700'>{displayName}</span>
-          <button
+          <Button
             type='button'
+            variant='ghost'
+            size='icon'
+            className='h-6 w-6 text-gray-400 hover:text-gray-600'
             onClick={onClear}
-            className='text-gray-400 hover:text-gray-600'
           >
             <X className='h-4 w-4' />
-          </button>
+          </Button>
         </div>
-      </div>
+      </CardHeader>
 
-      <div className='p-4 space-y-3'>
+      <Separator />
+
+      <CardContent className='p-4 space-y-3'>
         {showIdentification && (
           <div>
             <Label className='text-xs text-gray-600 font-medium mb-2'>
@@ -56,25 +64,25 @@ export function DetailsDisplayCard({
         )}
 
         <div className='border border-gray-200 rounded-md overflow-hidden text-xs'>
-          <div className='divide-y divide-gray-200'>
-            {detailRows.map((row, i) => (
-              <div
-                key={i}
-                className={`flex flex-col sm:flex-row items-start px-4 py-3 gap-1 sm:gap-0 ${
-                  i % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                }`}
-              >
-                <div className='w-full sm:w-1/3 text-gray-600 font-medium'>
-                  {row.label}:
-                </div>
-                <div className='w-full sm:w-2/3 text-gray-700 whitespace-pre-wrap'>
-                  {row.value || '-'}
-                </div>
-              </div>
-            ))}
-          </div>
+          <Table>
+            <TableBody>
+              {detailRows.map((row, i) => (
+                <TableRow
+                  key={i}
+                  className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+                >
+                  <TableCell className='w-1/3 text-gray-600 font-medium py-3'>
+                    {row.label}:
+                  </TableCell>
+                  <TableCell className='w-2/3 text-gray-700 whitespace-pre-wrap py-3'>
+                    {row.value || '-'}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,3 +1,4 @@
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -51,9 +52,9 @@ export const InvoiceControlsBar = ({
         {/* Date Filters - Left Side */}
         <div className='flex flex-col sm:flex-row gap-4 items-stretch sm:items-end'>
           <div className='flex-1 min-w-35'>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
+            <Label className='block text-sm font-medium text-gray-700 mb-1'>
               {t('invoices.startDate')}
-            </label>
+            </Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -94,9 +95,9 @@ export const InvoiceControlsBar = ({
             </Popover>
           </div>
           <div className='flex-1 min-w-35'>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
+            <Label className='block text-sm font-medium text-gray-700 mb-1'>
               {t('invoices.endDate')}
-            </label>
+            </Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -165,7 +166,8 @@ export const InvoiceControlsBar = ({
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
+                <Button
+                  variant='ghost'
                   className={`flex items-center gap-1 text-sm font-medium ${
                     isRTL ? 'flex-row-reverse' : ''
                   }`}
@@ -174,7 +176,7 @@ export const InvoiceControlsBar = ({
                     ? t('invoices.creationDate')
                     : t('invoices.invoiceDate')}
                   <ChevronDown className='h-4 w-4' />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => onSortByChange('createdAt')}>
@@ -185,7 +187,9 @@ export const InvoiceControlsBar = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <button
+            <Button
+              variant='ghost'
+              size='icon'
               aria-label='Toggle order'
               title={orderBy === 'desc' ? 'Descending' : 'Ascending'}
               onClick={onOrderByChange}
@@ -196,7 +200,7 @@ export const InvoiceControlsBar = ({
               ) : (
                 <SortAsc className='h-4 w-4 text-gray-600' />
               )}
-            </button>
+            </Button>
           </div>
 
           {/* Search By */}
@@ -210,14 +214,15 @@ export const InvoiceControlsBar = ({
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
+                <Button
+                  variant='ghost'
                   className={`flex items-center gap-1 text-sm font-medium ${
                     isRTL ? 'flex-row-reverse' : ''
                   }`}
                 >
                   {t(`invoices.${searchBy}`)}
                   <ChevronDown className='h-4 w-4' />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem

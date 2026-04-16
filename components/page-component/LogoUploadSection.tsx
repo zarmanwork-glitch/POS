@@ -1,3 +1,5 @@
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
@@ -58,7 +60,7 @@ export const LogoUploadSection = ({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <label className='w-full h-full flex flex-col items-center justify-center cursor-pointer gap-3'>
+      <Label className='w-full h-full flex flex-col items-center justify-center cursor-pointer gap-3'>
         {logoPreview ? (
           <div className='w-full flex flex-col items-center gap-2'>
             <Image
@@ -68,13 +70,14 @@ export const LogoUploadSection = ({
               height={160}
               className='w-auto h-auto max-w-40 max-h-40 object-contain'
             />
-            <button
+            <Button
               type='button'
-              className='text-xs text-blue-600 hover:text-blue-800 mt-2'
+              variant='link'
+              className='text-xs text-blue-600 hover:text-blue-800 mt-2 h-auto p-0'
               onClick={handleRemoveLogo}
             >
               {t('invoices.form.removeLogo')}
-            </button>
+            </Button>
           </div>
         ) : (
           <>
@@ -94,7 +97,7 @@ export const LogoUploadSection = ({
           onChange={handleLogoChange}
           className='hidden'
         />
-      </label>
+      </Label>
     </Card>
   );
 };
