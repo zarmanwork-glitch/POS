@@ -37,6 +37,7 @@ import { ItemDetailsSectionProps } from '@/types/itemTypes';
 import { calculateItemRow } from '@/utils/itemCalculations';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 export default function ItemDetailsSection({
@@ -64,6 +65,10 @@ export default function ItemDetailsSection({
 
   // Per-row search state for description dropdowns
   const [itemSearches, setItemSearches] = useState<Record<number, string>>({});
+
+  // Track dropdown position for portal
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
+  const descriptionInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Check for negative amounts
   useEffect(() => {
@@ -301,14 +306,33 @@ export default function ItemDetailsSection({
                             [idx]: e.target.value,
                           }));
                         }}
-                        onFocus={() => setActiveDescriptionIdx(idx)}
+                        ref={(el) => {
+                          descriptionInputRefs.current[idx] = el;
+                        }}
+                        onFocus={() => {
+                          setActiveDescriptionIdx(idx);
+                          const el = descriptionInputRefs.current[idx];
+                          if (el) {
+                            const rect = el.getBoundingClientRect();
+                            setDropdownPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+                          }
+                        }}
                         onBlur={() => {
-                          setTimeout(() => setActiveDescriptionIdx(null), 200);
+                          setTimeout(() => {
+                            setActiveDescriptionIdx(null);
+                            setDropdownPos(null);
+                          }, 200);
                         }}
                       />
                       {activeDescriptionIdx === idx &&
-                        itemOptions.length > 0 && (
-                          <div className='absolute z-100 w-full mt-10 bg-white border rounded-md shadow-lg h-32 overflow-y-auto flex flex-col'>
+                        itemOptions.length > 0 &&
+                        dropdownPos &&
+                        createPortal(
+                          <div
+                            className='fixed z-9999 bg-white border rounded-md shadow-lg max-h-48 overflow-y-auto flex flex-col'
+                            style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width }}
+                            onMouseDown={(e) => e.preventDefault()}
+                          >
                             {getFilteredItems(idx).map((item) => (
                               <Button
                                 key={item.id || item._id}
@@ -320,12 +344,15 @@ export default function ItemDetailsSection({
                                     item.id || item._id || '',
                                     idx,
                                   );
+                                  setActiveDescriptionIdx(null);
+                                  setDropdownPos(null);
                                 }}
                               >
                                 {item.description}
                               </Button>
                             ))}
-                          </div>
+                          </div>,
+                          document.body,
                         )}
                       <Input
                         className='bg-blue-50 h-9 text-xs w-full'
