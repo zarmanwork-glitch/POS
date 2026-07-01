@@ -24,9 +24,9 @@ export default function proxy(request: NextRequest) {
   }
 
   // If route is protected and no token, redirect to sign-in
-  if (!authToken) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
-  }
+ // if (!authToken) {
+   // return NextResponse.redirect(new URL('/sign-in', request.url));
+  //}
 
   // Token exists, allow access
   return NextResponse.next();
