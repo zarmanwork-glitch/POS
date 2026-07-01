@@ -55,13 +55,19 @@ export const CustomerTable = ({
             </TableRow>
           ) : customers.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className='text-center py-8'>
-                <span className='text-gray-500'>
-                  {t('customers.noCustomersFound')}
-                </span>
-              </TableCell>
-            </TableRow>
-          ) : (
+            <TableCell colSpan={7} className='text-center py-16'>
+              <div className='flex flex-col items-center justify-center gap-3'>
+                <div className='flex h-14 w-14 items-center justify-center rounded-full bg-slate-100'>
+                  <svg className='h-7 w-7 text-slate-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' />
+                  </svg>
+                </div>
+                <p className='text-sm font-medium text-slate-600'>No customers found</p>
+                <p className='text-xs text-slate-400'>Add your first customer to get started</p>
+              </div>
+            </TableCell>
+          </TableRow>
+        ) : (
             customers.map((customer, index) => (
               <TableRow key={customer.id}>
                 <TableCell>{(page - 1) * limit + index + 1}</TableCell>
